@@ -44,7 +44,7 @@ export default async function QuotePage({
       />
     ) : null;
 
-    console.log("News item:", { headline: news.headline, image: news.image });
+    // console.log("News item:", { headline: news.headline, image: news.image });
 
     return (
       <div key={index} className="mb-30">

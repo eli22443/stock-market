@@ -22,7 +22,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
           Previous Close Price: <strong>${stock.data.pc}</strong>
         </p>
       </div>
-      <div className="stock-graph">
+      <div className="stock-graph py-4">
         <img src={"link"}></img>
       </div>
       <div className="stock-overlay">
