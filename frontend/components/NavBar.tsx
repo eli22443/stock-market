@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NavBar() {
   return (
-    <nav className="navbar">
+    <nav className="navbar border-r-2  border-r-indigo-500">
       {/* <div className="navbar-brand">
         <Link to="/">Stock App</Link>
       </div> */}
