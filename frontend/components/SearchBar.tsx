@@ -18,12 +18,12 @@ export default function SearchBar() {
 
   return (
     <form
-      className="search-form  flex justify-end my-6 "
+      className="search-form flex justify-end my-6 "
       onSubmit={handleSubmit}
     >
-      <div className=" mr-24">
+      <div className="border border-blue-700 rounded-2xl mr-24">
         <input
-          className="search-input border border-blue-700 rounded-md px-2 py-1"
+          className="search-input ml-4 px-2 py-1 "
           type="text"
           name="search"
           value={search_querry}
@@ -33,7 +33,7 @@ export default function SearchBar() {
           placeholder="search for stocks..."
         ></input>
         <button
-          className="search-btn border border-blue-700 rounded-md px-2 py-1 text-blue-700 hover:text-blue-500 ml-4"
+          className="search-btn  bg-blue-700 rounded-2xl px-2 py-1 hover:bg-blue-800"
           type="submit"
         >
           Search
