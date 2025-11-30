@@ -1,15 +1,19 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SearchBar() {
   const [search_querry, setSearchQuerry] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    alert("Searched value: " + search_querry);
-    setSearchQuerry("");
-    // move to page info
+    const symbol = search_querry.trim().toUpperCase();
+    if (symbol) {
+      router.push(`/quote/${symbol}`);
+      setSearchQuerry("");
+    }
   };
 
   return (

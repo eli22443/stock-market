@@ -32,7 +32,7 @@ export default function RootLayout({
         <SearchBar />
         <div className="grid grid-cols-10">
           <NavBar />
-          <div className="col-span-9">{children}</div>
+          <div className="col-span-9 mx-4">{children}</div>
         </div>
       </body>
     </html>

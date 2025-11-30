@@ -53,9 +53,6 @@ const symbols = [
   "BAC",
 ];
 
-const symbols_test = ["AAPL", "GOOGL", "MSFT", "META", "NFLX"];
-
-// Cache individual stock fetches to deduplicate requests
 export const fetchStockData = cache(
   async (symbol: string): Promise<StockRecord | null> => {
     try {
@@ -78,7 +75,7 @@ export const fetchStockData = cache(
 // Cache the multi-stock fetch to deduplicate requests across components
 export const fetchMultiStocksData = cache(async (): Promise<StockRecord[]> => {
   const multiData = await Promise.all(
-    symbols_test.map((symbol) => fetchStockData(symbol))
+    symbols.slice(0, 5).map((symbol) => fetchStockData(symbol))
   );
 
   // Filter out null values (invalid symbols)
