@@ -3,27 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function NavBar() {
+export default function StocksMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="navbar border-r-2 px-1 border-r-indigo-500">
-      <div className="navbar-links flex flex-col ">
+    <nav className="menu border-blue-600 border-t border-b my-6 py-1 ">
+      <div className="menu-links flex flex-row ">
         <Link
-          href="/"
+          href="/stocks/most_active"
           className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
-            pathname === "/" ? "font-bold" : ""
+            pathname === "/stocks/most_active" ? "font-bold" : ""
           }`}
         >
-          Overview
+          Most Active
         </Link>
         <Link
-          href="/stocks"
+          href="/stocks/trending"
           className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
-            pathname === "/stocks" ? "font-bold" : ""
+            pathname === "/stocks/trending" ? "font-bold" : ""
           }`}
         >
-          Stocks
+          Trending
         </Link>
       </div>
     </nav>

@@ -1,6 +1,11 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function Stocks() {
   /**
-   * Show tables of all stocks
+   * navigate to default page most-active in /stocks
    */
-  return <div className="flex justify-center">Stocks page</div>;
+  const router = useRouter();
+  router.push(`/stocks/most-active`);
 }
