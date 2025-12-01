@@ -23,7 +23,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
         </p>
       </div>
       <div className="stock-graph py-4">
-        <img src={"link"}></img>
+        {/* Placeholder for stock chart - to be implemented */}
       </div>
       <div className="stock-overlay">
         <Link
