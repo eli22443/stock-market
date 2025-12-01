@@ -18,5 +18,13 @@ export default async function StocksCategory({
     notFound();
   }
 
+  const response = await fetch(
+    `${process.env.NEXT_URL}/api/stocks?category=${category}`
+  );
+
+  const data = await response.json();
+
+  console.log(data);
+
   return <div className=" flex justify-center">Stocks table of {category}</div>;
 }
