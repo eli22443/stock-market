@@ -39,6 +39,27 @@ type QuoteData = {
   pc: number; // previous close price
 };
 
+export type stocksMetrics = {
+  symbol: string;
+  data: QuoteData;
+  changePercent: number;
+  priceRange: number;
+  priceChange: number;
+};
+
+export type stockCategorized = {
+  category: string;
+  stocks: stocksMetrics[];
+  count: number;
+};
+
+// type stocksCategorized = {
+//   gainers: stocksMetrics[];
+//   losers: stocksMetrics[];
+//   mostActive: stocksMetrics[];
+//   trending: stocksMetrics[];
+// };
+
 /**
  * Fetch stock data for a single symbol
  */
@@ -89,7 +110,7 @@ function calculatePriceRange(high: number, low: number): number {
  */
 function categorizeStocks(stocks: StockRecord[]) {
   // Add calculated fields to each stock
-  const stocksWithMetrics = stocks.map((stock) => ({
+  const stocksWithMetrics: stocksMetrics[] = stocks.map((stock) => ({
     ...stock,
     changePercent: calculateChangePercent(stock.data.c, stock.data.pc),
     priceRange: calculatePriceRange(stock.data.h, stock.data.l),
@@ -117,11 +138,7 @@ function categorizeStocks(stocks: StockRecord[]) {
   // Trending: stocks with significant price movement (either direction)
   // Using absolute change percentage
   const trending = [...stocksWithMetrics]
-    .map((stock) => ({
-      ...stock,
-      absChangePercent: Math.abs(stock.changePercent),
-    }))
-    .sort((a, b) => b.absChangePercent - a.absChangePercent)
+    .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
     .slice(0, 10); // Top 10 trending
 
   return {
