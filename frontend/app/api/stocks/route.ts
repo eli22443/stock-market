@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
-import type { StockRecord } from "@/services/api";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
 
@@ -39,6 +38,11 @@ type QuoteData = {
   pc: number; // previous close price
 };
 
+export type StockRecord = {
+  symbol: string;
+  data: QuoteData;
+};
+
 export type stocksMetrics = {
   symbol: string;
   data: QuoteData;
@@ -53,6 +57,10 @@ export type stockCategorized = {
   count: number;
 };
 
+// Disable caching to ensure route always executes
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // type stocksCategorized = {
 //   gainers: stocksMetrics[];
 //   losers: stocksMetrics[];
@@ -65,6 +73,7 @@ export type stockCategorized = {
  */
 async function fetchStockData(symbol: string): Promise<StockRecord | null> {
   try {
+    console.log(`Fetching from external api for symbol: ${symbol}..`);
     const { data } = await axios.get<QuoteData>(
       `${BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`
     );
@@ -158,6 +167,7 @@ function categorizeStocks(stocks: StockRecord[]) {
  *   - "most-active" | "trending" | "gainers" | "losers"
  */
 export async function GET(request: Request) {
+  // console.log("GET /api/stocks called");
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");

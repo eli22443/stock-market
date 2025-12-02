@@ -1,6 +1,11 @@
 import { fetchCompanyNews, fetchStockData } from "@/services/api";
 import { notFound } from "next/navigation";
 
+/**
+ * The main page of a stock.
+ * Hhow stock graph, table data, news, stats...
+ */
+
 export default async function QuotePage({
   params,
 }: {
@@ -43,8 +48,6 @@ export default async function QuotePage({
         className="h-40 w-80 object-cover rounded mb-2"
       />
     ) : null;
-
-    // console.log("News item:", { headline: news.headline, image: news.image });
 
     return (
       <div key={index} className="mb-30">

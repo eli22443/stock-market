@@ -7,17 +7,5 @@ export default function Button({
   children: React.ReactNode;
   onClick?: () => void;
 }) {
-  return (
-    <button
-      onClick={
-        onClick
-          ? onClick
-          : () => {
-              console.log("clicked");
-            }
-      }
-    >
-      {children}
-    </button>
-  );
+  return <button onClick={onClick ? onClick : () => {}}>{children}</button>;
 }
