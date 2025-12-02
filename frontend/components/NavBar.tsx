@@ -20,7 +20,7 @@ export default function NavBar() {
         <Link
           href="/stocks"
           className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
-            pathname === "/stocks" ? "font-bold" : ""
+            pathname.startsWith("/stocks") ? "font-bold" : ""
           }`}
         >
           Stocks

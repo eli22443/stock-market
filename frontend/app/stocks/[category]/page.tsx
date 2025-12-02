@@ -36,7 +36,7 @@ export default async function StocksCategory({
   const data: stockCategorized = await response.json();
 
   return (
-    <div className=" border flex justify-center">
+    <div className="flex justify-center">
       <div className="w-200">
         <Table>
           <TableHeader>
