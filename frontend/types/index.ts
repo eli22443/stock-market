@@ -41,4 +41,3 @@ export type StockCategorized = {
   stocks: StocksMetrics[];
   count: number;
 };
-

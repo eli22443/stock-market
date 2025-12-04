@@ -2,10 +2,9 @@
  * Table showing news of diffrent stocks.
  * Use inside /stocks page.
  */
-
 import { StockNews } from "@/types";
 
-export default function NewsTable({
+export default function News({
   symbol,
   stockNews,
 }: {
@@ -42,7 +41,6 @@ export default function NewsTable({
 
   return (
     <div className="mx-10">
-      <h1 className="mb-4">{symbol.toUpperCase()} page:</h1>
       <h1 className="mb-10">COMPANY NEWS:</h1>
       <div className="">{rendered_news}</div>
     </div>

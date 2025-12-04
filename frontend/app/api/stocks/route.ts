@@ -1,47 +1,8 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
-import type {
-  QuoteData,
-  StockRecord,
-  StocksMetrics,
-  StockCategorized,
-} from "@/types";
+import { fetchStockData, fetchMultiStocksData } from "@/app/api/route";
+import type { StockRecord, StocksMetrics } from "@/types";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
-
-const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
-const BASE_URL = "https://finnhub.io/api/v1";
-
-// Stock symbols to fetch
-const symbols = [
-  "NVDA",
-  "AAPL",
-  "GOOGL",
-  "MSFT",
-  "AMZN",
-  "META",
-  "NFLX",
-  "TSLA",
-  "AMD",
-  "INTC",
-  "IBM",
-  "ORCL",
-  "CRM",
-  "ADBE",
-  "PYPL",
-  "UBER",
-  "BABA",
-  "SHOP",
-  "SQ",
-  "BAC",
-];
-
-// Re-export types for backward compatibility
-export type { StockRecord, StocksMetrics, StockCategorized };
-
-// Disable caching to ensure route always executes
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 // type stocksCategorized = {
 //   gainers: StocksMetrics[];
@@ -53,34 +14,9 @@ export const revalidate = 0;
 /**
  * Fetch stock data for a single symbol
  */
-async function fetchStockData(symbol: string): Promise<StockRecord | null> {
-  try {
-    console.log(`Fetching from external api for symbol: ${symbol}..`);
-    const { data } = await axios.get<QuoteData>(
-      `${BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`
-    );
-    // Finnhub returns c: 0 for invalid symbols
-    if (data.c === 0) {
-      return null;
-    }
-    return { symbol, data };
-  } catch (error) {
-    console.error(`Error fetching data for ${symbol}:`, error);
-    return null;
-  }
-}
-
 /**
  * Fetch all stocks data
  */
-async function fetchAllStocks(): Promise<StockRecord[]> {
-  const stockPromises = symbols
-    .slice(0, 5)
-    .map((symbol) => fetchStockData(symbol));
-  const stocks = await Promise.all(stockPromises);
-  return stocks.filter((stock): stock is StockRecord => stock !== null);
-}
-
 /**
  * Calculate price change percentage
  */
@@ -155,7 +91,7 @@ export async function GET(request: Request) {
     const category = searchParams.get("category");
 
     // Fetch all stocks
-    const allStocks = await fetchAllStocks();
+    const allStocks = await fetchMultiStocksData();
 
     if (allStocks.length === 0) {
       return NextResponse.json(

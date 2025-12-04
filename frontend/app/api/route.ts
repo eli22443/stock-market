@@ -6,11 +6,8 @@ import axios from "axios";
 import { cache } from "react";
 import type { QuoteData, StockRecord, StockNews } from "@/types";
 
-// Re-export types for backward compatibility
-
 export const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
 export const BASE_URL = "https://finnhub.io/api/v1";
-
 export const symbols = [
   "NVDA",
   "AAPL",
@@ -63,20 +60,20 @@ export const fetchMultiStocksData = cache(async (): Promise<StockRecord[]> => {
   return multiData.filter((stock): stock is StockRecord => stock !== null);
 });
 
-export const fetchCompanyNews = async (
-  symbol: string
-): Promise<StockNews[] | null> => {
-  try {
-    console.log("sending request...");
-    const response = await axios.get<StockNews[]>(
-      `${BASE_URL}/company-news?symbol=${symbol}&from=2025-11-15&to=2025-11-20&token=${API_KEY}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error in fetching data.", error);
-    return null;
+export const fetchCompanyNews = cache(
+  async (symbol: string): Promise<StockNews[] | null> => {
+    try {
+      console.log("Sending request to external API...");
+      const response = await axios.get<StockNews[]>(
+        `${BASE_URL}/company-news?symbol=${symbol}&from=2025-11-15&to=2025-11-20&token=${API_KEY}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error in fetching data from external API.", error);
+      return null;
+    }
   }
-};
+);
 
 export async function GET() {
   try {

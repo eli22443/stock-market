@@ -1,25 +1,8 @@
 /**
  * Fetching company news and data for stocks.
  */
-import axios from "axios";
-import type { StockNews } from "@/types";
-import { symbols, API_KEY, BASE_URL } from "@/app/api/route";
+import { symbols, fetchStockData, fetchCompanyNews } from "@/app/api/route";
 import { NextResponse } from "next/server";
-
-export const fetchCompanyNews = async (
-  symbol: string
-): Promise<StockNews[] | null> => {
-  try {
-    console.log("Sending request to external API...");
-    const response = await axios.get<StockNews[]>(
-      `${BASE_URL}/company-news?symbol=${symbol}&from=2025-11-15&to=2025-11-20&token=${API_KEY}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error in fetching data from external API.", error);
-    return null;
-  }
-};
 
 export async function GET(request: Request) {
   try {
@@ -30,16 +13,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid symbol." }, { status: 400 });
     }
 
-    const news = await fetchCompanyNews(symbol);
-
-    if (!news) {
+    const stockData = await fetchStockData(symbol);
+    if (!stockData) {
       return NextResponse.json(
-        { error: "Failed fetching news." },
-        { status: 500 }
+        { error: "Failed fetching stock data." },
+        { status: 503 }
       );
     }
 
-    return NextResponse.json(news);
+    const stockNews = await fetchCompanyNews(symbol);
+    if (!stockNews) {
+      return NextResponse.json(
+        { error: "Failed fetching stock news." },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({ stockData, stockNews });
   } catch (error) {
     console.error("Error in GET /api/stocks:", error);
     return NextResponse.json(

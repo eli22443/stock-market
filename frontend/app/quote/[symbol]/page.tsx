@@ -1,6 +1,5 @@
-import NewsTable from "@/components/NewsTable";
-import { fetchCompanyNews } from "@/app/api/quote/route";
-import { StockNews } from "@/types";
+import NewsTable from "@/components/News";
+import { StockNews, StockRecord } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -30,7 +29,10 @@ export default async function QuotePage({
 
   const response = await fetch(apiUrl);
 
-  const stockNews: StockNews[] = await response.json();
+  const {
+    stockData,
+    stockNews,
+  }: { stockData: StockRecord; stockNews: StockNews[] } = await response.json();
 
   if (stockNews.length == 0) {
     return (
@@ -41,5 +43,11 @@ export default async function QuotePage({
     );
   }
 
-  return <NewsTable symbol={symbol} stockNews={stockNews} />;
+  return (
+    <div className="stock-page">
+      <h1>GRAPH:</h1>
+      <h1 className="my-2">{stockData.symbol + ": " + stockData.data.c}</h1>
+      <NewsTable symbol={symbol} stockNews={stockNews} />
+    </div>
+  );
 }
