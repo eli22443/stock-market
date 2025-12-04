@@ -3,7 +3,7 @@
  * Use inside /stocks page.
  */
 
-import { StockNews } from "@/services/api";
+import { StockNews } from "@/types";
 
 export default function NewsTable({
   symbol,

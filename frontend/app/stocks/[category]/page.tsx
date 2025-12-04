@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { stockCategorized } from "@/app/api/stocks/route";
+import { StockCategorized } from "@/types";
 import StocksTable from "@/components/StocksTable";
 
 const validCategories = ["most-active", "trending", "gainers", "losers"];
@@ -24,7 +24,7 @@ export default async function StocksCategory({
   const response = await fetch(apiUrl);
   // console.log("API response status:", response.status);
 
-  const data: stockCategorized = await response.json();
+  const data: StockCategorized = await response.json();
 
   return <StocksTable data={data} />;
 }

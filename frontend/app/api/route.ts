@@ -1,14 +1,17 @@
+/**
+ * Fetching company news and data for stocks.
+ */
+import { NextResponse } from "next/server";
 import axios from "axios";
 import { cache } from "react";
 import type { QuoteData, StockRecord, StockNews } from "@/types";
 
 // Re-export types for backward compatibility
-export type { StockRecord, StockNews };
 
-const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
-const BASE_URL = "https://finnhub.io/api/v1";
+export const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
+export const BASE_URL = "https://finnhub.io/api/v1";
 
-const symbols = [
+export const symbols = [
   "NVDA",
   "AAPL",
   "GOOGL",
@@ -74,3 +77,23 @@ export const fetchCompanyNews = async (
     return null;
   }
 };
+
+export async function GET() {
+  try {
+    const allStocks = await fetchMultiStocksData();
+    if (allStocks.length === 0) {
+      return NextResponse.json(
+        { error: "No stock data available" },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json(allStocks);
+  } catch (error) {
+    console.error("Error in GET /api:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

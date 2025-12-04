@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
+import type {
+  QuoteData,
+  StockRecord,
+  StocksMetrics,
+  StockCategorized,
+} from "@/types";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
 
@@ -30,42 +36,18 @@ const symbols = [
   "BAC",
 ];
 
-type QuoteData = {
-  c: number; // current price
-  h: number; // high price of the day
-  l: number; // low price of the day
-  o: number; // open price of the day
-  pc: number; // previous close price
-};
-
-export type StockRecord = {
-  symbol: string;
-  data: QuoteData;
-};
-
-export type stocksMetrics = {
-  symbol: string;
-  data: QuoteData;
-  changePercent: number;
-  priceRange: number;
-  priceChange: number;
-};
-
-export type stockCategorized = {
-  category: string;
-  stocks: stocksMetrics[];
-  count: number;
-};
+// Re-export types for backward compatibility
+export type { StockRecord, StocksMetrics, StockCategorized };
 
 // Disable caching to ensure route always executes
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // type stocksCategorized = {
-//   gainers: stocksMetrics[];
-//   losers: stocksMetrics[];
-//   mostActive: stocksMetrics[];
-//   trending: stocksMetrics[];
+//   gainers: StocksMetrics[];
+//   losers: StocksMetrics[];
+//   mostActive: StocksMetrics[];
+//   trending: StocksMetrics[];
 // };
 
 /**
@@ -119,7 +101,7 @@ function calculatePriceRange(high: number, low: number): number {
  */
 function categorizeStocks(stocks: StockRecord[]) {
   // Add calculated fields to each stock
-  const stocksWithMetrics: stocksMetrics[] = stocks.map((stock) => ({
+  const stocksWithMetrics: StocksMetrics[] = stocks.map((stock) => ({
     ...stock,
     changePercent: calculateChangePercent(stock.data.c, stock.data.pc),
     priceRange: calculatePriceRange(stock.data.h, stock.data.l),

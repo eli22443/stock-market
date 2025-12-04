@@ -2,7 +2,7 @@
  * Table showing data of different stocks.
  * Use inside /stocks/[category] page.
  */
-import { stockCategorized } from "@/app/api/stocks/route";
+import { StockCategorized } from "@/types";
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function StocksTable({ data }: { data: stockCategorized }) {
+export default function StocksTable({ data }: { data: StockCategorized }) {
   return (
     <div className="flex justify-center">
       <div className="w-200">

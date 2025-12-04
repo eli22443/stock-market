@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, createContext, useContext } from "react";
-import { fetchMultiStocksData, type StockRecord } from "../services/api";
+import { fetchMultiStocksData } from "@/app/api/route";
+import { StockRecord } from "@/types";
 
 type StocksContextValue = {
   stocks: StockRecord[];

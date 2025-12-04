@@ -1,5 +1,6 @@
 import NewsTable from "@/components/NewsTable";
-import { fetchCompanyNews, fetchStockData, StockNews } from "@/services/api";
+import { fetchCompanyNews } from "@/app/api/quote/route";
+import { StockNews } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -15,16 +16,23 @@ export default async function QuotePage({
   const { symbol } = await params;
 
   // Validate symbol exists by fetching stock data first
-  const stockData = await fetchStockData(symbol.toUpperCase());
-  if (!stockData) {
-    notFound();
-  }
+  // const stockData = await fetchStockData(symbol.toUpperCase());
+  // if (!stockData) {
+  //   notFound();
+  // }
 
-  const stockNews: StockNews[] | null = await fetchCompanyNews(
-    symbol.toUpperCase()
-  );
+  // const stockNews: StockNews[] | null = await fetchCompanyNews(
+  //   symbol.toUpperCase()
+  // );
+  const apiUrl = process.env.NEXT_URL
+    ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}`
+    : `http://localhost:3000/api/quote?symbol=${symbol}`;
 
-  if (!stockNews || stockNews.length === 0) {
+  const response = await fetch(apiUrl);
+
+  const stockNews: StockNews[] = await response.json();
+
+  if (stockNews.length == 0) {
     return (
       <div>
         <h1 className="mb-10">{symbol.toUpperCase()} page:</h1>

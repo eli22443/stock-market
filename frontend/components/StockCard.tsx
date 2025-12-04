@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { StockRecord } from "../services/api";
+import type { StockRecord } from "@/types";
 
 export default function StockCard({ stock }: { stock: StockRecord }) {
   return (

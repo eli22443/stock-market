@@ -1,5 +1,5 @@
 import StockCard from "./StockCard";
-import type { StockRecord } from "../services/api";
+import type { StockRecord } from "@/types";
 
 export default function StockList({ stocks }: { stocks: StockRecord[] }) {
   const rendered_stocks = stocks.map((stock, index) => (
