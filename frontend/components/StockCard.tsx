@@ -3,9 +3,9 @@ import type { StockRecord } from "@/types";
 
 export default function StockCard({ stock }: { stock: StockRecord }) {
   return (
-    <div className="w-70 h-72 rounded-2xl border-2 border-blue-800 px-4 py-4">
+    <div className=" rounded-2xl border-2 border-blue-800 px-2 py-2">
       <div className="stock-info">
-        <h1 className="text-2xl font-bold font-mono mb-2">{stock.symbol}</h1>
+        <h1 className="text-2xl font-bold font-mono ">{stock.symbol}</h1>
         <p>
           Current Price: <strong>${stock.data.c}</strong>
         </p>
@@ -25,7 +25,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
       <div className="stock-graph py-4">
         {/* Placeholder for stock chart - to be implemented */}
       </div>
-      <div className="stock-overlay">
+      <div className="stock-overlay mb-2">
         <Link
           href={`/quote/${stock.symbol}`}
           className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"

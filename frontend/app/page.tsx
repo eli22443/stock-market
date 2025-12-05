@@ -2,6 +2,9 @@ import StockList from "@/components/StockList";
 import { StockRecord } from "@/types";
 
 export default async function Home() {
+  /**
+   * Show market overview
+   */
   const apiUrl = process.env.NEXT_URL
     ? `${process.env.NEXT_URL}/api`
     : `http://localhost:3000/api`;

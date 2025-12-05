@@ -2,6 +2,10 @@ import StockCard from "./StockCard";
 import type { StockRecord } from "@/types";
 
 export default function StockList({ stocks }: { stocks: StockRecord[] }) {
+  /**
+   * Implement sliding windows of stocks
+   */
+
   const rendered_stocks = stocks.map((stock, index) => (
     <div className="mx-0 flex justify-center" key={index}>
       <StockCard stock={stock} />
