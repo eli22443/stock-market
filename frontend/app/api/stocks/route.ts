@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchStockData, fetchMultiStocksData } from "@/app/api/route";
-import type { StockRecord, StocksMetrics } from "@/types";
+import type { StockCategorized, StockRecord, StocksMetrics } from "@/types";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
 
@@ -90,6 +90,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
 
+    if (!category) {
+      return NextResponse.json(
+        { error: "Failed fetching category." },
+        { status: 503 }
+      );
+    }
+
     // Fetch all stocks
     const allStocks = await fetchMultiStocksData();
 
@@ -103,47 +110,45 @@ export async function GET(request: Request) {
     // Categorize stocks
     const categorized = categorizeStocks(allStocks);
 
-    // If a specific category is requested, return only that category
-    if (category) {
-      if (!categories.includes(category)) {
-        return NextResponse.json(
-          {
-            error: `Invalid category. Must be one of: ${categories.join(", ")}`,
-          },
-          { status: 400 }
-        );
-      }
-
-      const categoryKey = category === "most-active" ? "mostActive" : category;
-      return NextResponse.json({
-        category,
-        stocks: categorized[categoryKey as keyof typeof categorized],
-        count: categorized[categoryKey as keyof typeof categorized].length,
-      });
+    if (!categories.includes(category)) {
+      return NextResponse.json(
+        {
+          error: `Invalid category. Must be one of: ${categories.join(", ")}`,
+        },
+        { status: 400 }
+      );
     }
 
-    // Return all categories
-    return NextResponse.json({
-      categories: {
-        "most-active": {
-          stocks: categorized.mostActive,
-          count: categorized.mostActive.length,
-        },
-        trending: {
-          stocks: categorized.trending,
-          count: categorized.trending.length,
-        },
-        gainers: {
-          stocks: categorized.gainers,
-          count: categorized.gainers.length,
-        },
-        losers: {
-          stocks: categorized.losers,
-          count: categorized.losers.length,
-        },
-      },
-      totalStocks: allStocks.length,
-    });
+    const categoryKey = category === "most-active" ? "mostActive" : category;
+    const stockCat: StockCategorized = {
+      category,
+      stocks: categorized[categoryKey as keyof typeof categorized],
+      count: categorized[categoryKey as keyof typeof categorized].length,
+    };
+    return NextResponse.json(stockCat);
+
+    // // Return all categories
+    // return NextResponse.json({
+    //   categories: {
+    //     "most-active": {
+    //       stocks: categorized.mostActive,
+    //       count: categorized.mostActive.length,
+    //     },
+    //     trending: {
+    //       stocks: categorized.trending,
+    //       count: categorized.trending.length,
+    //     },
+    //     gainers: {
+    //       stocks: categorized.gainers,
+    //       count: categorized.gainers.length,
+    //     },
+    //     losers: {
+    //       stocks: categorized.losers,
+    //       count: categorized.losers.length,
+    //     },
+    //   },
+    //   totalStocks: allStocks.length,
+    // });
   } catch (error) {
     console.error("Error in GET /api/stocks:", error);
     return NextResponse.json(

@@ -34,7 +34,7 @@ export const symbols = [
 export const fetchStockData = cache(
   async (symbol: string): Promise<StockRecord | null> => {
     try {
-      console.log("sending request...");
+      console.log("Sending request to external API...");
       const { data } = await axios.get<QuoteData>(
         `${BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`
       );
