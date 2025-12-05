@@ -2,7 +2,7 @@
  * Centralized type definitions for the stock market application
  */
 
-// Finnhub "quote" response shape (simplified)
+// Finnhub quote response shape (simplified)
 export type QuoteData = {
   c: number; // current price
   h: number; // high price of the day
@@ -16,7 +16,7 @@ export type StockRecord = {
   data: QuoteData;
 };
 
-export type StockNews = {
+export type StockNewsRecord = {
   category: string;
   datetime: number;
   headline: string;
@@ -40,4 +40,16 @@ export type StockCategorized = {
   category: string;
   stocks: StocksMetrics[];
   count: number;
+};
+
+export type MarketNewsRecord = {
+  category: string;
+  datetime: number;
+  headline: string;
+  id: number;
+  image: string;
+  related: string;
+  source: string;
+  summary: string;
+  url: string;
 };

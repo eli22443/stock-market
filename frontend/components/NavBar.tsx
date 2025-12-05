@@ -18,6 +18,14 @@ export default function NavBar() {
           Overview
         </Link>
         <Link
+          href="/news"
+          className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
+            pathname.startsWith("/news") ? "font-bold" : ""
+          }`}
+        >
+          News
+        </Link>
+        <Link
           href="/stocks"
           className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
             pathname.startsWith("/stocks") ? "font-bold" : ""

@@ -1,5 +1,5 @@
-import NewsTable from "@/components/News";
-import { StockNews, StockRecord } from "@/types";
+import NewsTable from "@/components/StockNews";
+import { StockNewsRecord, StockRecord } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -32,7 +32,8 @@ export default async function QuotePage({
   const {
     stockData,
     stockNews,
-  }: { stockData: StockRecord; stockNews: StockNews[] } = await response.json();
+  }: { stockData: StockRecord; stockNews: StockNewsRecord[] } =
+    await response.json();
 
   if (stockNews.length == 0) {
     return (

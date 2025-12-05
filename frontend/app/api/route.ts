@@ -1,10 +1,12 @@
-/**
- * Fetching company news and data for stocks.
- */
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { cache } from "react";
-import type { QuoteData, StockRecord, StockNews } from "@/types";
+import type {
+  QuoteData,
+  StockRecord,
+  StockNewsRecord,
+  MarketNewsRecord,
+} from "@/types";
 
 export const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
 export const BASE_URL = "https://finnhub.io/api/v1";
@@ -61,10 +63,10 @@ export const fetchMultiStocksData = cache(async (): Promise<StockRecord[]> => {
 });
 
 export const fetchCompanyNews = cache(
-  async (symbol: string): Promise<StockNews[] | null> => {
+  async (symbol: string): Promise<StockNewsRecord[] | null> => {
     try {
       console.log("Sending request to external API...");
-      const response = await axios.get<StockNews[]>(
+      const response = await axios.get<StockNewsRecord[]>(
         `${BASE_URL}/company-news?symbol=${symbol}&from=2025-11-15&to=2025-11-20&token=${API_KEY}`
       );
       return response.data;
@@ -74,6 +76,19 @@ export const fetchCompanyNews = cache(
     }
   }
 );
+
+export const fetchMarketNews = async (): Promise<MarketNewsRecord[] | null> => {
+  try {
+    console.log("Sending request to external API...");
+    const response = await axios.get(
+      `${BASE_URL}/news?category=general&minId=10&token=${API_KEY}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in fetching data from external API.", error);
+    return null;
+  }
+};
 
 export async function GET() {
   try {

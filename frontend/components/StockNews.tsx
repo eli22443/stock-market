@@ -2,14 +2,14 @@
  * Table showing news of diffrent stocks.
  * Use inside /stocks page.
  */
-import { StockNews } from "@/types";
+import { StockNewsRecord } from "@/types";
 
-export default function News({
+export default function StockNews({
   symbol,
   stockNews,
 }: {
   symbol: string;
-  stockNews: StockNews[];
+  stockNews: StockNewsRecord[];
 }) {
   const rendered_news = stockNews.slice(83, 95).map((news, index) => {
     const yahoo_pic =
