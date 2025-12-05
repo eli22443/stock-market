@@ -1,4 +1,4 @@
-import StockList from "@/components/StockList";
+import StocksSlide from "@/components/StocksSlide";
 import { StockRecord } from "@/types";
 
 export default async function Home() {
@@ -18,7 +18,7 @@ export default async function Home() {
 
   return (
     <div>
-      <StockList stocks={data} />
+      <StocksSlide stocks={data} />
     </div>
   );
 }

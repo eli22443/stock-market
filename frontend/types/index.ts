@@ -16,6 +16,53 @@ export type StockRecord = {
   data: QuoteData;
 };
 
+// Comprehensive stock data similar to Yahoo Finance
+export type ComprehensiveStockData = {
+  // Basic quote data
+  previousClose: number;
+  open: number;
+  bid?: number;
+  bidSize?: number;
+  ask?: number;
+  askSize?: number;
+  dayRange: {
+    low: number;
+    high: number;
+  };
+  week52Range: {
+    low: number;
+    high: number;
+  };
+  volume: number;
+  avgVolume: number;
+
+  // Company metrics
+  marketCap?: number;
+  beta?: number;
+  peRatio?: number;
+  eps?: number;
+  earningsDate?: string;
+  forwardDividend?: number;
+  forwardDividendYield?: number;
+  exDividendDate?: string;
+  targetEstimate?: number;
+
+  // Additional data
+  currentPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+};
+
+export type CandleData = {
+  c: number[]; // List of close prices for returned candles.
+  h: number[]; //List of high prices for returned candles.
+  l: number[]; //List of low prices for returned candles.
+  o: number[]; //List of open prices for returned candles.
+  s: number[]; //Status of the response. This field can either be ok or no_data.
+  t: number[]; //List of timestamp for returned candles.
+  v: number[]; //List of volume data for returned candles.
+};
+
 export type StockNewsRecord = {
   category: string;
   datetime: number;

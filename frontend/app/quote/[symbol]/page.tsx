@@ -1,5 +1,6 @@
+import StockList from "@/components/StockList";
 import NewsTable from "@/components/StockNews";
-import { StockNewsRecord, StockRecord } from "@/types";
+import { StockNewsRecord, ComprehensiveStockData } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -24,31 +25,32 @@ export default async function QuotePage({
   //   symbol.toUpperCase()
   // );
   const apiUrl = process.env.NEXT_URL
-    ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}`
-    : `http://localhost:3000/api/quote?symbol=${symbol}`;
+    ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}&comprehensive=true`
+    : `http://localhost:3000/api/quote?symbol=${symbol}&comprehensive=true`;
 
   const response = await fetch(apiUrl);
+
+  if (!response.ok) {
+    notFound();
+  }
 
   const {
     stockData,
     stockNews,
-  }: { stockData: StockRecord; stockNews: StockNewsRecord[] } =
+  }: { stockData: ComprehensiveStockData; stockNews: StockNewsRecord[] } =
     await response.json();
 
-  if (stockNews.length == 0) {
-    return (
-      <div>
-        <h1 className="mb-10">{symbol.toUpperCase()} page:</h1>
-        <p>No news available for this stock.</p>
-      </div>
-    );
+  if (!stockData) {
+    notFound();
   }
 
   return (
-    <div className="stock-page">
-      <h1>GRAPH:</h1>
-      <h1 className="my-2">{stockData.symbol + ": " + stockData.data.c}</h1>
-      <NewsTable symbol={symbol} stockNews={stockNews} />
+    <div className="stock-page px-6">
+      <StockList data={stockData} symbol={symbol} />
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">News</h2>
+        <NewsTable symbol={symbol} stockNews={stockNews} />
+      </div>
     </div>
   );
 }

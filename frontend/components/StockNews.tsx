@@ -32,7 +32,14 @@ export default function StockNews({
 
     return (
       <div key={index} className="mb-30">
-        <h1 className="font-bold italic">{news.headline}</h1>
+        <a
+          href={news.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold italic"
+        >
+          {news.headline}
+        </a>
         {img_rendered}
         <p>{news.summary}</p>
       </div>
