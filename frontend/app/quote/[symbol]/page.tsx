@@ -31,6 +31,7 @@ export default async function QuotePage({
   const response = await fetch(apiUrl);
 
   if (!response.ok) {
+    console.log(await response.json());
     notFound();
   }
 

@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { cache } from "react";
-import type {
-  QuoteData,
-  StockRecord,
-  StockNewsRecord,
-  MarketNewsRecord,
-  ComprehensiveStockData,
-  CandleData,
+import {
+  type QuoteData,
+  type StockRecord,
+  type StockNewsRecord,
+  type MarketNewsRecord,
+  type ComprehensiveStockData,
+  type CandleData,
+  type FinancialData,
+  type ProfileData,
+  RecommendationData,
+  EarningsCalendarData,
 } from "@/types";
 
 export const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY || "";
@@ -103,141 +107,131 @@ export const fetchComprehensiveStockData = cache(
         quoteRes,
         profileRes,
         financialsRes,
-        recommendationRes,
-        candlesRes,
+        earningsRes,
+        // recommendationRes,
+        // candlesRes,
       ] = await Promise.allSettled([
         // Basic quote data
         axios.get<QuoteData>(
           `${BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`
         ),
         // Company profile (market cap, etc.)
-        axios.get(
+        axios.get<ProfileData>(
           `${BASE_URL}/stock/profile2?symbol=${symbol}&token=${API_KEY}`
         ),
         // Company financials (PE ratio, EPS, etc.)
-        axios.get(
+        axios.get<FinancialData>(
           `${BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${API_KEY}`
         ),
-        // Analyst recommendations (target estimates)
-        axios.get(
-          `${BASE_URL}/stock/recommendation?symbol=${symbol}&token=${API_KEY}`
+        // Earnings calendar
+        axios.get<EarningsCalendarData>(
+          `${BASE_URL}/calendar/earnings?from=2025-01-01&to=2025-12-31&symbol=${symbol}&token=${API_KEY}`
         ),
+
+        // // Analyst recommendations (target estimates)
+        // axios.get<RecommendationData>(
+        //   `${BASE_URL}/stock/recommendation?symbol=${symbol}&token=${API_KEY}`
+        // ),
         // 52-week range (using candles for 1 year)
-        axios.get(
-          `${BASE_URL}/stock/candle?symbol=${symbol}&resolution=D&from=${
-            Math.floor(Date.now() / 1000) - 31536000
-          }&to=${Math.floor(Date.now() / 1000)}&token=${API_KEY}`
-        ),
+        // axios.get(
+        //   `${BASE_URL}/stock/candle?symbol=${symbol}&resolution=D&from=${
+        //     Math.floor(Date.now() / 1000) - 31536000
+        //   }&to=${Math.floor(Date.now() / 1000)}&token=${API_KEY}`
+        // ),
       ]);
 
-      const quoteData =
-        quoteRes.status === "fulfilled" ? quoteRes.value.data : null;
-      const profileData =
-        profileRes.status === "fulfilled" ? profileRes.value.data : null;
-      const financialsData =
-        financialsRes.status === "fulfilled" ? financialsRes.value.data : null;
-      const recommendationData =
-        recommendationRes.status === "fulfilled"
-          ? recommendationRes.value.data
-          : null;
-      const candlesData: CandleData =
-        candlesRes.status === "fulfilled" ? candlesRes.value.data : null;
-
-      if (!quoteData || quoteData.c === 0) {
+      if (
+        quoteRes.status === "rejected" ||
+        profileRes.status === "rejected" ||
+        financialsRes.status === "rejected" ||
+        earningsRes.status === "rejected"
+      ) {
+        console.log("REJECTED");
         return null;
       }
 
+      const [quoteData, profileData, financialsData, earningsData] = [
+        quoteRes.value.data,
+        profileRes.value.data,
+        financialsRes.value.data,
+        earningsRes.value.data,
+      ];
+      // const candlesData: CandleData =
+      //   candlesRes.status === "fulfilled" ? candlesRes.value.data : null;
+
+      // if (!quoteData || quoteData.c === 0) {
+      //   return null;
+      // }
+
       // Calculate 52-week range from candles
-      let week52Low = quoteData.l;
-      let week52High = quoteData.h;
-      if (candlesData && candlesData.l && candlesData.l.length > 0) {
-        week52Low = Math.min(...candlesData.l);
-        week52High = Math.max(...candlesData.h);
-      }
+      // if (candlesData && candlesData.l && candlesData.l.length > 0) {
+      //   week52Low = Math.min(...candlesData.l);
+      //   week52High = Math.max(...candlesData.h);
+      // }
 
       // Get volume from candles (latest day)
-      let volume = 0;
-      let avgVolume = 0;
-      if (candlesData && candlesData.v && candlesData.v.length > 0) {
-        volume = candlesData.v[candlesData.v.length - 1] || 0;
-        // Calculate average volume from last 30 days
-        const recentVolumes = candlesData.v.slice(-30);
-        if (recentVolumes.length > 0) {
-          avgVolume = Math.round(
-            recentVolumes.reduce((sum, v) => sum + v, 0) / recentVolumes.length
-          );
-        }
-      }
+      // if (candlesData && candlesData.v && candlesData.v.length > 0) {
+      //   volume = candlesData.v[candlesData.v.length - 1] || 0;
+      //   // Calculate average volume from last 30 days
+      //   const recentVolumes = candlesData.v.slice(-30);
+      //   if (recentVolumes.length > 0) {
+      //     avgVolume = Math.round(
+      //       recentVolumes.reduce((sum, v) => sum + v, 0) / recentVolumes.length
+      //     );
+      //   }
+      // }
 
       // Get target estimate from recommendations
-      let targetEstimate: number | undefined;
-      if (
-        recommendationData &&
-        Array.isArray(recommendationData) &&
-        recommendationData.length > 0
-      ) {
-        // Finnhub recommendation provides target price in some cases
-        const latest = recommendationData[0];
-        // Note: Finnhub recommendation endpoint structure may vary
-        // You might need to use a different endpoint for target estimates
-      }
+      // let targetEstimate: number | undefined;
+      // if (
+      //   recommendationData &&
+      //   Array.isArray(recommendationData) &&
+      //   recommendationData.length > 0
+      // ) {
+      //   // Finnhub recommendation provides target price in some cases
+      //   const latest = recommendationData[0];
+      //   // Note: Finnhub recommendation endpoint structure may vary
+      //   // You might need to use a different endpoint for target estimates
+      // }
 
       // Try to fetch additional data (bid/ask, dividends, earnings)
-      const [tickRes, dividendsRes, earningsRes] = await Promise.allSettled([
-        // Tick data for bid/ask (if available)
-        axios.get(`${BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`),
-        // Dividends
-        axios.get(
-          `${BASE_URL}/stock/dividend?symbol=${symbol}&from=2024-01-01&to=2025-12-31&token=${API_KEY}`
-        ),
-        // Earnings calendar
-        axios.get(
-          `${BASE_URL}/calendar/earnings?from=2025-01-01&to=2025-12-31&symbol=${symbol}&token=${API_KEY}`
-        ),
-      ]);
+      // const [] = await Promise.allSettled([
+      //   // Dividends
+      //   // axios.get(
+      //   //   `${BASE_URL}/stock/dividend?symbol=${symbol}&from=2024-01-01&to=2025-12-31&token=${API_KEY}`
+      //   // ),
+      // ]);
 
-      const tickData =
-        tickRes.status === "fulfilled" ? tickRes.value.data : null;
-      const dividendsData =
-        dividendsRes.status === "fulfilled" ? dividendsRes.value.data : null;
-      const earningsData =
-        earningsRes.status === "fulfilled" ? earningsRes.value.data : null;
+      // const dividendsData =
+      //   dividendsRes.status === "fulfilled" ? dividendsRes.value.data : null;
 
-      // Extract dividend info
-      let forwardDividend: number | undefined;
-      let forwardDividendYield: number | undefined;
-      let exDividendDate: string | undefined;
-      if (
-        dividendsData &&
-        Array.isArray(dividendsData) &&
-        dividendsData.length > 0
-      ) {
-        const latestDividend = dividendsData[0];
-        forwardDividend = latestDividend.amount;
-        exDividendDate = latestDividend.date;
-        // Calculate yield if we have current price
-        if (quoteData.c > 0 && forwardDividend) {
-          forwardDividendYield = (forwardDividend / quoteData.c) * 100;
-        }
-      }
+      // console.log(earningsData);
+
+      // // Extract dividend info
+      // let forwardDividend: number | undefined;
+      // let forwardDividendYield: number | undefined;
+      // let exDividendDate: string | undefined;
+      // if (
+      //   dividendsData &&
+      //   Array.isArray(dividendsData) &&
+      //   dividendsData.length > 0
+      // ) {
+      //   const latestDividend = dividendsData[0];
+      //   forwardDividend = latestDividend.amount;
+      //   exDividendDate = latestDividend.date;
+      //   // Calculate yield if we have current price
+      //   if (quoteData.c > 0 && forwardDividend) {
+      //     forwardDividendYield = (forwardDividend / quoteData.c) * 100;
+      //   }
+      // }
 
       // Extract earnings date
-      let earningsDate: string | undefined;
-      if (
-        earningsData &&
-        earningsData.earningsCalendar &&
-        Array.isArray(earningsData.earningsCalendar)
-      ) {
-        const upcomingEarnings = earningsData.earningsCalendar
-          .filter((e: any) => new Date(e.date) >= new Date())
-          .sort(
-            (a: any, b: any) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime()
-          )[0];
-        if (upcomingEarnings) {
-          earningsDate = upcomingEarnings.date;
-        }
-      }
+      let earningsDate: string;
+      const upcomingEarnings = earningsData.earningsCalendar.sort(
+        (a: any, b: any) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime()
+      )[0];
+      earningsDate = upcomingEarnings ? upcomingEarnings.date : "0";
 
       // Calculate price change
       const priceChange = quoteData.c - quoteData.pc;
@@ -253,31 +247,36 @@ export const fetchComprehensiveStockData = cache(
           high: quoteData.h,
         },
         week52Range: {
-          low: week52Low,
-          high: week52High,
+          low: financialsData.metric["52WeekLow"],
+          high: financialsData.metric["52WeekLow"],
         },
-        volume,
-        avgVolume,
+        volume: financialsData.metric["10DayAverageTradingVolume"],
+        avgVolume: financialsData.metric["3MonthAverageTradingVolume"],
 
         // Company metrics from profile
-        marketCap: profileData?.marketCapitalization,
+        marketCap: profileData.marketCapitalization,
 
         // Financial metrics
-        beta: financialsData?.metric?.beta52WeekHigh,
-        peRatio: financialsData?.metric?.peNormalizedAnnual,
-        eps: financialsData?.metric?.epsNormalizedAnnual,
+        beta: financialsData.metric.beta,
+        peRatio: financialsData.metric.peTTM,
+        eps: financialsData.metric.epsTTM,
+
+        //Ask/bid
+        bid: -1,
+        bidSize: 100,
+        ask: -1,
+        askSize: 100,
 
         // Dividends and dates
-        forwardDividend,
-        forwardDividendYield,
-        exDividendDate,
         earningsDate,
-        targetEstimate,
+        forwardDividendYield: 0,
+        exDividendDate: "0",
+        targetEstimate: -1,
 
         // Additional data
         currentPrice: quoteData.c,
-        priceChange,
-        priceChangePercent,
+        priceChange: quoteData.d,
+        priceChangePercent: quoteData.dp,
       };
 
       return comprehensiveData;

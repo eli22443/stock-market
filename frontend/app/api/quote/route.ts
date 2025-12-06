@@ -1,11 +1,11 @@
 /**
  * Fetching company news and data for stocks.
  */
-import { 
-  symbols, 
-  fetchStockData, 
+import {
+  symbols,
+  fetchStockData,
   fetchCompanyNews,
-  fetchComprehensiveStockData 
+  fetchComprehensiveStockData,
 } from "@/app/api/route";
 import { NextResponse } from "next/server";
 
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     if (comprehensive) {
       const comprehensiveData = await fetchComprehensiveStockData(symbol);
       const stockNews = await fetchCompanyNews(symbol);
-      
+
       if (!comprehensiveData) {
         return NextResponse.json(
           { error: "Failed fetching comprehensive stock data." },
@@ -31,9 +31,9 @@ export async function GET(request: Request) {
         );
       }
 
-      return NextResponse.json({ 
-        stockData: comprehensiveData, 
-        stockNews: stockNews || [] 
+      return NextResponse.json({
+        stockData: comprehensiveData,
+        stockNews: stockNews || [],
       });
     }
 
