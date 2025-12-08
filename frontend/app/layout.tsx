@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SearchBar from "@/components/SearchBar";
 import NavBar from "@/components/NavBar";
+import GeneralInfo from "@/components/GeneralInfo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,11 +32,13 @@ export default function RootLayout({
       >
         <SearchBar />
         <div className="grid grid-cols-10">
-          <div>
+          <div className="col-span-1">
             <NavBar />
           </div>
           <div className="col-span-7 mx-2">{children}</div>
-          <div className="col-span-2">General info</div>
+          <div className="col-span-2 ">
+            <GeneralInfo />
+          </div>
         </div>
       </body>
     </html>

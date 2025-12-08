@@ -48,7 +48,6 @@ export default function StockNews({
 
   return (
     <div className="mx-10">
-      <h1 className="mb-10">COMPANY NEWS:</h1>
       <div className="">{rendered_news}</div>
     </div>
   );

@@ -49,7 +49,7 @@ export default async function QuotePage({
     <div className="stock-page px-6">
       <StockList data={stockData} symbol={symbol} />
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">News</h2>
+        <h2 className="text-2xl font-bold mb-10">News</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
       </div>
     </div>
