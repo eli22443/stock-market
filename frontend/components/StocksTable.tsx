@@ -3,6 +3,8 @@
  * Use inside /stocks/[category] page.
  */
 import { StockCategorized } from "@/types";
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -30,7 +32,14 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
           <TableBody>
             {data.stocks.map((stock, index) => (
               <TableRow key={index}>
-                <TableCell>{stock.symbol}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/quote/${stock.symbol.toUpperCase()}`}
+                    className="nav-link px-2 text-indigo-500 font-bold"
+                  >
+                    {stock.symbol}
+                  </Link>
+                </TableCell>
                 <TableCell>{stock.data.c.toFixed(2)}</TableCell>
                 <TableCell>{stock.priceChange.toFixed(2)}</TableCell>
                 <TableCell>{stock.changePercent.toFixed(2)}</TableCell>
