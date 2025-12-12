@@ -26,5 +26,9 @@ export default async function StocksCategory({
 
   const data: StockCategorized = await response.json();
 
-  return <StocksTable data={data} />;
+  return (
+    <div className="flex justify-center">
+      <StocksTable data={data} />
+    </div>
+  );
 }
