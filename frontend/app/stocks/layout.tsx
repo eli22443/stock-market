@@ -6,7 +6,7 @@ export default function StocksLayout({
 }) {
   return (
     // add navbar
-    <div>
+    <div className="stocks-layout px-6">
       <h1 className="mb-6 font-bold text-2xl">Stocks</h1>
       <StocksMenu />
       {children}

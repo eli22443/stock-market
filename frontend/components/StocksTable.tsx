@@ -17,7 +17,7 @@ import {
 export default function StocksTable({ data }: { data: StockCategorized }) {
   return (
     <div className="flex justify-center">
-      <div className="w-200">
+      <div className="border border-indigo-950 w-200">
         <Table>
           <TableHeader>
             <TableRow>

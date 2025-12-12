@@ -35,55 +35,29 @@ export default function StockList({ data, symbol }: StockListProps) {
     }
   };
 
+  const gridStyle = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1";
+  const boxStyle = "border hover:border-indigo-900 rounded px-4 py-1";
+  const textStyle = "text-sm text-gray-600 mb-1";
+  const statStyle = "text-lg font-semibold";
+
   return (
-    <div className="comprehensive-stock-data space-y-6">
-      <h2 className="text-2xl font-bold mb-10">
-        {symbol.toUpperCase()} Stock Data
-      </h2>
-
-      {/* Current Price & Change */}
-      <div className="border hover:border-indigo-950 p-6 rounded-lg ">
-        <div className="flex items-center gap-4">
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Current Price</div>
-            <div className="text-3xl font-bold ">
-              {formatNumber(data.currentPrice)}
-            </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Change</div>
-            <div
-              className={`text-2xl font-semibold ${
-                data.priceChange >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {data.priceChange >= 0 ? "+" : ""}
-              {formatNumber(data.priceChange)}(
-              {data.priceChangePercent >= 0 ? "+" : ""}
-              {formatNumber(data.priceChangePercent)}%)
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="comprehensive-stock-data space-y-4 ">
       {/* Price Section */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">Previous Close</div>
-          <div className="text-lg font-semibold">
-            {formatNumber(data.previousClose)}
-          </div>
+      <div className={gridStyle}>
+        <div className={boxStyle}>
+          <div className={textStyle}>Previous Close</div>
+          <div className={statStyle}>{formatNumber(data.previousClose)}</div>
         </div>
 
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">Open</div>
-          <div className="text-lg font-semibold">{formatNumber(data.open)}</div>
+        <div className={boxStyle}>
+          <div className={textStyle}>Open</div>
+          <div className={statStyle}>{formatNumber(data.open)}</div>
         </div>
 
         {data.bid && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">Bid</div>
-            <div className="text-lg font-semibold">
+          <div className={boxStyle}>
+            <div className={textStyle}>Bid</div>
+            <div className={statStyle}>
               {formatNumber(data.bid)}
               {data.bidSize && (
                 <span className="text-sm text-gray-500"> x {data.bidSize}</span>
@@ -93,9 +67,9 @@ export default function StockList({ data, symbol }: StockListProps) {
         )}
 
         {data.ask && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">Ask</div>
-            <div className="text-lg font-semibold">
+          <div className={boxStyle}>
+            <div className={textStyle}>Ask</div>
+            <div className={statStyle}>
               {formatNumber(data.ask)}
               {data.askSize && (
                 <span className="text-sm text-gray-500"> x {data.askSize}</span>
@@ -104,93 +78,75 @@ export default function StockList({ data, symbol }: StockListProps) {
           </div>
         )}
 
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">Day&apos;s Range</div>
-          <div className="text-lg font-semibold">
+        <div className={boxStyle}>
+          <div className={textStyle}>Day&apos;s Range</div>
+          <div className={statStyle}>
             {formatNumber(data.dayRange.low)} -{" "}
             {formatNumber(data.dayRange.high)}
           </div>
         </div>
 
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">52 Week Range</div>
-          <div className="text-lg font-semibold">
+        <div className={boxStyle}>
+          <div className={textStyle}>52 Week Range</div>
+          <div className={statStyle}>
             {formatNumber(data.week52Range.low)} -{" "}
             {formatNumber(data.week52Range.high)}
           </div>
         </div>
 
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">Volume</div>
-          <div className="text-lg font-semibold">
-            {formatLargeNumber(data.volume)}
-          </div>
+        <div className={boxStyle}>
+          <div className={textStyle}>Volume</div>
+          <div className={statStyle}>{formatLargeNumber(data.volume)}</div>
         </div>
 
-        <div className="border hover:border-indigo-950 p-4 rounded">
-          <div className="text-sm text-gray-600 mb-1">Avg. Volume</div>
-          <div className="text-lg font-semibold">
-            {formatLargeNumber(data.avgVolume)}
-          </div>
+        <div className={boxStyle}>
+          <div className={textStyle}>Avg. Volume</div>
+          <div className={statStyle}>{formatLargeNumber(data.avgVolume)}</div>
         </div>
       </div>
 
       {/* Metrics Section */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className={gridStyle}>
         {data.marketCap && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">
-              Market Cap (intraday)
-            </div>
-            <div className="text-lg font-semibold">
-              {formatLargeNumber(data.marketCap)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>Market Cap (intraday)</div>
+            <div className={statStyle}>{formatLargeNumber(data.marketCap)}</div>
           </div>
         )}
 
         {data.beta !== undefined && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">Beta (5Y Monthly)</div>
-            <div className="text-lg font-semibold">
-              {formatNumber(data.beta)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>Beta (5Y Monthly)</div>
+            <div className={statStyle}>{formatNumber(data.beta)}</div>
           </div>
         )}
 
         {data.peRatio !== undefined && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">PE Ratio (TTM)</div>
-            <div className="text-lg font-semibold">
-              {formatNumber(data.peRatio)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>PE Ratio (TTM)</div>
+            <div className={statStyle}>{formatNumber(data.peRatio)}</div>
           </div>
         )}
 
         {data.eps !== undefined && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">EPS (TTM)</div>
-            <div className="text-lg font-semibold">
-              {formatNumber(data.eps)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>EPS (TTM)</div>
+            <div className={statStyle}>{formatNumber(data.eps)}</div>
           </div>
         )}
 
         {data.earningsDate && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">Earnings Date</div>
-            <div className="text-lg font-semibold">
-              {formatDate(data.earningsDate)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>Earnings Date</div>
+            <div className={statStyle}>{formatDate(data.earningsDate)}</div>
           </div>
         )}
 
         {(data.forwardDividend !== undefined ||
           data.forwardDividendYield !== undefined) && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">
-              Forward Dividend & Yield
-            </div>
-            <div className="text-lg font-semibold">
+          <div className={boxStyle}>
+            <div className={textStyle}>Forward Dividend & Yield</div>
+            <div className={statStyle}>
               {data.forwardDividend !== undefined
                 ? formatNumber(data.forwardDividend)
                 : "N/A"}
@@ -205,20 +161,16 @@ export default function StockList({ data, symbol }: StockListProps) {
         )}
 
         {data.exDividendDate && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">Ex-Dividend Date</div>
-            <div className="text-lg font-semibold">
-              {formatDate(data.exDividendDate)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>Ex-Dividend Date</div>
+            <div className={statStyle}>{formatDate(data.exDividendDate)}</div>
           </div>
         )}
 
         {data.targetEstimate !== undefined && (
-          <div className="border hover:border-indigo-950 p-4 rounded">
-            <div className="text-sm text-gray-600 mb-1">1y Target Est</div>
-            <div className="text-lg font-semibold">
-              {formatNumber(data.targetEstimate)}
-            </div>
+          <div className={boxStyle}>
+            <div className={textStyle}>1y Target Est</div>
+            <div className={statStyle}>{formatNumber(data.targetEstimate)}</div>
           </div>
         )}
       </div>

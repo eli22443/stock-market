@@ -19,7 +19,7 @@ export default function StockNews({
     const hasValidImage =
       news.image &&
       news.image.trim() !== "" &&
-      news.image !== yahoo_pic &&
+      // news.image !== yahoo_pic &&
       news.image.startsWith("http");
 
     const img_rendered = hasValidImage ? (

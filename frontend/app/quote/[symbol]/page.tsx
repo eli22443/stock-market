@@ -45,11 +45,51 @@ export default async function QuotePage({
     notFound();
   }
 
+  const formatNumber = (num: number | undefined): string => {
+    if (num === undefined || num === null) return "N/A";
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <div className="stock-page px-6">
+      <h2 className="text-2xl font-bold my-5">
+        {symbol.toUpperCase()} Stock Data
+      </h2>
+
+      {/* Current Price & Change */}
+      <div className="border hover:border-indigo-900 rounded-lg px-6 py-4">
+        <div className="flex items-center gap-4">
+          <div>
+            <div className="text-sm text-gray-600 mb-1">Current Price</div>
+            <div className="text-3xl font-bold ">
+              {formatNumber(stockData.currentPrice)}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-600 mb-1">Change</div>
+            <div
+              className={`text-2xl font-semibold ${
+                stockData.priceChange >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {stockData.priceChange >= 0 ? "+" : ""}
+              {formatNumber(stockData.priceChange)}(
+              {stockData.priceChangePercent >= 0 ? "+" : ""}
+              {formatNumber(stockData.priceChangePercent)}%)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* stock graph */}
+      <div className="stock-graph h-75 border mx-2">STOCK GRAPH</div>
+
       <StockList data={stockData} symbol={symbol} />
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-10">News</h2>
+        <h2 className="text-2xl font-bold mt-10 mb-5">Company News</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
       </div>
     </div>

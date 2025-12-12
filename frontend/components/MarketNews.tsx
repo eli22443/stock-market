@@ -42,7 +42,6 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
 
   return (
     <div className="mx-10">
-      <h1 className="mb-10">MARKET NEWS:</h1>
       <div className="">{renderedNews}</div>
     </div>
   );

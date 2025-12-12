@@ -17,8 +17,10 @@ export default async function Home() {
   const data: StockRecord[] = await response.json();
 
   return (
-    <div>
-      <StocksSlide stocks={data} />
+    <div className="main-page">
+      <div className="stocks-slide mt-20">
+        <StocksSlide stocks={data} />
+      </div>
     </div>
   );
 }

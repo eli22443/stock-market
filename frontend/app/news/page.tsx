@@ -10,7 +10,8 @@ export default async function News() {
   const news: MarketNewsRecord[] = await response.json();
 
   return (
-    <div>
+    <div className="news-page px-6">
+      <h1 className="text-2xl font-bold mb-10">MARKET NEWS</h1>
       <MarketNews data={news} />
     </div>
   );

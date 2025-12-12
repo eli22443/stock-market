@@ -3,7 +3,7 @@ import type { StockRecord } from "@/types";
 
 export default function StockCard({ stock }: { stock: StockRecord }) {
   return (
-    <div className="w-60 rounded-2xl border-2 border-blue-800 px-2 py-4">
+    <div className="hover:border-indigo-900 w-60 rounded-2xl border-2  px-2 py-4">
       <div className="stock-info">
         <div className="flex justify-center my-4">
           <h1 className="text-2xl font-bold font-mono mr-6">{stock.symbol}</h1>
