@@ -248,7 +248,7 @@ export const fetchComprehensiveStockData = cache(
         },
         week52Range: {
           low: financialsData.metric["52WeekLow"],
-          high: financialsData.metric["52WeekLow"],
+          high: financialsData.metric["52WeekHigh"],
         },
         volume: financialsData.metric["10DayAverageTradingVolume"],
         avgVolume: financialsData.metric["3MonthAverageTradingVolume"],
