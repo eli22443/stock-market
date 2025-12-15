@@ -19,6 +19,9 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# IDE
+.vscode/
+
 # production
 build/
 dist/
