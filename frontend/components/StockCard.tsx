@@ -1,13 +1,38 @@
+"use client";
+
 import Link from "next/link";
 import type { StockRecord } from "@/types";
+import { useEffect } from "react";
+import { useStockWebSocket } from "@/hooks/useStockWebSocket";
 
 export default function StockCard({ stock }: { stock: StockRecord }) {
+  const { subscribe, unsubscribe, priceUpdates, isConnected, getPrice } =
+    useStockWebSocket({
+      onConnect: () => console.log("Connected!"),
+      onDisconnect: () => console.log("Disconnected"),
+    });
+
+  useEffect(() => {
+    // Subscribe to symbols when component mounts
+    subscribe([stock.symbol]);
+
+    // Cleanup: unsubscribe on unmount
+    return () => {
+      unsubscribe([stock.symbol]);
+    };
+  }, []);
+
+  // Get latest price for a symbol
+  const price: number | string = isConnected
+    ? getPrice(stock.symbol)?.price.toFixed(2) || "-"
+    : stock.data.c;
+
   return (
     <div className="hover:border-indigo-900 w-60 rounded-2xl border-2  px-2 py-4">
       <div className="stock-info">
         <div className="flex justify-center my-4">
           <h1 className="text-2xl font-bold font-mono mr-6">{stock.symbol}</h1>
-          <span className="text-2xl font-bold font-mono">${stock.data.c}</span>
+          <span className="text-2xl font-bold font-mono">${price}</span>
         </div>
         <div className="mx-2">
           <div className="flex justify-between">

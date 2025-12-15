@@ -397,3 +397,64 @@ export type FinancialData = {
   };
   symbol: string;
 };
+
+/** WebSocket Types for Real-time Stock Data */
+
+/** WebSocket connection state */
+export type WebSocketConnectionState =
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "error";
+
+/** Client to Server message types */
+export type ClientToServerMessage = {
+  action: "subscribe" | "unsubscribe";
+  symbols: string[];
+};
+
+/** Server to Client message types */
+export type ServerToClientMessage =
+  | ConnectionMessage
+  | SubscriptionMessage
+  | PriceUpdateMessage
+  | ErrorMessage;
+
+/** Connection confirmation message */
+export type ConnectionMessage = {
+  type: "connection";
+  status: "connected";
+  client_id: string;
+};
+
+/** Subscription confirmation message */
+export type SubscriptionMessage = {
+  type: "subscription";
+  status: "subscribed" | "unsubscribed";
+  symbols: string[];
+};
+
+/** Real-time price update message */
+export type PriceUpdateMessage = {
+  type: "price_update";
+  symbol: string;
+  data: {
+    price: number;
+    volume: number;
+    timestamp: number;
+  };
+};
+
+/** Error message from server */
+export type ErrorMessage = {
+  type: "error";
+  message: string;
+};
+
+/** Real-time stock price data (used in components) */
+export type RealtimeStockPrice = {
+  symbol: string;
+  price: number;
+  volume: number;
+  timestamp: number;
+};
