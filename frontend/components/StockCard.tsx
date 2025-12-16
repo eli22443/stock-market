@@ -23,9 +23,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
   }, []);
 
   // Get latest price for a symbol
-  const price: number | string = isConnected
-    ? getPrice(stock.symbol)?.price.toFixed(2) || "-"
-    : stock.data.c;
+  const price = getPrice(stock.symbol)?.price.toFixed(2) || stock.data.c;
 
   return (
     <div className="hover:border-indigo-900 w-60 rounded-2xl border-2  px-2 py-4">
