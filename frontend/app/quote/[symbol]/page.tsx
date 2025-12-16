@@ -1,3 +1,4 @@
+import { StockBar } from "@/components/StockBar";
 import StockList from "@/components/StockList";
 import NewsTable from "@/components/StockNews";
 import { StockNewsRecord, ComprehensiveStockData } from "@/types";
@@ -60,29 +61,7 @@ export default async function QuotePage({
       </h2>
 
       {/* Current Price & Change */}
-      <div className="border hover:border-indigo-900 rounded-lg px-6 py-4">
-        <div className="flex items-center gap-4">
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Current Price</div>
-            <div className="text-3xl font-bold ">
-              {formatNumber(stockData.currentPrice)}
-            </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Change</div>
-            <div
-              className={`text-2xl font-semibold ${
-                stockData.priceChange >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {stockData.priceChange >= 0 ? "+" : ""}
-              {formatNumber(stockData.priceChange)}(
-              {stockData.priceChangePercent >= 0 ? "+" : ""}
-              {formatNumber(stockData.priceChangePercent)}%)
-            </div>
-          </div>
-        </div>
-      </div>
+      <StockBar symbol={symbol} stockData={stockData} />
 
       {/* stock graph */}
       <div className="stock-graph h-75 border mx-2">STOCK GRAPH</div>

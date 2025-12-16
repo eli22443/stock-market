@@ -1,5 +1,15 @@
 "use client";
 
+/**
+ * SIMPLIFIED VERSION: Minimal useCallback usage
+ * Only uses useCallback where ABSOLUTELY necessary
+ * 
+ * ⚠️ TRADE-OFFS:
+ * - Exported functions change every render (consumers can't use in useEffect safely)
+ * - Some functions recreated unnecessarily
+ * - But simpler code, fewer dependencies to manage
+ */
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import type {
   WebSocketConnectionState,
@@ -10,55 +20,26 @@ import type {
 } from "@/types";
 
 interface UseStockWebSocketOptions {
-  /** WebSocket server URL (default: ws://localhost:8000/ws) */
   url?: string;
-  /** Auto-reconnect on disconnect (default: true) */
   autoReconnect?: boolean;
-  /** Reconnect delay in milliseconds (default: 3000) */
   reconnectDelay?: number;
-  /** Maximum reconnect attempts (default: 5) */
   maxReconnectAttempts?: number;
-  /** Callback when connection is established */
   onConnect?: () => void;
-  /** Callback when connection is lost */
   onDisconnect?: () => void;
-  /** Callback when an error occurs */
   onError?: (error: Event) => void;
 }
 
 interface UseStockWebSocketReturn {
-  /** Current connection state */
   connectionState: WebSocketConnectionState;
-  /** Whether WebSocket is connected */
   isConnected: boolean;
-  /** Subscribe to stock symbols */
   subscribe: (symbols: string[]) => void;
-  /** Unsubscribe from stock symbols */
   unsubscribe: (symbols: string[]) => void;
-  /** Latest price updates for subscribed symbols */
   priceUpdates: Map<string, RealtimeStockPrice>;
-  /** Get latest price for a specific symbol */
   getPrice: (symbol: string) => RealtimeStockPrice | undefined;
-  /** Manually connect to WebSocket */
   connect: () => void;
-  /** Manually disconnect from WebSocket */
   disconnect: () => void;
 }
 
-/**
- * Custom hook for managing WebSocket connection to stock market backend
- *
- * @example
- * ```tsx
- * const { subscribe, priceUpdates, isConnected } = useStockWebSocket({
- *   onConnect: () => console.log('Connected!'),
- * });
- *
- * useEffect(() => {
- *   subscribe(['AAPL', 'NVDA']);
- * }, []);
- * ```
- */
 export function useStockWebSocket(
   options: UseStockWebSocketOptions = {}
 ): UseStockWebSocketReturn {
@@ -84,35 +65,10 @@ export function useStockWebSocket(
   const subscribedSymbolsRef = useRef<Set<string>>(new Set());
   const isManualDisconnectRef = useRef(false);
 
-  /** Send message to WebSocket server */
-  const sendMessage = useCallback((message: ClientToServerMessage) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(message));
-    } else {
-      console.warn("WebSocket is not connected. Message not sent:", message);
-    }
-  }, []);
-
-  /** Subscribe to stock symbols */
-  const subscribe = useCallback(
-    (symbols: string[]) => {
-      // Store subscribed symbols
-      symbols.forEach((symbol) =>
-        subscribedSymbolsRef.current.add(symbol.toUpperCase())
-      );
-
-      // Send subscribe message if connected
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        sendMessage({
-          action: "subscribe",
-          symbols: symbols.map((s) => s.toUpperCase()),
-        });
-      }
-    },
-    [sendMessage]
-  );
-
-  /** Handle incoming WebSocket messages */
+  // ============================================
+  // ✅ MUST USE useCallback: Event Handler
+  // ============================================
+  /** Handle incoming WebSocket messages - ASSIGNED TO EVENT HANDLER */
   const handleMessage = useCallback(
     (event: MessageEvent) => {
       try {
@@ -126,18 +82,18 @@ export function useStockWebSocket(
             // Re-subscribe to previously subscribed symbols
             if (subscribedSymbolsRef.current.size > 0) {
               const symbols = Array.from(subscribedSymbolsRef.current);
-              // Use sendMessage directly to avoid circular dependency
               if (wsRef.current?.readyState === WebSocket.OPEN) {
-                sendMessage({
-                  action: "subscribe",
-                  symbols: symbols.map((s) => s.toUpperCase()),
-                });
+                wsRef.current.send(
+                  JSON.stringify({
+                    action: "subscribe",
+                    symbols: symbols.map((s) => s.toUpperCase()),
+                  })
+                );
               }
             }
             break;
 
           case "subscription":
-            // Subscription confirmed, no action needed
             break;
 
           case "price_update":
@@ -166,43 +122,20 @@ export function useStockWebSocket(
         console.error("Failed to parse WebSocket message:", error);
       }
     },
-    [onConnect, onError, sendMessage]
+    [onConnect, onError]
   );
 
-  /** Unsubscribe from stock symbols */
-  const unsubscribe = useCallback(
-    (symbols: string[]) => {
-      // Remove from subscribed symbols
-      symbols.forEach((symbol) =>
-        subscribedSymbolsRef.current.delete(symbol.toUpperCase())
-      );
-
-      // Send unsubscribe message if connected
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        sendMessage({
-          action: "unsubscribe",
-          symbols: symbols.map((s) => s.toUpperCase()),
-        });
-      }
-
-      // Remove from price updates
-      setPriceUpdates((prev) => {
-        const newMap = new Map(prev);
-        symbols.forEach((symbol) => newMap.delete(symbol.toUpperCase()));
-        return newMap;
-      });
-    },
-    [sendMessage]
-  );
-
-  /** Connect to WebSocket */
+  // ============================================
+  // ✅ MUST USE useCallback: Used in useEffect + depends on handleMessage
+  // ============================================
+  /** Connect to WebSocket - Used in useEffect */
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      return; // Already connected
+      return;
     }
 
     isManualDisconnectRef.current = false;
-    setConnectionState("connecting"); // check this line of code
+    setConnectionState("connecting");
 
     try {
       const ws = new WebSocket(url);
@@ -214,7 +147,7 @@ export function useStockWebSocket(
         onConnect?.();
       };
 
-      ws.onmessage = handleMessage;
+      ws.onmessage = handleMessage; // ✅ Uses handleMessage - needs stable reference
 
       ws.onerror = (error) => {
         setConnectionState("error");
@@ -226,7 +159,6 @@ export function useStockWebSocket(
         wsRef.current = null;
         onDisconnect?.();
 
-        // Auto-reconnect if enabled and not manually disconnected
         if (
           autoReconnect &&
           !isManualDisconnectRef.current &&
@@ -234,10 +166,7 @@ export function useStockWebSocket(
         ) {
           reconnectAttemptsRef.current += 1;
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log(
-              `Reconnecting... (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
-            );
-            connect();
+            connect(); // Recursive call
           }, reconnectDelay);
         }
       };
@@ -254,11 +183,60 @@ export function useStockWebSocket(
     onConnect,
     onDisconnect,
     onError,
-    handleMessage,
+    handleMessage, // ✅ Must include handleMessage
   ]);
 
-  /** Disconnect from WebSocket */
-  const disconnect = useCallback(() => {
+  // ============================================
+  // ❌ NO useCallback: Internal helpers (not exported, not in useEffect)
+  // ============================================
+  /** Send message - Internal helper, not exported */
+  const sendMessage = (message: ClientToServerMessage) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(message));
+    } else {
+      console.warn("WebSocket is not connected. Message not sent:", message);
+    }
+  };
+
+  // ============================================
+  // ⚠️ NO useCallback: Exported but simple (trade-off)
+  // ============================================
+  /** Subscribe to stock symbols - Exported but no useCallback */
+  const subscribe = (symbols: string[]) => {
+    symbols.forEach((symbol) =>
+      subscribedSymbolsRef.current.add(symbol.toUpperCase())
+    );
+
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      sendMessage({
+        action: "subscribe",
+        symbols: symbols.map((s) => s.toUpperCase()),
+      });
+    }
+  };
+
+  /** Unsubscribe from stock symbols - Exported but no useCallback */
+  const unsubscribe = (symbols: string[]) => {
+    symbols.forEach((symbol) =>
+      subscribedSymbolsRef.current.delete(symbol.toUpperCase())
+    );
+
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      sendMessage({
+        action: "unsubscribe",
+        symbols: symbols.map((s) => s.toUpperCase()),
+      });
+    }
+
+    setPriceUpdates((prev) => {
+      const newMap = new Map(prev);
+      symbols.forEach((symbol) => newMap.delete(symbol.toUpperCase()));
+      return newMap;
+    });
+  };
+
+  /** Disconnect from WebSocket - Used in useEffect cleanup */
+  const disconnect = () => {
     isManualDisconnectRef.current = true;
 
     if (reconnectTimeoutRef.current) {
@@ -272,35 +250,53 @@ export function useStockWebSocket(
     }
 
     setConnectionState("disconnected");
-  }, []);
+  };
 
-  /** Get latest price for a symbol */
-  const getPrice = useCallback(
-    (symbol: string): RealtimeStockPrice | undefined => {
-      return priceUpdates.get(symbol.toUpperCase());
-    },
-    [priceUpdates]
-  );
+  /** Get latest price - Exported but no useCallback */
+  const getPrice = (symbol: string): RealtimeStockPrice | undefined => {
+    return priceUpdates.get(symbol.toUpperCase());
+  };
 
   // Auto-connect on mount
   useEffect(() => {
     connect();
 
-    // Cleanup on unmount
     return () => {
       disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount - connect/disconnect are stable due to useCallback
+  }, []); // Empty deps - connect/disconnect recreated but useEffect only runs once
 
   return {
     connectionState,
     isConnected: connectionState === "connected",
-    subscribe,
-    unsubscribe,
+    subscribe, // ⚠️ Changes every render - consumers can't use in useEffect safely
+    unsubscribe, // ⚠️ Changes every render
     priceUpdates,
-    getPrice,
-    connect,
-    disconnect,
+    getPrice, // ⚠️ Changes every render
+    connect, // ✅ Stable (has useCallback)
+    disconnect, // ⚠️ Changes every render, but cleanup only runs once
   };
 }
+
+/**
+ * COMPARISON:
+ * 
+ * ✅ KEPT useCallback for:
+ * - handleMessage: Event handler (CRITICAL - prevents stale closure)
+ * - connect: Used in useEffect + depends on handleMessage
+ * 
+ * ❌ REMOVED useCallback for:
+ * - sendMessage: Internal helper only
+ * - subscribe: Exported but simple (trade-off)
+ * - unsubscribe: Exported but simple (trade-off)
+ * - disconnect: Used in cleanup but only runs once
+ * - getPrice: Exported but simple (trade-off)
+ * 
+ * TRADE-OFFS:
+ * - Simpler code, fewer dependencies
+ * - Exported functions change every render
+ * - Consumers can't safely use subscribe/unsubscribe/getPrice in useEffect deps
+ * - But if consumers just call them directly (not in deps), it works fine!
+ */
+
