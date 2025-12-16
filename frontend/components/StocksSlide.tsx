@@ -6,7 +6,7 @@ export default function StocksSlide({ stocks }: { stocks: StockRecord[] }) {
    * Implement sliding windows of stocks
    */
 
-  const rendered_stocks = stocks.slice(0, 5).map((stock, index) => (
+  const rendered_stocks = stocks.slice(0, 4).map((stock, index) => (
     <div className="mx-0 flex justify-center" key={index}>
       <StockCard stock={stock} />
     </div>

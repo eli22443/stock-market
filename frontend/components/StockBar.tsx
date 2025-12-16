@@ -2,7 +2,7 @@
 
 import { useStockWebSocket } from "@/hooks/useStockWebSocket";
 import { ComprehensiveStockData } from "@/types";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function StockBar({
   symbol,
@@ -16,6 +16,10 @@ export function StockBar({
       onConnect: () => console.log("Connected!"),
       onDisconnect: () => console.log("Disconnected"),
     });
+
+  const prevPrice = useRef(stockData.currentPrice);
+  const priceBgStyle = useRef("");
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     // Subscribe to symbols when component mounts
@@ -35,12 +39,41 @@ export function StockBar({
     });
   };
 
-  // Get latest price for a symbol
+  // Force rerender every 0.5 seconds
+  useEffect(() => {
+    if (isConnected) {
+      const interval = setInterval(() => {
+        setTick((prev) => prev + 1);
+        priceBgStyle.current = "";
+        console.log("executed delay");
+      }, 1000);
 
+      return () => {
+        clearInterval(interval);
+        console.log("cancelled delay");
+      };
+    }
+  });
+
+  // Get latest price for a symbol
   const currentPrice = getPrice(symbol)?.price || stockData.currentPrice;
+  const priceDiff = currentPrice - prevPrice.current;
+  // console.log(
+  //   `prev:${prevPrice.current}, current:${currentPrice}, diff:${priceDiff}`
+  // );
+
+  // Update prevPrice after render to avoid stale comparisons
+  useEffect(() => {
+    prevPrice.current = currentPrice;
+  }, [currentPrice]);
 
   const priceChange = currentPrice - stockData.previousClose;
-
+  priceBgStyle.current =
+    priceDiff > 0
+      ? "bg-green-900"
+      : priceDiff < 0
+      ? "bg-red-900"
+      : priceBgStyle.current;
   const priceChangePercent = (priceChange / currentPrice) * 100;
 
   return (
@@ -48,7 +81,7 @@ export function StockBar({
       <div className="flex items-center gap-4">
         <div>
           <div className="text-sm text-gray-600 mb-1">Current Price</div>
-          <div className="text-3xl font-bold ">
+          <div className={`text-3xl font-bold ${priceBgStyle.current}`}>
             {formatNumber(currentPrice)}
           </div>
         </div>
