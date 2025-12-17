@@ -64,7 +64,7 @@ export default async function QuotePage({
       <StockBar symbol={symbol} stockData={stockData} />
 
       {/* stock graph */}
-      <div className="stock-graph h-75 border mx-2">STOCK GRAPH</div>
+      <div className="stock-graph h-75 border my-2">STOCK GRAPH</div>
 
       <StockList data={stockData} symbol={symbol} />
       <div className="mt-8">

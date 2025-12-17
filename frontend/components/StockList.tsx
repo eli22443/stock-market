@@ -36,7 +36,7 @@ export default function StockList({ data, symbol }: StockListProps) {
   };
 
   const gridStyle = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1";
-  const boxStyle = "border hover:border-indigo-900 rounded px-4 py-1";
+  const boxStyle = "border-l-2 hover:border-indigo-800 rounded px-4 py-1";
   const textStyle = "text-sm text-gray-600 mb-1";
   const statStyle = "text-lg font-semibold";
 

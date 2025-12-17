@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, RefObject } from "react";
 import type {
   WebSocketConnectionState,
   ClientToServerMessage,
@@ -26,7 +26,7 @@ interface UseStockWebSocketOptions {
   onError?: (error: Event) => void;
 }
 
-interface UseStockWebSocketReturn {
+export interface UseStockWebSocketReturn {
   /** Current connection state */
   connectionState: WebSocketConnectionState;
   /** Whether WebSocket is connected */
@@ -43,6 +43,8 @@ interface UseStockWebSocketReturn {
   connect: () => void;
   /** Manually disconnect from WebSocket */
   disconnect: () => void;
+  /** Current number of reconnection attempts */
+  reconnectAttemptsRef: RefObject<number>;
 }
 
 /**
@@ -122,7 +124,7 @@ export function useStockWebSocket(
           case "connection":
             setConnectionState("connected");
             reconnectAttemptsRef.current = 0;
-            onConnect?.();
+            // onConnect?.();
             // Re-subscribe to previously subscribed symbols
             if (subscribedSymbolsRef.current.size > 0) {
               const symbols = Array.from(subscribedSymbolsRef.current);
@@ -207,6 +209,7 @@ export function useStockWebSocket(
     try {
       const ws = new WebSocket(url);
       wsRef.current = ws;
+      console.log("CREATES NEW SOCKET");
 
       ws.onopen = () => {
         setConnectionState("connected");
@@ -302,5 +305,6 @@ export function useStockWebSocket(
     getPrice,
     connect,
     disconnect,
+    reconnectAttemptsRef,
   };
 }

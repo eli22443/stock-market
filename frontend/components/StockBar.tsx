@@ -1,6 +1,6 @@
 "use client";
 
-import { useStockWebSocket } from "@/hooks/useStockWebSocket";
+import { useStockWebSocketContext } from "@/context/WebSocketContext";
 import { ComprehensiveStockData } from "@/types";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,11 +11,7 @@ export function StockBar({
   symbol: string;
   stockData: ComprehensiveStockData;
 }) {
-  const { subscribe, unsubscribe, priceUpdates, isConnected, getPrice } =
-    useStockWebSocket({
-      onConnect: () => console.log("Connected!"),
-      onDisconnect: () => console.log("Disconnected"),
-    });
+  const ws = useStockWebSocketContext();
 
   const prevPrice = useRef(stockData.currentPrice);
   const priceBgStyle = useRef("");
@@ -23,11 +19,22 @@ export function StockBar({
 
   useEffect(() => {
     // Subscribe to symbols when component mounts
-    subscribe([symbol]);
+    // if (ws?.connectionState) {
+    //   const reconnectAttemptsRef = ws?.reconnectAttemptsRef;
+    //   if (reconnectAttemptsRef) {
+    //     reconnectAttemptsRef.current = 0;
+    //   }
+    //   ws?.connect();
+    //   console.log("component connecting...");
+    // }
+
+    console.log("subscribing...");
+    ws?.subscribe([symbol]);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      unsubscribe([symbol]);
+      console.log("unsubscribing...");
+      ws?.unsubscribe([symbol]);
     };
   }, []);
 
@@ -39,14 +46,14 @@ export function StockBar({
     });
   };
 
-  // Force rerender every 0.5 seconds
+  // Force rerender every 0.75 seconds
   useEffect(() => {
-    if (isConnected) {
+    if (ws?.connectionState != "disconnected") {
       const interval = setInterval(() => {
         setTick((prev) => prev + 1);
         priceBgStyle.current = "";
         console.log("executed delay");
-      }, 1000);
+      }, 750);
 
       return () => {
         clearInterval(interval);
@@ -56,7 +63,7 @@ export function StockBar({
   });
 
   // Get latest price for a symbol
-  const currentPrice = getPrice(symbol)?.price || stockData.currentPrice;
+  const currentPrice = ws?.getPrice(symbol)?.price || stockData.currentPrice;
   const priceDiff = currentPrice - prevPrice.current;
   // console.log(
   //   `prev:${prevPrice.current}, current:${currentPrice}, diff:${priceDiff}`
@@ -67,17 +74,18 @@ export function StockBar({
     prevPrice.current = currentPrice;
   }, [currentPrice]);
 
-  const priceChange = currentPrice - stockData.previousClose;
   priceBgStyle.current =
     priceDiff > 0
       ? "bg-green-900"
       : priceDiff < 0
       ? "bg-red-900"
       : priceBgStyle.current;
+
+  const priceChange = currentPrice - stockData.previousClose;
   const priceChangePercent = (priceChange / currentPrice) * 100;
 
   return (
-    <div className="border hover:border-indigo-900 rounded-lg px-6 py-4">
+    <div className="border-l-3 hover:border-indigo-800 rounded-lg px-6 py-4">
       <div className="flex items-center gap-4">
         <div>
           <div className="text-sm text-gray-600 mb-1">Current Price</div>
@@ -88,7 +96,7 @@ export function StockBar({
         <div>
           <div className="text-sm text-gray-600 mb-1">Change</div>
           <div
-            className={`text-2xl font-semibold ${
+            className={`text-2xl font-semibold ${priceBgStyle.current} ${
               priceChange >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
