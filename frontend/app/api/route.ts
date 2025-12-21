@@ -96,6 +96,17 @@ export const fetchMarketNews = async (): Promise<MarketNewsRecord[] | null> => {
   }
 };
 
+// NOTE: Finnhub Stock Candles now requires premium access
+// Use yahoo-finance2 via /api/candles endpoint
+// Example: fetch('/api/candles?symbol=AAPL&resolution=D')
+export const fetchStockCandles = async () => {
+  // This function is deprecated - use yahoo-finance2 via /api/candles instead
+  console.warn(
+    "fetchStockCandles is deprecated. Use /api/candles endpoint with yahoo-finance2 instead."
+  );
+  return null;
+};
+
 // Comprehensive stock data fetch - similar to Yahoo Finance
 export const fetchComprehensiveStockData = cache(
   async (symbol: string): Promise<ComprehensiveStockData | null> => {

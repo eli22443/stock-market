@@ -209,7 +209,7 @@ export function useStockWebSocket(
     try {
       const ws = new WebSocket(url);
       wsRef.current = ws;
-      console.log("CREATES NEW SOCKET");
+      // console.log("CREATES NEW SOCKET");
 
       ws.onopen = () => {
         setConnectionState("connected");

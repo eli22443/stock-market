@@ -28,12 +28,12 @@ export function StockBar({
     //   console.log("component connecting...");
     // }
 
-    console.log("subscribing...");
+    // console.log("subscribing...");
     ws?.subscribe([symbol]);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      console.log("unsubscribing...");
+      // console.log("unsubscribing...");
       ws?.unsubscribe([symbol]);
     };
   }, []);
@@ -52,12 +52,12 @@ export function StockBar({
       const interval = setInterval(() => {
         setTick((prev) => prev + 1);
         priceBgStyle.current = "";
-        console.log("executed delay");
+        // console.log("executed delay");
       }, 750);
 
       return () => {
         clearInterval(interval);
-        console.log("cancelled delay");
+        // console.log("cancelled delay");
       };
     }
   });
