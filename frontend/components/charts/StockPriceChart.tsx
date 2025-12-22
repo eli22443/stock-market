@@ -1,0 +1,156 @@
+"use client";
+import { CandleData } from "@/types";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  // BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+ChartJS.register();
+
+export default function StockPriceChart({
+  candle,
+}: {
+  candle: {
+    symbol: string;
+    resolution: `1` | `5` | `15` | `30` | `60` | `D` | `W` | `M`;
+    data: CandleData;
+  };
+}) {
+  // console.log(candle);
+
+  const data = {
+    labels: candle.data.t.map((timestamp) =>
+      new Date(timestamp * 1000).toLocaleDateString("en-US", {
+        timeZone: "America/New_York",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    ),
+    datasets: [
+      {
+        label: "Price",
+        data: candle.data.c, // Close prices
+        borderColor: "rgb(23, 109, 246)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: `${candle.symbol} Stock Price`,
+        color: "rgb(210, 202, 202)", // Change title color here
+        font: {
+          size: 18,
+          weight: "bold" as const,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          title: function (context: any) {
+            const index = context[0].dataIndex;
+            const timestamp = candle.data.t[index];
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleString("en-US", {
+              timeZone: "America/New_York",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZoneName: "short",
+            });
+          },
+          label: function (context: any) {
+            const index = context.dataIndex;
+            const close = candle.data.c[index];
+            const open = candle.data.o[index];
+            const high = candle.data.h[index];
+            const low = candle.data.l[index];
+            const volume = candle.data.v[index];
+
+            // Format with consistent spacing for better alignment
+            return [
+              `Close: ${close.toFixed(2).padStart(16)}`,
+              `Open:  ${open.toFixed(2).padStart(16)}`,
+              `High:  ${high.toFixed(2).padStart(16)}`,
+              `Low:   ${low.toFixed(2).padStart(16)}`,
+              `Volume: ${volume.toLocaleString().padStart(15)}`,
+            ];
+          },
+        },
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "rgb(255, 255, 255)",
+        bodyColor: "rgb(255, 255, 255)",
+        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 1,
+        padding: 12,
+        displayColors: false,
+        bodyFont: {
+          family: "monospace",
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#e2dede", // Change x-axis label color here
+        },
+        title: {
+          display: true,
+          text: "Date",
+          color: "#e2dede", // Change x-axis title color here
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)", // Change x-axis grid color here
+        },
+      },
+      y: {
+        beginAtZero: false,
+        ticks: {
+          color: "#e2dede", // Change y-axis label color here
+        },
+        title: {
+          display: true,
+          text: "Price ($)",
+          color: "#e2dede", // Change y-axis title color here
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)", // Change y-axis grid color here
+        },
+      },
+    },
+  };
+
+  return <Line data={data} options={options} />;
+}

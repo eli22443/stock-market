@@ -1,7 +1,9 @@
+import ChartContainer from "@/components/charts/ChartContainer";
+import StockPriceChart from "@/components/charts/StockPriceChart";
 import { StockBar } from "@/components/StockBar";
 import StockList from "@/components/StockList";
 import NewsTable from "@/components/StockNews";
-import { StockNewsRecord, ComprehensiveStockData } from "@/types";
+import { StockNewsRecord, ComprehensiveStockData, CandleData } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -54,6 +56,23 @@ export default async function QuotePage({
     });
   };
 
+  //Fetching candle data
+  const from = Date.now() / 1000 - 86400 * 30;
+  const to = from + 25 * 60 * 60;
+  const res = await fetch(
+    `${
+      process.env.NEXT_URL
+    }/api/candles?symbol=${symbol}&resolution=D&from=${from}&to=${null}`
+  );
+  if (!res.ok) {
+    console.log(await res.json());
+  }
+  const candle: {
+    symbol: string;
+    resolution: `1` | `D`;
+    data: CandleData;
+  } = await res.json();
+
   return (
     <div className="stock-page px-6">
       <h2 className="text-2xl font-bold my-5">
@@ -64,7 +83,9 @@ export default async function QuotePage({
       <StockBar symbol={symbol} stockData={stockData} />
 
       {/* stock graph */}
-      <div className="stock-graph h-75 border my-2">STOCK GRAPH</div>
+      <div className="stock-graph h-75 border my-2">
+        <ChartContainer candle={candle} />
+      </div>
 
       <StockList data={stockData} symbol={symbol} />
       <div className="mt-8">
