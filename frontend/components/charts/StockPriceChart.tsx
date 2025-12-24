@@ -40,21 +40,40 @@ export default function StockPriceChart({
 }) {
   // console.log(candle);
 
-  const data = {
-    labels: candle.data.t.map((timestamp) =>
+  let labels;
+
+  if (candle.resolution == "1") {
+    labels = candle.data.t.map((timestamp) =>
+      new Date(timestamp * 1000)
+        .toLocaleDateString("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          minute: "numeric",
+        })
+        .slice(12)
+    );
+  } else if (candle.resolution == "D") {
+    labels = candle.data.t.map((timestamp) =>
       new Date(timestamp * 1000).toLocaleDateString("en-US", {
         timeZone: "America/New_York",
-        month: "short",
+        month: "numeric",
         day: "numeric",
-        year: "numeric",
+        year: "2-digit",
       })
-    ),
+    );
+  }
+
+  const data = {
+    labels: labels,
     datasets: [
       {
         label: "Price",
         data: candle.data.c, // Close prices
         borderColor: "rgb(23, 109, 246)",
+        borderWidth: 1.5, // Make line thinner (default is 3, lower = thinner)
         tension: 0.1,
+        pointRadius: 0, // Hide points/circles (0 = invisible, higher = larger)
+        pointHoverRadius: 4, // Show point on hover for better UX
       },
     ],
   };
@@ -67,7 +86,7 @@ export default function StockPriceChart({
         display: false,
       },
       title: {
-        display: true,
+        display: false,
         text: `${candle.symbol} Stock Price`,
         color: "rgb(210, 202, 202)", // Change title color here
         font: {

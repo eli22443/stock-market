@@ -81,6 +81,12 @@ export type RecommendationData = {
   symbol: string;
 }[];
 
+export type StockCandle = {
+  symbol: string;
+  resolution: `1` | `15` | `60` | `D` | `M`;
+  data: CandleData;
+};
+
 export type CandleData = {
   /** List of close prices for returned candles */
   c: number[];

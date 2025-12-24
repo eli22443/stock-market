@@ -1,9 +1,8 @@
 import ChartContainer from "@/components/charts/ChartContainer";
-import StockPriceChart from "@/components/charts/StockPriceChart";
 import { StockBar } from "@/components/StockBar";
 import StockList from "@/components/StockList";
 import NewsTable from "@/components/StockNews";
-import { StockNewsRecord, ComprehensiveStockData, CandleData } from "@/types";
+import { StockNewsRecord, ComprehensiveStockData, StockCandle } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -57,9 +56,9 @@ export default async function QuotePage({
   };
 
   //Fetching candle data
-  const from = Date.now() / 1000 - 86400 * 30;
-  const to = from + 25 * 60 * 60;
-  const res = await fetch(
+  let from = Date.now() / 1000 - 86400 * 365;
+  let to = from + 25 * 60 * 60;
+  let res = await fetch(
     `${
       process.env.NEXT_URL
     }/api/candles?symbol=${symbol}&resolution=D&from=${from}&to=${null}`
@@ -67,11 +66,19 @@ export default async function QuotePage({
   if (!res.ok) {
     console.log(await res.json());
   }
-  const candle: {
-    symbol: string;
-    resolution: `1` | `D`;
-    data: CandleData;
-  } = await res.json();
+  const candleD: StockCandle = await res.json();
+
+  from = Date.now() / 1000 - 86400 * 7;
+  to = from + 25 * 60 * 60;
+  res = await fetch(
+    `${
+      process.env.NEXT_URL
+    }/api/candles?symbol=${symbol}&resolution=1&from=${from}&to=${null}`
+  );
+  if (!res.ok) {
+    console.log(await res.json());
+  }
+  const candle1: StockCandle = await res.json();
 
   return (
     <div className="stock-page px-6">
@@ -83,8 +90,8 @@ export default async function QuotePage({
       <StockBar symbol={symbol} stockData={stockData} />
 
       {/* stock graph */}
-      <div className="stock-graph h-75 border my-2">
-        <ChartContainer candle={candle} />
+      <div className="stock-graph border  mb-8">
+        <ChartContainer candleD={candleD} candle1={candle1} />
       </div>
 
       <StockList data={stockData} symbol={symbol} />
