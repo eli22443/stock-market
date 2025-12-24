@@ -171,11 +171,11 @@ interface StockPriceChartProps {
 
 ### High Priority (MVP)
 
-1. ⚠️ Install chart.js and react-chartjs-2
-2. ⚠️ Create basic line chart component
+1. ✅ Install chart.js and react-chartjs-2
+2. ✅ Create basic line chart component
 3. ✅ API endpoint for candle data (already implemented with Yahoo Finance)
-4. ⚠️ Integrate chart into quote page
-5. ⚠️ Add time period selector (1D, 5D, 1M, 3M, 6M, 1Y)
+4. ✅ Integrate chart into quote page
+5. ✅ Add time period selector (1D, 5D, 1M, 3M, 6M, 1Y)
 
 ### Medium Priority
 
