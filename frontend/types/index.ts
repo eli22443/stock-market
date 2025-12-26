@@ -2,7 +2,7 @@
  * Centralized type definitions for the stock market application
  */
 
-/** Finnhub quote response shape (simplified) */
+/** Quote data response shape (generic format) */
 export type QuoteData = {
   /** current price */
   c: number;
@@ -147,7 +147,7 @@ export type ProfileData = {
   currency: string;
   estimateCurrency: string;
   exchange: string;
-  finnhubIndustry: string;
+  industry: string; // Previously finnhubIndustry, kept for compatibility
   ipo: string;
   logo: string;
   marketCapitalization: number;
@@ -172,7 +172,7 @@ export type EarningsCalendarData = {
     quarter: number;
     /** Revenue actual */
     revenueActual: number;
-    /** Revenue estimate including Finnhub's proprietary estimates */
+    /** Revenue estimate */
     revenueEstimate: number;
     /** Symbol */
     symbol: string;

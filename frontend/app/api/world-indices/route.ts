@@ -48,7 +48,7 @@ async function fetchIndexQuote(symbol: string): Promise<QuoteData | null> {
       return null;
     }
 
-    // Convert Yahoo Finance quote to Finnhub QuoteData format
+    // Convert Yahoo Finance quote to QuoteData format
     const quoteData: QuoteData = {
       c: quote.regularMarketPrice, // current price
       d: quote.regularMarketChange || 0, // change

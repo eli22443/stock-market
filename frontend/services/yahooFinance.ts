@@ -1,5 +1,10 @@
 import yahooFinance from "yahoo-finance2";
-import { CandleData } from "@/types";
+import {
+  CandleData,
+  StockNewsRecord,
+  MarketNewsRecord,
+  ComprehensiveStockData,
+} from "@/types";
 
 /**
  * Yahoo Finance candle data type
@@ -209,6 +214,8 @@ export type YahooComprehensiveData = {
 export async function fetchYahooComprehensiveData(
   symbol: string
 ): Promise<YahooComprehensiveData | null> {
+  console.log("Fetching comprehensive data from Yahoo Finance...");
+
   try {
     const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
 
@@ -318,6 +325,149 @@ export async function fetchYahooComprehensiveData(
       `Error fetching Yahoo Finance comprehensive data for ${symbol}:`,
       error
     );
+    return null;
+  }
+}
+
+/**
+ * Convert Yahoo Finance data to ComprehensiveStockData format
+ */
+export function convertYahooToComprehensive(
+  yahooData: YahooComprehensiveData
+): ComprehensiveStockData {
+  return yahooData;
+}
+
+/**
+ * Yahoo Finance news article type
+ */
+export type YahooNewsArticle = {
+  uuid: string;
+  title: string;
+  publisher: string;
+  link: string;
+  providerPublishTime: number;
+  type: string;
+  thumbnail?: {
+    resolutions?: Array<{
+      url: string;
+      width: number;
+      height: number;
+    }>;
+  };
+};
+
+/**
+ * Fetch company news from Yahoo Finance
+ * @param symbol Stock symbol (e.g., "AAPL")
+ * @returns Array of news articles or null if error
+ */
+export async function fetchYahooCompanyNews(
+  symbol: string
+): Promise<StockNewsRecord[] | null> {
+  console.log("Fetching company news from Yahoo Finance...");
+  try {
+    const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
+
+    // Fetch news for the symbol
+    const newsResult = await yh.search(symbol, {
+      newsCount: 50,
+      quotesCount: 0,
+    });
+
+    if (!newsResult?.news || !Array.isArray(newsResult.news)) {
+      return null;
+    }
+
+    // Convert Yahoo Finance news format to StockNewsRecord format
+    const news: StockNewsRecord[] = newsResult.news.map((article) => {
+      // Get image URL from thumbnail if available
+      let imageUrl = "";
+      if (
+        article.thumbnail?.resolutions &&
+        article.thumbnail.resolutions.length > 0
+      ) {
+        // Get the largest resolution
+        const sortedResolutions = [...article.thumbnail.resolutions].sort(
+          (a, b) => b.width * b.height - a.width * a.height
+        );
+        imageUrl = sortedResolutions[0].url;
+      }
+
+      return {
+        category: article.type || "general",
+        datetime: Math.floor(article.providerPublishTime.getTime() / 1000), // Convert to milliseconds
+        headline: article.title,
+        id: parseInt(article.uuid.replace(/-/g, "").substring(0, 10), 16) || 0, // Convert UUID to number
+        image: imageUrl,
+        related: symbol,
+        source: article.publisher,
+        summary: article.title, // Yahoo Finance doesn't provide summary in search results
+        url: article.link,
+      };
+    });
+
+    return news;
+  } catch (error) {
+    console.error(
+      `Error fetching Yahoo Finance company news for ${symbol}:`,
+      error
+    );
+    return null;
+  }
+}
+
+/**
+ * Fetch general market news from Yahoo Finance
+ * @returns Array of news articles or null if error
+ */
+export async function fetchYahooMarketNews(): Promise<
+  MarketNewsRecord[] | null
+> {
+  try {
+    const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
+
+    // Fetch general market news (using a broad search term)
+    const newsResult = await yh.search("market", {
+      newsCount: 50,
+      quotesCount: 0,
+    });
+
+    if (!newsResult?.news || !Array.isArray(newsResult.news)) {
+      return null;
+    }
+
+    // Convert Yahoo Finance news format to MarketNewsRecord format
+    const news: MarketNewsRecord[] = newsResult.news.map((article) => {
+      // Get image URL from thumbnail if available
+      let imageUrl = "";
+      if (
+        article.thumbnail?.resolutions &&
+        article.thumbnail.resolutions.length > 0
+      ) {
+        // Get the largest resolution
+        const sortedResolutions = [...article.thumbnail.resolutions].sort(
+          (a, b) => b.width * b.height - a.width * a.height
+        );
+        imageUrl = sortedResolutions[0].url;
+      }
+
+      return {
+        category: article.type || "general",
+        datetime: Math.floor(article.providerPublishTime.getTime() / 1000), // Convert to milliseconds
+        headline: article.title,
+        id: parseInt(article.uuid.replace(/-/g, "").substring(0, 10), 16) || 0, // Convert UUID to number
+        image: imageUrl,
+        related: "",
+        source: article.publisher,
+        summary: article.title, // Yahoo Finance doesn't provide summary in search results
+        url: article.link,
+      };
+    });
+
+    return news;
+  } catch (error) {
+    console.error("Error fetching Yahoo Finance market news:", error);
     return null;
   }
 }

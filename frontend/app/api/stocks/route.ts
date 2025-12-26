@@ -4,13 +4,6 @@ import type { StockCategorized, StockRecord, StocksMetrics } from "@/types";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
 
-// type stocksCategorized = {
-//   gainers: StocksMetrics[];
-//   losers: StocksMetrics[];
-//   mostActive: StocksMetrics[];
-//   trending: StocksMetrics[];
-// };
-
 /**
  * Fetch stock data for a single symbol
  */
@@ -91,32 +84,30 @@ export async function GET(request: Request) {
     const category = searchParams.get("category");
 
     if (!category) {
-      return NextResponse.json(
-        { error: "Failed fetching category." },
-        { status: 503 }
-      );
+      return NextResponse.json({
+        error: "Failed fetching category.",
+        status: 503,
+      });
     }
 
     // Fetch all stocks
     const allStocks = await fetchMultiStocksData();
 
     if (allStocks.length === 0) {
-      return NextResponse.json(
-        { error: "No stock data available" },
-        { status: 503 }
-      );
+      return NextResponse.json({
+        error: "No stock data available",
+        status: 503,
+      });
     }
 
     // Categorize stocks
     const categorized = categorizeStocks(allStocks);
 
     if (!categories.includes(category)) {
-      return NextResponse.json(
-        {
-          error: `Invalid category. Must be one of: ${categories.join(", ")}`,
-        },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        error: `Invalid category. Must be one of: ${categories.join(", ")}`,
+        status: 400,
+      });
     }
 
     const categoryKey = category === "most-active" ? "mostActive" : category;
@@ -126,72 +117,43 @@ export async function GET(request: Request) {
       count: categorized[categoryKey as keyof typeof categorized].length,
     };
     return NextResponse.json(stockCat);
-
-    // // Return all categories
-    // return NextResponse.json({
-    //   categories: {
-    //     "most-active": {
-    //       stocks: categorized.mostActive,
-    //       count: categorized.mostActive.length,
-    //     },
-    //     trending: {
-    //       stocks: categorized.trending,
-    //       count: categorized.trending.length,
-    //     },
-    //     gainers: {
-    //       stocks: categorized.gainers,
-    //       count: categorized.gainers.length,
-    //     },
-    //     losers: {
-    //       stocks: categorized.losers,
-    //       count: categorized.losers.length,
-    //     },
-    //   },
-    //   totalStocks: allStocks.length,
-    // });
   } catch (error) {
     console.error("Error in GET /api/stocks:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error", status: 500 });
   }
 }
 
-/**
- * POST /api/stocks
- * For future use - could accept stock symbols to fetch
- */
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { symbols: customSymbols } = body;
+// /**
+//  * POST /api/stocks
+//  * For future use - could accept stock symbols to fetch
+//  */
+// export async function POST(req: Request) {
+//   try {
+//     const body = await req.json();
+//     const { symbols: customSymbols } = body;
 
-    if (!customSymbols || !Array.isArray(customSymbols)) {
-      return NextResponse.json(
-        { error: "Please provide an array of stock symbols" },
-        { status: 400 }
-      );
-    }
+//     if (!customSymbols || !Array.isArray(customSymbols)) {
+//       return NextResponse.json(
+//         { error: "Please provide an array of stock symbols" },
+//         { status: 400 }
+//       );
+//     }
 
-    // Fetch stocks for provided symbols
-    const stockPromises = customSymbols.map((symbol: string) =>
-      fetchStockData(symbol.toUpperCase())
-    );
-    const stocks = await Promise.all(stockPromises);
-    const validStocks = stocks.filter(
-      (stock): stock is StockRecord => stock !== null
-    );
+//     // Fetch stocks for provided symbols
+//     const stockPromises = customSymbols.map((symbol: string) =>
+//       fetchStockData(symbol.toUpperCase())
+//     );
+//     const stocks = await Promise.all(stockPromises);
+//     const validStocks = stocks.filter(
+//       (stock): stock is StockRecord => stock !== null
+//     );
 
-    return NextResponse.json({
-      stocks: validStocks,
-      count: validStocks.length,
-    });
-  } catch (error) {
-    console.error("Error in POST /api/stocks:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json({
+//       stocks: validStocks,
+//       count: validStocks.length,
+//     });
+//   } catch (error) {
+//     console.error("Error in POST /api/stocks:", error);
+//     return NextResponse.json({ error: "Internal server error", status: 500 });
+//   }
+// }

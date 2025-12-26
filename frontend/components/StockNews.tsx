@@ -11,16 +11,9 @@ export default function StockNews({
   symbol: string;
   stockNews: StockNewsRecord[];
 }) {
-  const rendered_news = stockNews.slice(83, 95).map((news, index) => {
-    const yahoo_pic =
-      "https://s.yimg.com/rz/stage/p/yahoo_finance_en-US_h_p_finance_2.png";
-
-    // Check if image exists and is not the placeholder
+  const rendered_news = stockNews.slice(0, 10).map((news, index) => {
     const hasValidImage =
-      news.image &&
-      news.image.trim() !== "" &&
-      // news.image !== yahoo_pic &&
-      news.image.startsWith("http");
+      news.image && news.image.trim() !== "" && news.image.startsWith("http");
 
     const img_rendered = hasValidImage ? (
       <img

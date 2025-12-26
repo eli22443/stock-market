@@ -27,8 +27,8 @@ export default async function QuotePage({
   //   symbol.toUpperCase()
   // );
   const apiUrl = process.env.NEXT_URL
-    ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}&comprehensive=true`
-    : `http://localhost:3000/api/quote?symbol=${symbol}&comprehensive=true`;
+    ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}`
+    : `http://localhost:3000/api/quote?symbol=${symbol}`;
 
   const response = await fetch(apiUrl);
 
@@ -47,6 +47,7 @@ export default async function QuotePage({
     notFound();
   }
 
+  console.log(stockNews);
   const formatNumber = (num: number | undefined): string => {
     if (num === undefined || num === null) return "N/A";
     return num.toLocaleString("en-US", {
@@ -92,7 +93,10 @@ export default async function QuotePage({
         <ChartContainer candleD={candleD} candle1={candle1} />
       </div>
 
+      {/* Comprehensive data */}
       <StockList data={stockData} symbol={symbol} />
+
+      {/* Stock news */}
       <div className="mt-8">
         <h2 className="text-2xl font-bold mt-10 mb-5">News</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
