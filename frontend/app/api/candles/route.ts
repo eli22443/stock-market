@@ -5,9 +5,45 @@
 import { NextResponse } from "next/server";
 import {
   fetchYahooFinanceCandles,
-  convertYahooToCandleData,
+  YahooFinanceCandle,
 } from "@/services/yahooFinance";
 import { CandleData } from "@/types";
+
+/**
+ * Convert Yahoo Finance format to CandleData format
+ * @param yahooData Array of Yahoo Finance candle data
+ * @returns CandleData object compatible with existing types
+ */
+export function convertYahooToCandleData(
+  yahooData: YahooFinanceCandle[]
+): CandleData {
+  if (yahooData.length === 0) {
+    return {
+      c: [],
+      h: [],
+      l: [],
+      o: [],
+      t: [],
+      v: [],
+      s: "no_data",
+    };
+  }
+
+  // Sort by date (ascending) to ensure chronological order
+  const sortedData = [...yahooData].sort(
+    (a, b) => a.date.getTime() - b.date.getTime()
+  );
+
+  return {
+    c: sortedData.map((d) => d.close),
+    h: sortedData.map((d) => d.high),
+    l: sortedData.map((d) => d.low),
+    o: sortedData.map((d) => d.open),
+    t: sortedData.map((d) => Math.floor(d.date.getTime() / 1000)),
+    v: sortedData.map((d) => d.volume),
+    s: "ok",
+  };
+}
 
 export async function GET(request: Request) {
   try {

@@ -31,7 +31,9 @@ function calculatePriceRange(high: number, low: number): number {
 function categorizeStocks(stocks: StockRecord[]) {
   // Add calculated fields to each stock
   const stocksWithMetrics: StocksMetrics[] = stocks.map((stock) => ({
-    ...stock,
+    symbol: stock.symbol,
+    name: stock.name,
+    data: stock.data,
     changePercent: calculateChangePercent(stock.data.c, stock.data.pc),
     priceRange: calculatePriceRange(stock.data.h, stock.data.l),
     priceChange: stock.data.c - stock.data.pc,
@@ -100,7 +102,7 @@ export async function GET(request: Request) {
       });
     }
 
-    // Categorize stocks
+    // REFACTOR to using comprehensive data
     const categorized = categorizeStocks(allStocks);
 
     if (!categories.includes(category)) {

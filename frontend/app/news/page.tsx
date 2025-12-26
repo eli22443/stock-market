@@ -7,6 +7,10 @@ export default async function News() {
     : "http://localhost:3000/api/news";
 
   const response = await fetch(apiUrl);
+  if (!response.ok) {
+    console.log(await response.json());
+  }
+
   const news: MarketNewsRecord[] = await response.json();
 
   return (

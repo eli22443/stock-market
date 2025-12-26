@@ -8,9 +8,7 @@ import Link from "next/link";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -18,14 +16,17 @@ import {
 
 export default function StocksTable({ data }: { data: StockCategorized }) {
   return (
-    <div className="border border-indigo-950 w-200">
+    <div className="border border-indigo-950 w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Symbol</TableHead>
+            <TableHead>Stock</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Change</TableHead>
             <TableHead>Change %</TableHead>
+            <TableHead>High</TableHead>
+            <TableHead>Low</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -39,9 +40,26 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
                   {stock.symbol}
                 </Link>
               </TableCell>
+              <TableCell>{stock.name || stock.symbol}</TableCell>
               <TableCell>{stock.data.c.toFixed(2)}</TableCell>
-              <TableCell>{stock.priceChange.toFixed(2)}</TableCell>
-              <TableCell>{stock.changePercent.toFixed(2)}</TableCell>
+              <TableCell
+                className={
+                  stock.priceChange >= 0 ? "text-green-600" : "text-red-600"
+                }
+              >
+                {stock.priceChange >= 0 ? "+" : ""}
+                {stock.priceChange.toFixed(2)}
+              </TableCell>
+              <TableCell
+                className={
+                  stock.changePercent >= 0 ? "text-green-600" : "text-red-600"
+                }
+              >
+                {stock.changePercent >= 0 ? "+" : ""}
+                {stock.changePercent.toFixed(2)}%
+              </TableCell>
+              <TableCell>{stock.data.h.toFixed(2)}</TableCell>
+              <TableCell>{stock.data.l.toFixed(2)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

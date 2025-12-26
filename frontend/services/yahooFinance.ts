@@ -3,7 +3,7 @@ import {
   CandleData,
   StockNewsRecord,
   MarketNewsRecord,
-  ComprehensiveStockData,
+  ComprehensiveData,
 } from "@/types";
 
 /**
@@ -138,82 +138,12 @@ export async function fetchYahooFinanceCandles(
 }
 
 /**
- * Convert Yahoo Finance format to CandleData format
- * @param yahooData Array of Yahoo Finance candle data
- * @returns CandleData object compatible with existing types
- */
-export function convertYahooToCandleData(
-  yahooData: YahooFinanceCandle[]
-): CandleData {
-  if (yahooData.length === 0) {
-    return {
-      c: [],
-      h: [],
-      l: [],
-      o: [],
-      t: [],
-      v: [],
-      s: "no_data",
-    };
-  }
-
-  // Sort by date (ascending) to ensure chronological order
-  const sortedData = [...yahooData].sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
-  );
-
-  return {
-    c: sortedData.map((d) => d.close),
-    h: sortedData.map((d) => d.high),
-    l: sortedData.map((d) => d.low),
-    o: sortedData.map((d) => d.open),
-    t: sortedData.map((d) => Math.floor(d.date.getTime() / 1000)),
-    v: sortedData.map((d) => d.volume),
-    s: "ok",
-  };
-}
-
-/**
- * Comprehensive stock data type from Yahoo Finance
- */
-export type YahooComprehensiveData = {
-  previousClose: number;
-  open: number;
-  bid?: number;
-  bidSize?: number;
-  ask?: number;
-  askSize?: number;
-  dayRange: {
-    low: number;
-    high: number;
-  };
-  week52Range: {
-    low: number;
-    high: number;
-  };
-  volume?: number;
-  avgVolume?: number;
-  marketCap?: number;
-  beta?: number;
-  peRatio?: number;
-  eps?: number;
-  earningsDate?: string;
-  forwardDividend?: number;
-  forwardDividendYield?: number;
-  exDividendDate?: string;
-  targetEstimate?: number;
-  currentPrice: number;
-  priceChange: number;
-  priceChangePercent: number;
-};
-
-/**
  * Fetch comprehensive stock data from Yahoo Finance
  * Works for both stocks and indices
  */
 export async function fetchYahooComprehensiveData(
   symbol: string
-): Promise<YahooComprehensiveData | null> {
+): Promise<ComprehensiveData | null> {
   console.log("Fetching comprehensive data from Yahoo Finance...");
 
   try {
@@ -229,6 +159,7 @@ export async function fetchYahooComprehensiveData(
             "summaryDetail",
             "defaultKeyStatistics",
             "calendarEvents",
+            "financialData",
           ],
         })
         .catch(() => null),
@@ -242,6 +173,7 @@ export async function fetchYahooComprehensiveData(
     const profile = quoteSummary?.summaryProfile;
     const keyStats = quoteSummary?.defaultKeyStatistics;
     const calendar = quoteSummary?.calendarEvents;
+    const financial = quoteSummary?.financialData;
 
     // Calculate price change
     const currentPrice = quote.regularMarketPrice || 0;
@@ -268,7 +200,9 @@ export async function fetchYahooComprehensiveData(
       }
     }
 
-    const comprehensiveData: YahooComprehensiveData = {
+    const comprehensiveData: ComprehensiveData = {
+      symbol: quote.symbol,
+      name: quote.longName || quote.shortName,
       previousClose,
       open: quote.regularMarketOpen || currentPrice,
       bid: summary?.bid,
@@ -311,8 +245,8 @@ export async function fetchYahooComprehensiveData(
         ? summary.exDividendDate.toISOString().split("T")[0]
         : undefined,
       targetEstimate:
-        typeof summary?.targetMeanPrice === "number"
-          ? summary.targetMeanPrice
+        typeof financial?.targetMeanPrice === "number"
+          ? financial.targetMeanPrice
           : undefined,
       currentPrice,
       priceChange,
@@ -328,34 +262,6 @@ export async function fetchYahooComprehensiveData(
     return null;
   }
 }
-
-/**
- * Convert Yahoo Finance data to ComprehensiveStockData format
- */
-export function convertYahooToComprehensive(
-  yahooData: YahooComprehensiveData
-): ComprehensiveStockData {
-  return yahooData;
-}
-
-/**
- * Yahoo Finance news article type
- */
-export type YahooNewsArticle = {
-  uuid: string;
-  title: string;
-  publisher: string;
-  link: string;
-  providerPublishTime: number;
-  type: string;
-  thumbnail?: {
-    resolutions?: Array<{
-      url: string;
-      width: number;
-      height: number;
-    }>;
-  };
-};
 
 /**
  * Fetch company news from Yahoo Finance

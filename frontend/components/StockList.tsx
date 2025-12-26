@@ -1,7 +1,7 @@
-import { ComprehensiveStockData } from "@/types";
+import { ComprehensiveData } from "@/types";
 
 interface StockListProps {
-  data: ComprehensiveStockData;
+  data: ComprehensiveData;
   symbol: string;
 }
 

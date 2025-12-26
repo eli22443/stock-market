@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cache } from "react";
 import { type QuoteData, type StockRecord } from "@/types";
 import { fetchYahooComprehensiveData } from "@/services/yahooFinance";
+import yahooFinance from "yahoo-finance2";
 export const symbols = [
   "NVDA",
   "AAPL",
@@ -30,6 +31,14 @@ export const fetchStockData = cache(
   async (symbol: string): Promise<StockRecord | null> => {
     try {
       console.log("Fetching stock data from Yahoo Finance...");
+      const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
+
+      // Fetch quote to get company name
+      const quote = await yh.quote(symbol).catch(() => null);
+      if (!quote) {
+        return null;
+      }
+
       const yahooData = await fetchYahooComprehensiveData(symbol);
       if (!yahooData) {
         return null;
@@ -47,7 +56,10 @@ export const fetchStockData = cache(
         t: Math.floor(Date.now() / 1000),
       };
 
-      return { symbol, data: quoteData };
+      // Get company name from quote (shortName or longName)
+      const companyName = quote.longName || quote.shortName || undefined;
+
+      return { symbol, name: companyName, data: quoteData };
     } catch (error) {
       console.error("Error in fetching data.", error);
       return null;

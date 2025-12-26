@@ -2,7 +2,7 @@ import ChartContainer from "@/components/charts/ChartContainer";
 import { StockBar } from "@/components/StockBar";
 import StockList from "@/components/StockList";
 import NewsTable from "@/components/StockNews";
-import { StockNewsRecord, ComprehensiveStockData, StockCandle } from "@/types";
+import { StockNewsRecord, ComprehensiveData, StockCandle } from "@/types";
 import { notFound } from "next/navigation";
 
 /**
@@ -16,16 +16,6 @@ export default async function QuotePage({
   params: Promise<{ symbol: string }>;
 }) {
   const { symbol } = await params;
-
-  // Validate symbol exists by fetching stock data first
-  // const stockData = await fetchStockData(symbol.toUpperCase());
-  // if (!stockData) {
-  //   notFound();
-  // }
-
-  // const stockNews: StockNews[] | null = await fetchCompanyNews(
-  //   symbol.toUpperCase()
-  // );
   const apiUrl = process.env.NEXT_URL
     ? `${process.env.NEXT_URL}/api/quote?symbol=${symbol}`
     : `http://localhost:3000/api/quote?symbol=${symbol}`;
@@ -40,7 +30,7 @@ export default async function QuotePage({
   const {
     stockData,
     stockNews,
-  }: { stockData: ComprehensiveStockData; stockNews: StockNewsRecord[] } =
+  }: { stockData: ComprehensiveData; stockNews: StockNewsRecord[] } =
     await response.json();
 
   if (!stockData) {
@@ -83,7 +73,7 @@ export default async function QuotePage({
 
   return (
     <div className="stock-page px-6">
-      <h2 className="text-2xl font-bold my-5">{symbol} Data</h2>
+      <h2 className="text-2xl font-bold my-5">{`${stockData.name} (${stockData.symbol})`}</h2>
 
       {/* Current Price & Change */}
       <StockBar symbol={symbol} stockData={stockData} />

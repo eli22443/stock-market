@@ -19,10 +19,10 @@ export default async function StocksCategory({
     ? `${process.env.NEXT_URL}/api/stocks?category=${category}`
     : `http://localhost:3000/api/stocks?category=${category}`;
 
-  /**show logs on console (browser) */
-  // console.log("Fetching from API:", apiUrl);
   const response = await fetch(apiUrl);
-  // console.log("API response status:", response.status);
+  if (!response.ok) {
+    console.log(await response.json());
+  }
 
   const data: StockCategorized = await response.json();
 

@@ -12,7 +12,9 @@ export default async function Home() {
   /**show logs on console (browser) */
   // console.log("Fetching from API:", apiUrl);
   const response = await fetch(apiUrl);
-  // console.log("API response status:", response.status);
+  if (!response.ok) {
+    console.log(await response.json());
+  }
 
   const data: StockRecord[] = await response.json();
 

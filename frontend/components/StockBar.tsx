@@ -1,7 +1,7 @@
 "use client";
 
 import { useStockWebSocketContext } from "@/context/WebSocketContext";
-import { ComprehensiveStockData } from "@/types";
+import { ComprehensiveData } from "@/types";
 import { useEffect, useRef, useState } from "react";
 
 export function StockBar({
@@ -9,7 +9,7 @@ export function StockBar({
   stockData,
 }: {
   symbol: string;
-  stockData: ComprehensiveStockData;
+  stockData: ComprehensiveData;
 }) {
   const ws = useStockWebSocketContext();
 
