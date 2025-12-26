@@ -167,3 +167,157 @@ export function convertYahooToCandleData(
     s: "ok",
   };
 }
+
+/**
+ * Comprehensive stock data type from Yahoo Finance
+ */
+export type YahooComprehensiveData = {
+  previousClose: number;
+  open: number;
+  bid?: number;
+  bidSize?: number;
+  ask?: number;
+  askSize?: number;
+  dayRange: {
+    low: number;
+    high: number;
+  };
+  week52Range: {
+    low: number;
+    high: number;
+  };
+  volume?: number;
+  avgVolume?: number;
+  marketCap?: number;
+  beta?: number;
+  peRatio?: number;
+  eps?: number;
+  earningsDate?: string;
+  forwardDividend?: number;
+  forwardDividendYield?: number;
+  exDividendDate?: string;
+  targetEstimate?: number;
+  currentPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+};
+
+/**
+ * Fetch comprehensive stock data from Yahoo Finance
+ * Works for both stocks and indices
+ */
+export async function fetchYahooComprehensiveData(
+  symbol: string
+): Promise<YahooComprehensiveData | null> {
+  try {
+    const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
+
+    // Fetch quote and quoteSummary in parallel
+    const [quote, quoteSummary] = await Promise.all([
+      yh.quote(symbol).catch(() => null),
+      yh
+        .quoteSummary(symbol, {
+          modules: [
+            "summaryProfile",
+            "summaryDetail",
+            "defaultKeyStatistics",
+            "calendarEvents",
+          ],
+        })
+        .catch(() => null),
+    ]);
+
+    if (!quote) {
+      return null;
+    }
+
+    const summary = quoteSummary?.summaryDetail;
+    const profile = quoteSummary?.summaryProfile;
+    const keyStats = quoteSummary?.defaultKeyStatistics;
+    const calendar = quoteSummary?.calendarEvents;
+
+    // Calculate price change
+    const currentPrice = quote.regularMarketPrice || 0;
+    const previousClose = quote.regularMarketPreviousClose || currentPrice;
+    const priceChange = currentPrice - previousClose;
+    const priceChangePercent =
+      previousClose !== 0 ? (priceChange / previousClose) * 100 : 0;
+
+    // Extract 52-week range
+    const week52Low = quote.fiftyTwoWeekLow || currentPrice;
+    const week52High = quote.fiftyTwoWeekHigh || currentPrice;
+
+    // Extract day range
+    const dayLow = quote.regularMarketDayLow || currentPrice;
+    const dayHigh = quote.regularMarketDayHigh || currentPrice;
+
+    // Extract earnings date
+    let earningsDate: string = "0";
+    if (calendar?.earnings?.earningsDate) {
+      const dates = calendar.earnings.earningsDate;
+      if (dates && dates.length > 0 && dates[0]) {
+        // dates[0] is already a Date object, not a timestamp
+        earningsDate = dates[0].toISOString().split("T")[0];
+      }
+    }
+
+    const comprehensiveData: YahooComprehensiveData = {
+      previousClose,
+      open: quote.regularMarketOpen || currentPrice,
+      bid: summary?.bid,
+      bidSize: summary?.bidSize,
+      ask: summary?.ask,
+      askSize: summary?.askSize,
+      dayRange: {
+        low: dayLow,
+        high: dayHigh,
+      },
+      week52Range: {
+        low: week52Low,
+        high: week52High,
+      },
+      volume: quote.regularMarketVolume,
+      avgVolume: summary?.averageVolume,
+      marketCap: quote.marketCap || keyStats?.marketCap,
+      beta: keyStats?.beta,
+      peRatio:
+        (typeof summary?.trailingPE === "number"
+          ? summary.trailingPE
+          : undefined) ||
+        (typeof keyStats?.trailingPE === "number"
+          ? keyStats.trailingPE
+          : undefined),
+      eps:
+        (typeof summary?.trailingEps === "number"
+          ? summary.trailingEps
+          : undefined) ||
+        (typeof keyStats?.trailingEps === "number"
+          ? keyStats.trailingEps
+          : undefined),
+      earningsDate,
+      forwardDividend: summary?.dividendRate,
+      forwardDividendYield:
+        typeof summary?.dividendYield === "number"
+          ? summary.dividendYield * 100
+          : undefined,
+      exDividendDate: summary?.exDividendDate
+        ? summary.exDividendDate.toISOString().split("T")[0]
+        : undefined,
+      targetEstimate:
+        typeof summary?.targetMeanPrice === "number"
+          ? summary.targetMeanPrice
+          : undefined,
+      currentPrice,
+      priceChange,
+      priceChangePercent,
+    };
+
+    return comprehensiveData;
+  } catch (error) {
+    console.error(
+      `Error fetching Yahoo Finance comprehensive data for ${symbol}:`,
+      error
+    );
+    return null;
+  }
+}

@@ -71,7 +71,25 @@ export default function ChartContainer({
       v: candle1.data.v.filter((_, index) => index % 10 == 0),
     },
   };
-  const candle1M = candleD;
+
+  // Filter data for 1 month (approximately 30 days)
+  const oneMonthAgo = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60;
+  const oneMonthIndex = candleD.data.t.findIndex(
+    (timestamp) => timestamp >= oneMonthAgo
+  );
+  const candle1M: StockCandle = {
+    symbol: candleD.symbol,
+    resolution: candleD.resolution,
+    data: {
+      c: candleD.data.c.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+      h: candleD.data.h.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+      l: candleD.data.l.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+      o: candleD.data.o.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+      s: candleD.data.s,
+      t: candleD.data.t.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+      v: candleD.data.v.slice(oneMonthIndex >= 0 ? oneMonthIndex : 0),
+    },
+  };
 
   // Filter data for 6 months (approximately 180 days)
   const sixMonthsAgo = Math.floor(Date.now() / 1000) - 180 * 24 * 60 * 60;

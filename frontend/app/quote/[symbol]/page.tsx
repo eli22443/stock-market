@@ -82,9 +82,7 @@ export default async function QuotePage({
 
   return (
     <div className="stock-page px-6">
-      <h2 className="text-2xl font-bold my-5">
-        {symbol.toUpperCase()} Stock Data
-      </h2>
+      <h2 className="text-2xl font-bold my-5">{symbol} Data</h2>
 
       {/* Current Price & Change */}
       <StockBar symbol={symbol} stockData={stockData} />
@@ -96,7 +94,7 @@ export default async function QuotePage({
 
       <StockList data={stockData} symbol={symbol} />
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mt-10 mb-5">Company News</h2>
+        <h2 className="text-2xl font-bold mt-10 mb-5">News</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
       </div>
     </div>

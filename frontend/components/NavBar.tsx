@@ -33,6 +33,14 @@ export default function NavBar() {
         >
           Stocks
         </Link>
+        <Link
+          href="/world-indices"
+          className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
+            pathname.startsWith("/world-indices") ? "font-bold" : ""
+          }`}
+        >
+          World Indices
+        </Link>
       </div>
     </nav>
   );
