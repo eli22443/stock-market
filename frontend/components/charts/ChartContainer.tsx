@@ -1,8 +1,7 @@
 "use client";
-import { CandleData, StockCandle } from "@/types";
+import { StockCandle } from "@/types";
 import StockPriceChart from "./StockPriceChart";
 import { useState } from "react";
-import { ReactElement } from "react";
 
 type Period = "1D" | "5D" | "1M" | "6M" | "1Y";
 
@@ -164,12 +163,12 @@ export default function ChartContainer({
     },
   };
 
-  const chartMap: Partial<Record<Period, ReactElement>> = {
-    "1D": <StockPriceChart candle={candle1D} />,
-    "5D": <StockPriceChart candle={candle5D} />,
-    "1M": <StockPriceChart candle={candle1M} />,
-    "6M": <StockPriceChart candle={candle6M} />,
-    "1Y": <StockPriceChart candle={candle1Y} />,
+  const chartMap = {
+    "1D": candle1D,
+    "5D": candle5D,
+    "1M": candle1M,
+    "6M": candle6M,
+    "1Y": candle1Y,
   };
 
   const btnStyle = "bg-gray-700 mx-2 px-2 rounded-sm hover:bg-gray-600 text-sm";
@@ -207,7 +206,7 @@ export default function ChartContainer({
           <strong>1Y</strong>
         </button>
       </div>
-      {chartMap[period]}
+      <StockPriceChart candle={chartMap[period]} />,
     </section>
   );
 }
