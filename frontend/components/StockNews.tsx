@@ -19,29 +19,42 @@ export default function StockNews({
       <img
         src={news.image}
         alt={news.headline}
-        className="h-40 w-80 object-cover rounded mb-2"
+        className="h-20 w-40 object-cover rounded"
       />
     ) : null;
 
     return (
-      <div key={index} className="mb-30">
-        <a
-          href={news.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold italic"
-        >
-          {news.headline}
-        </a>
+      <div
+        key={index}
+        className={`flex justify-between border-b border-gray-600 mb-6 pb-6 ${
+          index % 2 == 0 ? "mr-6" : "ml-6"
+        }`}
+      >
+        <div>
+          <a
+            href={news.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold italic text-sm"
+          >
+            <h3>{news.headline}</h3>
+          </a>
+          <div className="footer text-xs pt-2">
+            {new Date(news.datetime * 1000).toLocaleString()}
+          </div>
+        </div>
         {img_rendered}
-        <p>{news.summary}</p>
       </div>
     );
   });
 
   return (
-    <div className="mx-10">
-      <div className="">{rendered_news}</div>
+    <div className="relative mb-6">
+      <div className="grid grid-cols-2">{rendered_news}</div>
+      <div
+        className={`absolute top-0 left-1/2 transform -translate-x-1/2 w-px bg-gray-600`}
+        style={{ height: `${125 * Math.ceil(rendered_news.length / 2)}px` }}
+      ></div>
     </div>
   );
 }

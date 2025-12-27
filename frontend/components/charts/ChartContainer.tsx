@@ -17,10 +17,9 @@ export default function ChartContainer({
   /** Add time period selector (1D, 5D, 1M, 6M, 1Y) */
   const [period, setPeriod] = useState<Period>("1D");
 
-  let [dayIndex, foundIndex] = [candle1.data.t.length - 1, false];
+  // First, handle zero-value data modifications
   for (let i = candle1.data.t.length - 1; i >= 0; i--) {
     let noZeroIndex = i;
-
     // Modify N/A 0-value data for graph to be the prev value
     while (candle1.data.c[noZeroIndex] == 0) {
       candle1.data.c[i] = candle1.data.c[noZeroIndex - 1];
@@ -30,16 +29,52 @@ export default function ChartContainer({
       candle1.data.v[i] = candle1.data.v[noZeroIndex - 1];
       noZeroIndex--;
     }
+  }
 
-    // Find beginning of day at 4:00 AM
-    if (
-      i < candle1.data.t.length - 1 &&
-      candle1.data.t[i] % 86400 < 32400 &&
-      candle1.data.t[i + 1] % 86400 >= 32400 &&
-      !foundIndex
+  // Find the LAST day starting from 4:00 AM EST/EDT
+  // Iterate backwards to find the most recent 4:00 AM
+  let dayIndex = candle1.data.t.length - 1;
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  });
+
+  // Find the most recent 4:00 AM by iterating backwards
+  for (let i = candle1.data.t.length - 1; i >= 0; i--) {
+    const timestamp = candle1.data.t[i];
+    const date = new Date(timestamp * 1000);
+    const timeParts = formatter.format(date).split(":");
+    const hour = parseInt(timeParts[0]);
+    const minute = parseInt(timeParts[1]);
+
+    // Find the most recent candle at exactly 4:00 AM EST/EDT
+    if (hour === 4 && minute === 0) {
+      dayIndex = i;
+      break;
+    } else if (
+      hour === 4 &&
+      minute > 0 &&
+      dayIndex === candle1.data.t.length - 1
     ) {
-      dayIndex = i + 1;
-      foundIndex = true;
+      // Found a 4:xx candle but not exactly 4:00, use it as fallback
+      dayIndex = i;
+    } else if (hour < 4 && dayIndex === candle1.data.t.length - 1) {
+      // We've gone past 4:00 AM, check if next candle (forward) is at 4:00 AM
+      if (i < candle1.data.t.length - 1) {
+        const nextTimestamp = candle1.data.t[i + 1];
+        const nextDate = new Date(nextTimestamp * 1000);
+        const nextTimeParts = formatter.format(nextDate).split(":");
+        const nextHour = parseInt(nextTimeParts[0]);
+        const nextMinute = parseInt(nextTimeParts[1]);
+        if (nextHour === 4 && nextMinute === 0) {
+          dayIndex = i + 1;
+          break;
+        } else if (nextHour === 4) {
+          dayIndex = i + 1;
+        }
+      }
     }
   }
 

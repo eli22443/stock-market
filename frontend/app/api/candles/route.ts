@@ -1,6 +1,5 @@
 /**
  * Stock Candles API Route
- * Uses yahoo-finance2 for all candle data (free, no API key needed)
  */
 import { NextResponse } from "next/server";
 import {
@@ -58,33 +57,29 @@ export async function GET(request: Request) {
       : undefined;
 
     if (!symbol) {
-      return NextResponse.json(
-        { error: "Symbol parameter is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        error: "Symbol parameter is required",
+        status: 400,
+      });
     }
 
     // Validate resolution
     const validResolutions = ["1", "5", "15", "30", "60", "D", "W", "M"];
     if (!validResolutions.includes(resolution)) {
-      return NextResponse.json(
-        {
-          error: `Invalid resolution. Must be one of: ${validResolutions.join(
-            ", "
-          )}`,
-        },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        error: `Invalid resolution. Must be one of: ${validResolutions.join(
+          ", "
+        )}`,
+        status: 400,
+      });
     }
 
     // Validate date range if provided
     if (from && to && from > to) {
-      return NextResponse.json(
-        {
-          error: "Invalid date range: 'from' must be less than 'to'",
-        },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        error: "Invalid date range: 'from' must be less than 'to'",
+        status: 400,
+      });
     }
 
     // Fetch candles from Yahoo Finance
@@ -96,16 +91,11 @@ export async function GET(request: Request) {
     );
 
     if (!candles || candles.length === 0) {
-      return NextResponse.json(
-        {
-          error: "No candle data found",
-          symbol: symbol.toUpperCase(),
-          resolution,
-          suggestion:
-            "Check that the symbol is valid and data is available for the requested time range.",
-        },
-        { status: 404 }
-      );
+      return NextResponse.json({
+        error:
+          "No candle data found: Check that the symbol is valid and data is available for the requested time range.",
+        status: 404,
+      });
     }
 
     // Convert to CandleData format for compatibility with existing code
@@ -118,10 +108,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error in GET /api/candles:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error", status: 500 });
   }
 }
 
