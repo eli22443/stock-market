@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import yahooFinance from "yahoo-finance2";
-import type { QuoteData, StocksMetrics } from "@/types";
+import { fetchYahooComprehensiveData } from "@/services/yahooFinance";
+import type { QuoteData, StocksMetrics, ComprehensiveData } from "@/types";
 
 /**
  * Common world indices symbols
@@ -34,6 +35,20 @@ function calculateChangePercent(current: number, previous: number): number {
  */
 function calculatePriceRange(high: number, low: number): number {
   return high - low;
+}
+
+/**
+ * Calculate 52-week change percentage
+ */
+function calculate52WeekChangePercent(
+  currentPrice: number,
+  week52Low: number,
+  week52High: number
+): number {
+  if (week52Low === 0 || week52High === 0) return 0;
+  // Calculate change from 52-week low
+  const changeFromLow = ((currentPrice - week52Low) / week52Low) * 100;
+  return changeFromLow;
 }
 
 /**
@@ -75,24 +90,49 @@ async function fetchIndexQuote(symbol: string): Promise<QuoteData | null> {
  */
 export async function GET() {
   try {
-    // Fetch all indices data in parallel
-    const indicesPromises = worldIndicesSymbols.map(({ symbol }) =>
-      fetchIndexQuote(symbol)
+    // Fetch comprehensive data for all indices in parallel
+    const comprehensiveDataPromises = worldIndicesSymbols.map(({ symbol }) =>
+      fetchYahooComprehensiveData(symbol)
     );
-    const indicesData = await Promise.all(indicesPromises);
+    const comprehensiveDataArray = await Promise.all(comprehensiveDataPromises);
 
-    // Filter out null results and add calculated metrics
-    const indicesWithMetrics: (StocksMetrics & { name: string })[] = indicesData
+    // Filter out null results and convert to StocksMetrics format
+    const indicesWithMetrics: (StocksMetrics & { name: string })[] = comprehensiveDataArray
       .map((data, index) => {
         if (!data) return null;
         const { symbol, name } = worldIndicesSymbols[index];
+
+        // Convert to QuoteData format for backward compatibility
+        const quoteData: QuoteData = {
+          c: data.currentPrice,
+          d: data.priceChange,
+          dp: data.priceChangePercent,
+          h: data.dayRange.high,
+          l: data.dayRange.low,
+          o: data.open,
+          pc: data.previousClose,
+          t: Math.floor(Date.now() / 1000),
+        };
+
+        // Calculate 52-week change percentage
+        const week52ChangePercent = calculate52WeekChangePercent(
+          data.currentPrice,
+          data.week52Range.low,
+          data.week52Range.high
+        );
+
         return {
           symbol,
-          data,
           name,
-          changePercent: calculateChangePercent(data.c, data.pc),
-          priceRange: calculatePriceRange(data.h, data.l),
-          priceChange: data.c - data.pc,
+          data: quoteData,
+          changePercent: data.priceChangePercent,
+          priceRange: calculatePriceRange(data.dayRange.high, data.dayRange.low),
+          priceChange: data.priceChange,
+          volume: data.volume,
+          avgVolume: data.avgVolume,
+          marketCap: data.marketCap,
+          peRatio: data.peRatio,
+          week52ChangePercent,
         };
       })
       .filter(

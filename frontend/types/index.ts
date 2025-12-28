@@ -109,6 +109,12 @@ export type StocksMetrics = {
   changePercent: number;
   priceRange: number;
   priceChange: number;
+  // Additional comprehensive data fields
+  volume?: number;
+  avgVolume?: number;
+  marketCap?: number;
+  peRatio?: number;
+  week52ChangePercent?: number;
 };
 
 export type StockCategorized = {

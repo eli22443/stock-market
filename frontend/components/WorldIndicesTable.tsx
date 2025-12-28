@@ -29,6 +29,12 @@ type IndexData = {
   changePercent: number;
   priceRange: number;
   priceChange: number;
+  // Additional comprehensive data fields
+  volume?: number;
+  avgVolume?: number;
+  marketCap?: number;
+  peRatio?: number;
+  week52ChangePercent?: number;
 };
 
 type WorldIndicesData = {
@@ -41,9 +47,18 @@ export default function WorldIndicesTable({
 }: {
   data: WorldIndicesData;
 }) {
-  console.log(data.indices);
+  // Helper function to format large numbers (volume, market cap)
+  const formatLargeNumber = (num: number | undefined): string => {
+    if (num === undefined || num === null) return "N/A";
+    if (num >= 1e12) return `${(num / 1e12).toFixed(2)}T`;
+    if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
+    return num.toFixed(0);
+  };
+
   return (
-    <div className="border border-indigo-950 w-full">
+    <div className="border border-indigo-950 w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -52,8 +67,11 @@ export default function WorldIndicesTable({
             <TableHead>Price</TableHead>
             <TableHead>Change</TableHead>
             <TableHead>Change %</TableHead>
-            <TableHead>High</TableHead>
+            <TableHead>Volume</TableHead>
+            <TableHead>Avg Vol</TableHead>
+            <TableHead>52W Change %</TableHead>
             <TableHead>Low</TableHead>
+            <TableHead>High</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -85,8 +103,24 @@ export default function WorldIndicesTable({
                 {index.changePercent >= 0 ? "+" : ""}
                 {index.changePercent.toFixed(2)}%
               </TableCell>
-              <TableCell>{index.data.h.toFixed(2)}</TableCell>
+              <TableCell>{formatLargeNumber(index.volume)}</TableCell>
+              <TableCell>{formatLargeNumber(index.avgVolume)}</TableCell>
+              <TableCell
+                className={
+                  index.week52ChangePercent !== undefined &&
+                  index.week52ChangePercent >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }
+              >
+                {index.week52ChangePercent !== undefined
+                  ? `${
+                      index.week52ChangePercent >= 0 ? "+" : ""
+                    }${index.week52ChangePercent.toFixed(2)}%`
+                  : "N/A"}
+              </TableCell>
               <TableCell>{index.data.l.toFixed(2)}</TableCell>
+              <TableCell>{index.data.h.toFixed(2)}</TableCell>
             </TableRow>
           ))}
         </TableBody>
