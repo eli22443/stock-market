@@ -11,7 +11,10 @@ export default function StockNews({
   symbol: string;
   stockNews: StockNewsRecord[];
 }) {
-  const rendered_news = stockNews.slice(0, 10).map((news, index) => {
+  // Filter number of news to show
+  const newsCount = 10;
+
+  const rendered_news = stockNews.slice(0, newsCount).map((news, index) => {
     const hasValidImage =
       news.image && news.image.trim() !== "" && news.image.startsWith("http");
 
@@ -26,8 +29,12 @@ export default function StockNews({
     return (
       <div
         key={index}
-        className={`flex justify-between border-b border-gray-600 mb-6 pb-6 ${
+        className={`flex justify-between border-gray-600 mb-6 pb-6 ${
           index % 2 == 0 ? "mr-6" : "ml-6"
+        } ${
+          index < newsCount - 2
+            ? "border-b"
+            : index % 2 != 0 && index == newsCount - 2 && "border-b"
         }`}
       >
         <div>
@@ -52,9 +59,10 @@ export default function StockNews({
     <div className="relative mb-6">
       <div className="grid grid-cols-2">{rendered_news}</div>
       <div
-        className={`absolute top-0 left-1/2 transform -translate-x-1/2 w-px bg-gray-600`}
+        className={`absolute top-0 left-1/2 w-px bg-gray-600`}
         style={{ height: `${125 * Math.ceil(rendered_news.length / 2)}px` }}
       ></div>
+      <div className={`relative -top-2 h-px bg-gray-600`}></div>
     </div>
   );
 }
