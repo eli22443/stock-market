@@ -40,8 +40,8 @@ export default function StockPriceChart({
 }) {
   // console.log(candle);
 
-  let labels;
-
+  // Generate labels for all data points
+  let labels: string[] = [];
   if (candle.resolution == "1") {
     labels = candle.data.t.map((timestamp) =>
       new Date(timestamp * 1000)
@@ -61,6 +61,30 @@ export default function StockPriceChart({
         year: "2-digit",
       })
     );
+  } else {
+    // Fallback for other resolutions
+    labels = candle.data.t.map((timestamp) =>
+      new Date(timestamp * 1000).toLocaleDateString("en-US", {
+        timeZone: "America/New_York",
+        month: "numeric",
+        day: "numeric",
+        year: "2-digit",
+      })
+    );
+  }
+
+  // Calculate evenly spaced indices for approximately 10 labels
+  const numLabels = Math.min(10, labels.length);
+  const evenlySpacedIndices = new Set<number>();
+  if (labels.length <= numLabels) {
+    // If we have fewer data points than target labels, show all
+    labels.forEach((_, index) => evenlySpacedIndices.add(index));
+  } else {
+    // Calculate evenly spaced indices (including first and last)
+    const step = (labels.length - 1) / (numLabels - 1);
+    for (let i = 0; i < numLabels; i++) {
+      evenlySpacedIndices.add(Math.round(i * step));
+    }
   }
 
   const data = {
@@ -144,6 +168,16 @@ export default function StockPriceChart({
       x: {
         ticks: {
           color: "#e2dede", // Change x-axis label color here
+          callback: function (value: any, index: number, ticks: any[]) {
+            // For category scale, value is the index in the labels array
+            const labelIndex = typeof value === "number" ? value : index;
+            // Only show labels at evenly spaced indices
+            if (evenlySpacedIndices.has(labelIndex)) {
+              return labels[labelIndex];
+            }
+            return undefined; // Return undefined to hide tick labels we don't want
+          },
+          maxTicksLimit: numLabels + 2, // Allow slightly more ticks for better spacing
         },
         title: {
           display: true,
