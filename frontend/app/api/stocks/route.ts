@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { fetchStockData, fetchMultiStocksData } from "@/app/api/route";
 import { fetchYahooComprehensiveData } from "@/services/yahooFinance";
 import { symbols } from "@/app/api/route";
-import type { StockCategorized, StockRecord, StocksMetrics, ComprehensiveData } from "@/types";
+import type {
+  StockCategorized,
+  StockRecord,
+  StocksMetrics,
+  ComprehensiveData,
+} from "@/types";
 
 const categories = ["most-active", "trending", "gainers", "losers"];
 
@@ -170,7 +174,9 @@ export async function GET(request: Request) {
 
     // Fetch comprehensive data for all stocks
     const stockSymbols = symbols.slice(0, 10); // Limit to 10 stocks for performance
-    const stocksWithMetrics = await categorizeStocksWithComprehensiveData(stockSymbols);
+    const stocksWithMetrics = await categorizeStocksWithComprehensiveData(
+      stockSymbols
+    );
 
     if (stocksWithMetrics.length === 0) {
       return NextResponse.json({
