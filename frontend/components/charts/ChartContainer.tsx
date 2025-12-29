@@ -173,7 +173,7 @@ export default function ChartContainer({
 
   const btnStyle = "bg-gray-700 mx-2 px-2 rounded-sm hover:bg-gray-600 text-sm";
   return (
-    <section className="container h-90">
+    <section className="container h-90 mb-10">
       <div className="tab-list ml-6 my-2">
         <button
           className={btnStyle + (period === "1D" ? " text-blue-500 " : "")}
