@@ -44,6 +44,9 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error in GET /api/quote:", error);
-    return NextResponse.json({ error: "Internal server error.", status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error." },
+      { status: 500 }
+    );
   }
 }

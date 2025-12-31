@@ -151,7 +151,10 @@ export async function fetchYahooComprehensiveData(
 
     // Fetch quote and quoteSummary in parallel
     const [quote, quoteSummary] = await Promise.all([
-      yh.quote(symbol).catch(() => null),
+      yh.quote(symbol).catch(() => {
+        console.error("quote promise rejected.");
+        return null;
+      }),
       yh
         .quoteSummary(symbol, {
           modules: [
@@ -162,7 +165,10 @@ export async function fetchYahooComprehensiveData(
             "financialData",
           ],
         })
-        .catch(() => null),
+        .catch(() => {
+          console.error("quote-summary promise rejected.");
+          return null;
+        }),
     ]);
 
     if (!quote) {
