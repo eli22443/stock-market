@@ -88,56 +88,64 @@ async function fetchIndexQuote(symbol: string): Promise<QuoteData | null> {
  * GET /api/world-indices
  * Returns data for major world stock indices using Yahoo Finance (free)
  */
+
+// Cache for 60 seconds to reduce API calls
+export const revalidate = 60;
+
 export async function GET() {
   try {
     // Fetch comprehensive data for all indices in parallel
-    const comprehensiveDataPromises = worldIndicesSymbols.map(({ symbol }) =>
-      fetchYahooComprehensiveData(symbol)
-    );
+    const comprehensiveDataPromises = worldIndicesSymbols
+      .slice(0, 5)
+      .map(({ symbol }) => fetchYahooComprehensiveData(symbol));
     const comprehensiveDataArray = await Promise.all(comprehensiveDataPromises);
 
     // Filter out null results and convert to StocksMetrics format
-    const indicesWithMetrics: (StocksMetrics & { name: string })[] = comprehensiveDataArray
-      .map((data, index) => {
-        if (!data) return null;
-        const { symbol, name } = worldIndicesSymbols[index];
+    const indicesWithMetrics: (StocksMetrics & { name: string })[] =
+      comprehensiveDataArray
+        .map((data, index) => {
+          if (!data) return null;
+          const { symbol, name } = worldIndicesSymbols[index];
 
-        // Convert to QuoteData format for backward compatibility
-        const quoteData: QuoteData = {
-          c: data.currentPrice,
-          d: data.priceChange,
-          dp: data.priceChangePercent,
-          h: data.dayRange.high,
-          l: data.dayRange.low,
-          o: data.open,
-          pc: data.previousClose,
-          t: Math.floor(Date.now() / 1000),
-        };
+          // Convert to QuoteData format for backward compatibility
+          const quoteData: QuoteData = {
+            c: data.currentPrice,
+            d: data.priceChange,
+            dp: data.priceChangePercent,
+            h: data.dayRange.high,
+            l: data.dayRange.low,
+            o: data.open,
+            pc: data.previousClose,
+            t: Math.floor(Date.now() / 1000),
+          };
 
-        // Calculate 52-week change percentage
-        const week52ChangePercent = calculate52WeekChangePercent(
-          data.currentPrice,
-          data.week52Range.low,
-          data.week52Range.high
-        );
+          // Calculate 52-week change percentage
+          const week52ChangePercent = calculate52WeekChangePercent(
+            data.currentPrice,
+            data.week52Range.low,
+            data.week52Range.high
+          );
 
-        return {
-          symbol,
-          name,
-          data: quoteData,
-          changePercent: data.priceChangePercent,
-          priceRange: calculatePriceRange(data.dayRange.high, data.dayRange.low),
-          priceChange: data.priceChange,
-          volume: data.volume,
-          avgVolume: data.avgVolume,
-          marketCap: data.marketCap,
-          peRatio: data.peRatio,
-          week52ChangePercent,
-        };
-      })
-      .filter(
-        (index): index is StocksMetrics & { name: string } => index !== null
-      );
+          return {
+            symbol,
+            name,
+            data: quoteData,
+            changePercent: data.priceChangePercent,
+            priceRange: calculatePriceRange(
+              data.dayRange.high,
+              data.dayRange.low
+            ),
+            priceChange: data.priceChange,
+            volume: data.volume,
+            avgVolume: data.avgVolume,
+            marketCap: data.marketCap,
+            peRatio: data.peRatio,
+            week52ChangePercent,
+          };
+        })
+        .filter((index) => index !== null) as (StocksMetrics & {
+        name: string;
+      })[];
 
     return NextResponse.json({
       indices: indicesWithMetrics,

@@ -2,16 +2,47 @@ import MarketNews from "@/components/MarketNews";
 import { MarketNewsRecord } from "@/types";
 
 export default async function News() {
-  const apiUrl = process.env.NEXT_URL
-    ? `${process.env.NEXT_URL}/api/news`
-    : "http://localhost:3000/api/news";
+  let news: MarketNewsRecord[] = [];
 
-  const response = await fetch(apiUrl);
-  if (!response.ok) {
-    console.log(await response.json());
+  // Skip API calls during build (static generation)
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return (
+      <div className="news-page px-6">
+        <h1 className="text-2xl font-bold mb-10">MARKET NEWS</h1>
+        <MarketNews data={news} />
+      </div>
+    );
   }
 
-  const news: MarketNewsRecord[] = await response.json();
+  try {
+    const apiUrl = process.env.NEXT_URL
+      ? `${process.env.NEXT_URL}/api/news`
+      : "http://localhost:3000/api/news";
+
+    const response = await fetch(apiUrl, {
+      cache: 'no-store',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Error fetching news:", errorData);
+      // Use empty array as fallback
+      news = [];
+    } else {
+      const jsonData = await response.json();
+      // Ensure we have an array, not an error object
+      if (Array.isArray(jsonData)) {
+        news = jsonData;
+      } else {
+        console.error("API returned non-array data:", jsonData);
+        news = [];
+      }
+    }
+  } catch (error) {
+    // Handle fetch errors (e.g., during build when server isn't running)
+    console.error("Error fetching news:", error);
+    news = [];
+  }
 
   return (
     <div className="news-page px-6">

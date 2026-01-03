@@ -2,6 +2,52 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Define protected API routes that require authentication
+  const protectedApiRoutes = [
+    "/api/watchlists",
+    "/api/portfolios",
+    "/api/alerts",
+  ];
+
+  // Define protected page routes that require authentication
+  const protectedPageRoutes = ["/dashboard", "/watchlist", "/portfolio"];
+
+  // Check if the current path is a protected API route
+  const isProtectedApiRoute = protectedApiRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // Check if the current path is a protected page route
+  const isProtectedPageRoute = protectedPageRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // All other API routes are public (Yahoo Finance, etc.)
+  const isApiRoute = pathname.startsWith("/api/");
+  const isPublicApiRoute = isApiRoute && !isProtectedApiRoute;
+
+  // Public page routes (including auth pages)
+  const publicAuthPageRoutes = ["/login", "/logout", "/signup"];
+  const isPublicPageRoute = publicAuthPageRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // Determine if route is protected
+  const isProtectedRoute = isProtectedApiRoute || isProtectedPageRoute;
+
+  // Determine if route is an auth page (login, signup, logout)
+  const isAuthPage = publicAuthPageRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // Early return for public API routes - skip Supabase entirely to avoid cache issues
+  if (isPublicApiRoute) {
+    return NextResponse.next({ request });
+  }
+
+  // Only create Supabase client and check auth for routes that need it
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -38,18 +84,78 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
+  console.log("User authenticated:", !!data?.claims);
 
   const user = data?.claims;
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // Handle authenticated users accessing auth pages (redirect to dashboard)
+  if (user && isAuthPage) {
+    // Don't redirect from /logout (they're logging out)
+    console.log(
+      "Authenticated user accessing auth page, redirecting to dashboard"
+    );
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy cookies to maintain session
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path,
+        domain: cookie.domain,
+        sameSite: cookie.sameSite,
+        secure: cookie.secure,
+        httpOnly: cookie.httpOnly,
+        maxAge: cookie.maxAge,
+        expires: cookie.expires,
+      });
+    });
+    return redirectResponse;
+  }
+
+  // Handle protected routes without authentication
+  if (!user && isProtectedRoute) {
+    // For API routes, return 401 Unauthorized
+    if (isProtectedApiRoute) {
+      const unauthorizedResponse = NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+      // Copy cookies to maintain session
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        unauthorizedResponse.cookies.set(cookie.name, cookie.value, {
+          path: cookie.path,
+          domain: cookie.domain,
+          sameSite: cookie.sameSite,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+          maxAge: cookie.maxAge,
+          expires: cookie.expires,
+        });
+      });
+      return unauthorizedResponse;
+    }
+
+    // For page routes, redirect to login
+    console.log("Redirecting to login from:", request.nextUrl.pathname);
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    // return NextResponse.redirect(url);
+    // Preserve the intended destination for redirect after login
+    url.searchParams.set("redirectedFrom", pathname);
+    // Create redirect response with cookies preserved from supabaseResponse
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy all cookies from supabaseResponse to maintain session
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path,
+        domain: cookie.domain,
+        sameSite: cookie.sameSite,
+        secure: cookie.secure,
+        httpOnly: cookie.httpOnly,
+        maxAge: cookie.maxAge,
+        expires: cookie.expires,
+      });
+    });
+    return redirectResponse;
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

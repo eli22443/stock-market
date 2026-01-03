@@ -22,13 +22,22 @@ type WorldIndicesData = {
 };
 
 export default async function WorldIndices() {
-  const apiUrl = process.env.NEXT_URL
-    ? `${process.env.NEXT_URL}/api/world-indices`
-    : `http://localhost:3000/api/world-indices`;
+  // Skip API calls during build (static generation)
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500">No indices data available</p>
+      </div>
+    );
+  }
 
   try {
+    const apiUrl = process.env.NEXT_URL
+      ? `${process.env.NEXT_URL}/api/world-indices`
+      : `http://localhost:3000/api/world-indices`;
+
     const response = await fetch(apiUrl, {
-      next: { revalidate: 60 }, // Revalidate every 60 seconds
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -54,8 +63,8 @@ export default async function WorldIndices() {
     console.error("Error fetching world indices:", error);
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-red-500">
-          Failed to load indices data. Please try again later.
+        <p className="text-gray-500">
+          No indices data available. Please try again later.
         </p>
       </div>
     );

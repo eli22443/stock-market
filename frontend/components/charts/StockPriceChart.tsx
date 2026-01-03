@@ -44,13 +44,11 @@ export default function StockPriceChart({
   let labels: string[] = [];
   if (candle.resolution == "1") {
     labels = candle.data.t.map((timestamp) =>
-      new Date(timestamp * 1000)
-        .toLocaleDateString("en-US", {
-          timeZone: "America/New_York",
-          hour: "numeric",
-          minute: "numeric",
-        })
-        .slice(12)
+      new Date(timestamp * 1000).toLocaleTimeString("en-US", {
+        timeZone: "America/New_York",
+        hour: "numeric",
+        minute: "numeric",
+      })
     );
   } else if (candle.resolution == "D") {
     labels = candle.data.t.map((timestamp) =>

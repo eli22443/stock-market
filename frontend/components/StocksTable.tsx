@@ -51,7 +51,7 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.stocks.map((stock, index) => (
+          {data.stocks?.map((stock, index) => (
             <TableRow key={index}>
               <TableCell>
                 <Link

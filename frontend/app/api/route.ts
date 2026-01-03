@@ -56,26 +56,51 @@ export const fetchStockData = cache(
 
 // Cache the multi-stock fetch to deduplicate requests across components
 export const fetchMultiStocksData = cache(async (): Promise<StockRecord[]> => {
-  const multiData = await Promise.all(
-    symbols.slice(0, 5).map((symbol) => fetchStockData(symbol))
-  );
+  // Fetch stocks sequentially with delays to avoid rate limiting
+  const stockSymbols = symbols.slice(0, 4);
+  const multiData: (StockRecord | null)[] = [];
+
+  for (let i = 0; i < stockSymbols.length; i++) {
+    const symbol = stockSymbols[i];
+    try {
+      const stock = await fetchStockData(symbol);
+      multiData.push(stock);
+      // Add delay between requests (except for last one)
+      if (i < stockSymbols.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    } catch (error: any) {
+      if (error?.message === "RATE_LIMITED") {
+        console.error("Rate limited - stopping further requests");
+        break; // Stop if rate limited
+      }
+      console.error(`Error fetching ${symbol}:`, error);
+      multiData.push(null);
+    }
+  }
 
   // Filter out null values (invalid symbols)
   return multiData.filter((stock): stock is StockRecord => stock !== null);
 });
 
+// Cache for 60 seconds to reduce API calls
+export const revalidate = 60;
+
 export async function GET() {
   try {
     const allStocks = await fetchMultiStocksData();
     if (allStocks.length === 0) {
-      return NextResponse.json({
-        error: "No stock data available",
-        status: 503,
-      });
+      return NextResponse.json(
+        { error: "No stock data available" },
+        { status: 503 }
+      );
     }
     return NextResponse.json(allStocks);
   } catch (error) {
     console.error("Error in GET /api:", error);
-    return NextResponse.json({ error: "Internal server error", status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

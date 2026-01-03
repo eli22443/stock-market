@@ -17,11 +17,8 @@ export default function SearchBar() {
   };
 
   return (
-    <form
-      className="search-form flex justify-end my-6 "
-      onSubmit={handleSubmit}
-    >
-      <div className="border hover:border-indigo-700 rounded-2xl mr-24">
+    <form className="search-form flex justify-end" onSubmit={handleSubmit}>
+      <div className="border hover:border-indigo-700 rounded-2xl">
         <input
           className="search-input ml-4 px-2 py-1 "
           type="text"

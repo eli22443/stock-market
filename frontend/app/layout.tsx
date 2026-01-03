@@ -5,6 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import NavBar from "@/components/NavBar";
 import GeneralInfo from "@/components/GeneralInfo";
 import { WebSocketProvider } from "@/context/WebSocketContext";
+import LoginLogoutButton from "@/components/auth/LoginLogoutButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <WebSocketProvider>
-          <SearchBar />
+          <div className="header flex justify-between my-4 pb-3 border-b-2 border-indigo-600">
+            <div className="ml-6">
+              <LoginLogoutButton />
+            </div>
+            <div className="mr-24">
+              <SearchBar />
+            </div>
+          </div>
           <div className="grid grid-cols-10">
             <div className="col-span-1">
               <NavBar />

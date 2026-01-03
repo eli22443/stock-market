@@ -50,6 +50,14 @@ export async function fetchYahooFinanceCandles(
   from?: number,
   to?: number
 ): Promise<YahooFinanceCandle[] | null> {
+  // Skip Yahoo Finance completely if SKIP_YAHOO_FINANCE is set
+  if (process.env.SKIP_YAHOO_FINANCE === "true") {
+    console.log(
+      `Skipping Yahoo Finance candles for ${symbol} (SKIP_YAHOO_FINANCE=true)`
+    );
+    return null;
+  }
+
   try {
     const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
     const interval = getYahooInterval(resolution);
@@ -144,32 +152,59 @@ export async function fetchYahooFinanceCandles(
 export async function fetchYahooComprehensiveData(
   symbol: string
 ): Promise<ComprehensiveData | null> {
+  // Skip Yahoo Finance completely if SKIP_YAHOO_FINANCE is set (for rate limit situations)
+  if (process.env.SKIP_YAHOO_FINANCE === "true") {
+    console.log(
+      `Skipping Yahoo Finance for ${symbol} (SKIP_YAHOO_FINANCE=true)`
+    );
+    return null;
+  }
+
   console.log("Fetching comprehensive data from Yahoo Finance...");
 
   try {
     const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
 
-    // Fetch quote and quoteSummary in parallel
-    const [quote, quoteSummary] = await Promise.all([
-      yh.quote(symbol).catch(() => {
-        console.error("quote promise rejected.");
-        return null;
-      }),
-      yh
-        .quoteSummary(symbol, {
-          modules: [
-            "summaryProfile",
-            "summaryDetail",
-            "defaultKeyStatistics",
-            "calendarEvents",
-            "financialData",
-          ],
-        })
-        .catch(() => {
-          console.error("quote-summary promise rejected.");
+    // Fetch quote first (required)
+    const quote = await yh.quote(symbol).catch((error: any) => {
+      if (error?.code === 429) {
+        console.error(`Rate limited for ${symbol}. Please wait.`);
+        throw new Error("RATE_LIMITED");
+      }
+      console.error("quote promise rejected:", error?.message || error);
+      return null;
+    });
+
+    if (!quote) {
+      return null;
+    }
+
+    // Fetch quoteSummary after a small delay to avoid rate limiting
+    // Add 200ms delay between requests to be more respectful
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const quoteSummary = await yh
+      .quoteSummary(symbol, {
+        modules: [
+          "summaryProfile",
+          "summaryDetail",
+          "defaultKeyStatistics",
+          "calendarEvents",
+          "financialData",
+        ],
+      })
+      .catch((error: any) => {
+        if (error?.code === 429) {
+          console.error(`Rate limited for ${symbol} quoteSummary.`);
+          // Return null for quoteSummary but continue with quote data
           return null;
-        }),
-    ]);
+        }
+        console.error(
+          "quote-summary promise rejected:",
+          error?.message || error
+        );
+        return null;
+      });
 
     if (!quote) {
       return null;
@@ -260,7 +295,11 @@ export async function fetchYahooComprehensiveData(
     };
 
     return comprehensiveData;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === "RATE_LIMITED" || error?.code === 429) {
+      console.error(`Rate limited for ${symbol} - Yahoo Finance`);
+      throw new Error("RATE_LIMITED");
+    }
     console.error(
       `Error fetching Yahoo Finance comprehensive data for ${symbol}:`,
       error
@@ -277,6 +316,14 @@ export async function fetchYahooComprehensiveData(
 export async function fetchYahooCompanyNews(
   symbol: string
 ): Promise<StockNewsRecord[] | null> {
+  // Skip Yahoo Finance completely if SKIP_YAHOO_FINANCE is set
+  if (process.env.SKIP_YAHOO_FINANCE === "true") {
+    console.log(
+      `Skipping Yahoo Finance company news for ${symbol} (SKIP_YAHOO_FINANCE=true)`
+    );
+    return [];
+  }
+
   console.log("Fetching company news from Yahoo Finance...");
   try {
     const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
@@ -336,12 +383,28 @@ export async function fetchYahooCompanyNews(
 export async function fetchYahooMarketNews(): Promise<
   MarketNewsRecord[] | null
 > {
+  // Skip Yahoo Finance completely if SKIP_YAHOO_FINANCE is set
+  if (process.env.SKIP_YAHOO_FINANCE === "true") {
+    console.log("Skipping Yahoo Finance market news (SKIP_YAHOO_FINANCE=true)");
+    return [];
+  }
+
+  // Skip news fetching in dev mode if rate limited (set USE_MOCK_NEWS=true in .env.local)
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.USE_MOCK_NEWS === "true"
+  ) {
+    console.log("Using mock news data in dev mode");
+    return [];
+  }
+
   try {
     const yh = new yahooFinance({ suppressNotices: ["yahooSurvey"] });
 
     // Fetch general market news (using a broad search term)
+    // Reduce newsCount to be more respectful
     const newsResult = await yh.search("market", {
-      newsCount: 50,
+      newsCount: 10, // Reduced from 50 to avoid rate limits
       quotesCount: 0,
     });
 
@@ -378,7 +441,11 @@ export async function fetchYahooMarketNews(): Promise<
     });
 
     return news;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 429) {
+      console.error("Rate limited - Yahoo Finance market news");
+      throw new Error("RATE_LIMITED");
+    }
     console.error("Error fetching Yahoo Finance market news:", error);
     return null;
   }

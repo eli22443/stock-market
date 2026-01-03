@@ -52,9 +52,9 @@ async function categorizeStocksWithComprehensiveData(
   stockSymbols: string[]
 ): Promise<StocksMetrics[]> {
   // Fetch comprehensive data for all stocks in parallel
-  const comprehensiveDataPromises = stockSymbols.map((symbol) =>
-    fetchYahooComprehensiveData(symbol)
-  );
+  const comprehensiveDataPromises = stockSymbols
+    .slice(0, 5)
+    .map((symbol) => fetchYahooComprehensiveData(symbol));
   const comprehensiveDataArray = await Promise.all(comprehensiveDataPromises);
 
   // Convert comprehensive data to StocksMetrics format
@@ -98,51 +98,51 @@ async function categorizeStocksWithComprehensiveData(
   return stocksWithMetrics;
 }
 
-/**
- * Categorize stocks into different categories (legacy function for backward compatibility)
- */
-function categorizeStocks(stocks: StockRecord[]) {
-  // Add calculated fields to each stock
-  const stocksWithMetrics: StocksMetrics[] = stocks.map((stock) => ({
-    symbol: stock.symbol,
-    name: stock.name,
-    data: stock.data,
-    changePercent: calculateChangePercent(stock.data.c, stock.data.pc),
-    priceRange: calculatePriceRange(stock.data.h, stock.data.l),
-    priceChange: stock.data.c - stock.data.pc,
-  }));
+// /**
+//  * Categorize stocks into different categories (legacy function for backward compatibility)
+//  */
+// function categorizeStocks(stocks: StockRecord[]) {
+//   // Add calculated fields to each stock
+//   const stocksWithMetrics: StocksMetrics[] = stocks.map((stock) => ({
+//     symbol: stock.symbol,
+//     name: stock.name,
+//     data: stock.data,
+//     changePercent: calculateChangePercent(stock.data.c, stock.data.pc),
+//     priceRange: calculatePriceRange(stock.data.h, stock.data.l),
+//     priceChange: stock.data.c - stock.data.pc,
+//   }));
 
-  // Gainers: stocks with highest positive percentage change
-  const gainers = [...stocksWithMetrics]
-    .filter((stock) => stock.changePercent > 0)
-    .sort((a, b) => b.changePercent - a.changePercent)
-    .slice(0, 10); // Top 10 gainers
+//   // Gainers: stocks with highest positive percentage change
+//   const gainers = [...stocksWithMetrics]
+//     .filter((stock) => stock.changePercent > 0)
+//     .sort((a, b) => b.changePercent - a.changePercent)
+//     .slice(0, 10); // Top 10 gainers
 
-  // Losers: stocks with highest negative percentage change (most negative)
-  const losers = [...stocksWithMetrics]
-    .filter((stock) => stock.changePercent < 0)
-    .sort((a, b) => b.changePercent - a.changePercent)
-    .slice(0, 10); // Top 10 losers
+//   // Losers: stocks with highest negative percentage change (most negative)
+//   const losers = [...stocksWithMetrics]
+//     .filter((stock) => stock.changePercent < 0)
+//     .sort((a, b) => b.changePercent - a.changePercent)
+//     .slice(0, 10); // Top 10 losers
 
-  // Most Active: stocks with highest price range (volatility proxy)
-  // In a real app, you'd use volume data, but we'll use price range as a proxy
-  const mostActive = [...stocksWithMetrics]
-    .sort((a, b) => b.priceRange - a.priceRange)
-    .slice(0, 10); // Top 10 most active
+//   // Most Active: stocks with highest price range (volatility proxy)
+//   // In a real app, you'd use volume data, but we'll use price range as a proxy
+//   const mostActive = [...stocksWithMetrics]
+//     .sort((a, b) => b.priceRange - a.priceRange)
+//     .slice(0, 10); // Top 10 most active
 
-  // Trending: stocks with significant price movement (either direction)
-  // Using absolute change percentage
-  const trending = [...stocksWithMetrics]
-    .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
-    .slice(0, 10); // Top 10 trending
+//   // Trending: stocks with significant price movement (either direction)
+//   // Using absolute change percentage
+//   const trending = [...stocksWithMetrics]
+//     .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
+//     .slice(0, 10); // Top 10 trending
 
-  return {
-    gainers,
-    losers,
-    mostActive,
-    trending,
-  };
-}
+//   return {
+//     gainers,
+//     losers,
+//     mostActive,
+//     trending,
+//   };
+// }
 
 /**
  * GET /api/stocks
@@ -152,6 +152,13 @@ function categorizeStocks(stocks: StockRecord[]) {
  * - category: filter by specific category (optional)
  *   - "most-active" | "trending" | "gainers" | "losers"
  */
+
+// Cache for 60 seconds to reduce API calls
+export const revalidate = 60;
+
+// Force dynamic rendering since we use request.url
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   // console.log("GET /api/stocks called");
   try {
