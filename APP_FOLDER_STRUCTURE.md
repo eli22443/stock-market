@@ -265,34 +265,64 @@ type nul > middleware.ts
 
 ## File Checklist
 
-### Phase 1: Authentication
+### Phase 1: Authentication ✅ COMPLETE
 
-- [ ] `app/(auth)/login/page.tsx`
-- [ ] `app/(auth)/signup/page.tsx`
-- [ ] `app/(auth)/layout.tsx`
-- [ ] `app/(protected)/dashboard/page.tsx`
-- [ ] `app/(protected)/watchlist/page.tsx`
-- [ ] `app/(protected)/portfolio/page.tsx`
-- [ ] `app/(protected)/layout.tsx`
-- [ ] `app/api/auth/callback/route.ts`
-- [ ] `middleware.ts` (at `frontend/` root)
+- [x] `app/(auth)/login/page.tsx` ✅
+- [x] `app/(auth)/signup/page.tsx` ✅
+- [x] `app/(auth)/layout.tsx` ✅
+- [x] `app/(auth)/logout/page.tsx` ✅
+- [x] `app/(protected)/dashboard/page.tsx` ✅ (basic implementation)
+- [x] `app/(protected)/watchlist/page.tsx` ✅ (placeholder)
+- [x] `app/(protected)/portfolio/page.tsx` ✅ (placeholder)
+- [x] `app/(protected)/layout.tsx` ✅
+- [x] `app/api/auth/callback/route.ts` ✅
+- [x] `app/api/auth/confirm/route.ts` ✅
+- [x] `middleware.ts` (at `frontend/` root) ✅
+- [x] `lib/supabase/client.ts` ✅
+- [x] `lib/supabase/server.ts` ✅
+- [x] `lib/supabase/middleware.ts` ✅
+- [x] `components/auth/LoginForm.tsx` ✅
+- [x] `components/auth/SignupForm.tsx` ✅
+- [x] `components/auth/SignInWithGoogleButton.tsx` ✅
+- [x] `components/auth/LoginLogoutButton.tsx` ✅
+- [x] `components/auth/AuthGuard.tsx` ✅
+- [x] `components/auth/UserMenu.tsx` ✅
+- [x] `services/auth-actions.ts` ✅ (server actions)
+- [x] `services/auth-client.ts` ✅ (client functions)
 
-### Phase 2: Watchlists
+### Phase 2: Watchlists ⏳ STRUCTURE READY, NEEDS IMPLEMENTATION
 
-- [ ] `app/api/watchlists/route.ts`
-- [ ] `app/api/watchlists/[id]/route.ts`
-- [ ] `app/api/watchlists/[id]/items/route.ts`
+- [x] `app/api/watchlists/route.ts` ✅ (placeholder - needs implementation)
+- [x] `app/api/watchlists/[id]/route.ts` ✅ (placeholder - needs implementation)
+- [x] `app/api/watchlists/[id]/items/route.ts` ✅ (placeholder - needs implementation)
+- [x] `components/watchlists/WatchlistList.tsx` ✅ (exists - needs implementation)
+- [x] `components/watchlists/WatchlistView.tsx` ✅ (exists - needs implementation)
+- [x] `components/watchlists/AddToWatchlist.tsx` ✅ (exists - needs implementation)
+- [x] Database schema: `watchlists` and `watchlist_items` tables ✅
+- [x] Database RLS policies for watchlists ✅
+- [x] Database triggers for watchlists ✅
 
-### Phase 3: Portfolios
+### Phase 3: Portfolios ⏳ STRUCTURE READY, NEEDS IMPLEMENTATION
 
-- [ ] `app/api/portfolios/route.ts`
-- [ ] `app/api/portfolios/[id]/route.ts`
-- [ ] `app/api/portfolios/[id]/holdings/route.ts`
+- [x] `app/api/portfolios/route.ts` ✅ (placeholder - needs implementation)
+- [x] `app/api/portfolios/[id]/route.ts` ✅ (placeholder - needs implementation)
+- [x] `app/api/portfolios/[id]/holdings/route.ts` ✅ (placeholder - needs implementation)
+- [x] `components/portfolios/PortfolioList.tsx` ✅ (exists - needs implementation)
+- [x] `components/portfolios/PortfolioView.tsx` ✅ (exists - needs implementation)
+- [x] `components/portfolios/AddHoldingForm.tsx` ✅ (exists - needs implementation)
+- [x] Database schema: `portfolios` and `holdings` tables ✅
+- [x] Database RLS policies for portfolios ✅
+- [x] Database triggers for portfolios ✅
 
-### Phase 4: Alerts
+### Phase 4: Alerts ⏳ STRUCTURE READY, NEEDS IMPLEMENTATION
 
-- [ ] `app/api/alerts/route.ts`
-- [ ] `app/api/alerts/[id]/route.ts`
+- [x] `app/api/alerts/route.ts` ✅ (placeholder - needs implementation)
+- [x] `app/api/alerts/[id]/route.ts` ✅ (placeholder - needs implementation)
+- [x] `components/alerts/AlertList.tsx` ✅ (exists - needs implementation)
+- [x] `components/alerts/CreateAlertForm.tsx` ✅ (exists - needs implementation)
+- [x] Database schema: `alerts` table ✅
+- [x] Database RLS policies for alerts ✅
+- [x] Database triggers for alerts ✅
 
 ---
 

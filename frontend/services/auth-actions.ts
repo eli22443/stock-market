@@ -1,3 +1,4 @@
+// For server auth (not used)
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -87,10 +88,11 @@ export const signout = async () => {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
-    console.log(error);
+    console.error("Sign out error:", error);
     // redirect("/error");
     return;
   }
 
+  // Redirect to logout page (which will then redirect to home)
   redirect("/logout");
 };

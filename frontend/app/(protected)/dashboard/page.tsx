@@ -1,20 +1,17 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  if (!user) {
-    console.log("Failed getting user data");
-    return;
-  }
-  // console.log(user);
+import { useAuthContext } from "@/context/AuthContext";
 
+export default function Dashboard() {
+  const auth = useAuthContext();
+
+  // Middleware already protects this route - if we reach here, user is authenticated
+  // We can safely use auth.user for display purposes
   return (
     <div className="dashboard-page px-6">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       {/* Dashboard content will go here. */}
-      <p>Hello {user.user_metadata.full_name || "there"}!</p>
+      <p>Hello {auth?.user?.user_metadata?.full_name || "there"}!</p>
     </div>
   );
 }

@@ -1,40 +1,46 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
+import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { signout } from "@/services/auth-actions";
 
 export default function LoginLogoutButton() {
-  // use contex for user session
-  const [user, setUser] = useState<any>(null);
+  const auth = useAuthContext();
   const router = useRouter();
-  const supabase = createClient();
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, [user]);
-
-  if (user) {
+  // Show loading state while checking auth
+  if (auth?.loading) {
     return (
-      <Button
-        className="border-2 border-indigo-600"
-        onClick={() => {
-          signout();
-          setUser(null);
-        }}
-      >
-        Log out
+      <Button className="border-2 border-indigo-600" disabled>
+        Loading...
       </Button>
     );
   }
 
+  // Show logout button if user is authenticated
+  if (auth?.user) {
+    return (
+      <Button
+        className="border-2 border-indigo-600"
+        onClick={async () => {
+          setLoading(true);
+          try {
+            await auth?.signOut();
+            // Router push happens in signOut
+          } catch (error) {
+            console.error("Logout error:", error);
+            setLoading(false);
+          }
+        }}
+        disabled={loading}
+      >
+        {loading ? "Logging out..." : "Log out"}
+      </Button>
+    );
+  }
+
+  // Show login button if user is not authenticated
   return (
     <Button
       className="border-2 border-indigo-600"

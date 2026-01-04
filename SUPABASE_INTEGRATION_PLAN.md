@@ -1,4 +1,5 @@
 # Supabase Integration Plan
+
 ## Stock Market App - Authentication, Database & User Features
 
 **Architecture Decision:** Keep Python FastAPI backend separate, integrate Supabase for auth and database.
@@ -25,6 +26,7 @@
 ## Overview
 
 ### Goals
+
 - ✅ Add user authentication (email/password, OAuth)
 - ✅ Implement user database with PostgreSQL
 - ✅ Enable user-specific features (watchlists, portfolios, alerts)
@@ -33,6 +35,7 @@
 - ✅ Deploy to Vercel (frontend) + separate service (backend)
 
 ### Tech Stack
+
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS
 - **Backend:** Python FastAPI (separate deployment)
 - **Auth & Database:** Supabase (PostgreSQL + Auth)
@@ -93,6 +96,7 @@
 ### 1.1 Create Supabase Project
 
 **Steps:**
+
 1. Go to [supabase.com](https://supabase.com)
 2. Create new project
 3. Choose organization/workspace
@@ -102,6 +106,7 @@
 7. Wait for project initialization (~2 minutes)
 
 **Output:**
+
 - Project URL: `https://xxxxx.supabase.co`
 - Anon Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 - Service Role Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
@@ -109,6 +114,7 @@
 ### 1.2 Install Supabase Dependencies
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm install @supabase/supabase-js @supabase/ssr
@@ -116,6 +122,7 @@ npm install --save-dev @supabase/cli  # Optional: for local development
 ```
 
 **Python Backend (optional, for future):**
+
 ```bash
 cd backend
 pip install supabase
@@ -124,6 +131,7 @@ pip install supabase
 ### 1.3 Create Supabase Client Files
 
 **File Structure:**
+
 ```
 frontend/
 ├── lib/
@@ -134,6 +142,7 @@ frontend/
 ```
 
 **Files to Create:**
+
 - `frontend/lib/supabase/client.ts` - Browser client for client components
 - `frontend/lib/supabase/server.ts` - Server client for Server Components & API routes
 - `frontend/lib/supabase/middleware.ts` - Middleware client for route protection
@@ -141,6 +150,7 @@ frontend/
 ### 1.4 Environment Variables
 
 **Create/Update `.env.local` in `frontend/`:**
+
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
@@ -155,6 +165,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
 ```
 
 **Create/Update `.env` in `backend/` (optional):**
+
 ```env
 # Existing
 FINNHUB_API_KEY=your_finnhub_key
@@ -244,6 +255,7 @@ CREATE TRIGGER set_updated_at
 ### 2.2 Frontend Auth Structure
 
 **Create Route Groups:**
+
 ```
 frontend/app/
 ├── (auth)/                    # Public auth routes
@@ -264,6 +276,7 @@ frontend/app/
 ### 2.3 Auth Components
 
 **Components to Create:**
+
 - `frontend/components/auth/LoginForm.tsx`
 - `frontend/components/auth/SignupForm.tsx`
 - `frontend/components/auth/UserMenu.tsx` (dropdown with profile/logout)
@@ -272,12 +285,14 @@ frontend/app/
 ### 2.4 Auth Context/Hooks
 
 **Create:**
+
 - `frontend/context/AuthContext.tsx` - Global auth state
 - `frontend/hooks/useAuth.ts` - Auth hook for components
 
 ### 2.5 Middleware for Route Protection
 
 **Create `frontend/middleware.ts`:**
+
 - Protect routes under `(protected)/`
 - Redirect unauthenticated users to `/login`
 - Allow public access to `(auth)/` routes
@@ -526,10 +541,12 @@ CREATE TRIGGER set_updated_at_preferences
 **Files to Create:**
 
 1. **`frontend/lib/supabase/client.ts`**
+
    - Browser client for client components
    - Uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 2. **`frontend/lib/supabase/server.ts`**
+
    - Server client for Server Components
    - Uses cookies for session management
 
@@ -540,11 +557,13 @@ CREATE TRIGGER set_updated_at_preferences
 ### 4.2 Auth Context & Hooks
 
 **Create `frontend/context/AuthContext.tsx`:**
+
 - Provides auth state to entire app
 - Wraps app in `RootLayout`
 - Exposes: `user`, `session`, `loading`, `signIn`, `signOut`, `signUp`
 
 **Create `frontend/hooks/useAuth.ts`:**
+
 - Custom hook to access auth context
 - Returns user, session, and auth methods
 
@@ -553,18 +572,21 @@ CREATE TRIGGER set_updated_at_preferences
 **Components to Create:**
 
 1. **`frontend/components/auth/LoginForm.tsx`**
+
    - Email/password login
    - OAuth buttons (Google, GitHub)
    - Error handling
    - Redirect after login
 
 2. **`frontend/components/auth/SignupForm.tsx`**
+
    - Email/password signup
    - Username input
    - Email verification notice
    - Redirect to login after signup
 
 3. **`frontend/components/auth/UserMenu.tsx`**
+
    - Dropdown menu in header
    - Shows user avatar/name
    - Links to profile, settings
@@ -605,6 +627,7 @@ app/
 ### 4.5 Middleware Implementation
 
 **Create `frontend/middleware.ts`:**
+
 - Check auth status using Supabase middleware client
 - Protect routes under `(protected)/`
 - Redirect to `/login` if not authenticated
@@ -616,11 +639,13 @@ app/
 **Components to Update:**
 
 1. **`frontend/components/Header.tsx`** (or create if doesn't exist)
+
    - Add `UserMenu` component
    - Show login button if not authenticated
    - Show user menu if authenticated
 
 2. **`frontend/app/layout.tsx`**
+
    - Wrap with `AuthProvider` (from AuthContext)
    - Keep existing `WebSocketProvider`
 
@@ -635,15 +660,18 @@ app/
 ### 5.1 Watchlists API Routes
 
 **Create `frontend/app/api/watchlists/route.ts`:**
+
 - `GET` - Fetch user's watchlists
 - `POST` - Create new watchlist
 
 **Create `frontend/app/api/watchlists/[id]/route.ts`:**
+
 - `GET` - Get watchlist by ID
 - `PUT` - Update watchlist
 - `DELETE` - Delete watchlist
 
 **Create `frontend/app/api/watchlists/[id]/items/route.ts`:**
+
 - `GET` - Get watchlist items
 - `POST` - Add symbol to watchlist
 - `DELETE` - Remove symbol from watchlist
@@ -653,11 +681,13 @@ app/
 **Components to Create:**
 
 1. **`frontend/components/watchlists/WatchlistList.tsx`**
+
    - Display user's watchlists
    - Create new watchlist button
    - Delete watchlist
 
 2. **`frontend/components/watchlists/WatchlistView.tsx`**
+
    - Display watchlist items (stocks)
    - Add/remove symbols
    - Show stock prices (integrate with existing StockCard)
@@ -670,15 +700,18 @@ app/
 ### 5.3 Portfolios API Routes
 
 **Create `frontend/app/api/portfolios/route.ts`:**
+
 - `GET` - Fetch user's portfolios
 - `POST` - Create new portfolio
 
 **Create `frontend/app/api/portfolios/[id]/route.ts`:**
+
 - `GET` - Get portfolio by ID with holdings
 - `PUT` - Update portfolio
 - `DELETE` - Delete portfolio
 
 **Create `frontend/app/api/portfolios/[id]/holdings/route.ts`:**
+
 - `GET` - Get portfolio holdings
 - `POST` - Add holding
 - `PUT` - Update holding
@@ -689,10 +722,12 @@ app/
 **Components to Create:**
 
 1. **`frontend/components/portfolios/PortfolioList.tsx`**
+
    - Display user's portfolios
    - Create new portfolio button
 
 2. **`frontend/components/portfolios/PortfolioView.tsx`**
+
    - Display portfolio holdings
    - Show current value, gains/losses
    - Add/edit/remove holdings
@@ -704,10 +739,12 @@ app/
 ### 5.5 Alerts API Routes
 
 **Create `frontend/app/api/alerts/route.ts`:**
+
 - `GET` - Fetch user's alerts
 - `POST` - Create new alert
 
 **Create `frontend/app/api/alerts/[id]/route.ts`:**
+
 - `PUT` - Update alert
 - `DELETE` - Delete alert
 
@@ -716,6 +753,7 @@ app/
 **Components to Create:**
 
 1. **`frontend/components/alerts/AlertList.tsx`**
+
    - Display user's alerts
    - Show active/inactive status
    - Create new alert button
@@ -736,11 +774,13 @@ app/
 **Implementation Options:**
 
 **Option A: Frontend Filtering (Recommended)**
+
 - Python backend sends all subscribed symbols
 - Frontend filters updates based on user's watchlists
 - Simpler, no changes to Python backend
 
 **Option B: Backend Filtering (Advanced)**
+
 - Python backend connects to Supabase
 - Receives user_id in WebSocket connection
 - Only subscribes to symbols in user's watchlists
@@ -751,17 +791,20 @@ app/
 **If implementing Option B:**
 
 1. **Install Supabase Python client:**
+
    ```bash
    cd backend
    pip install supabase
    ```
 
 2. **Update `backend/main.py`:**
+
    - Accept `user_id` in WebSocket connection (via auth token)
    - Query Supabase for user's watchlists
    - Filter subscriptions based on watchlists
 
 3. **Update `backend/subscription_manager.py`:**
+
    - Add user context to subscriptions
    - Filter broadcasts by user
 
@@ -772,6 +815,7 @@ app/
 ### 6.3 Environment Variables (Backend)
 
 **Update `backend/.env`:**
+
 ```env
 # Existing
 FINNHUB_API_KEY=your_finnhub_key
@@ -791,16 +835,19 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 7.1 AI Integration Architecture
 
 **Option A: Supabase Edge Functions**
+
 - Deploy AI processing as Supabase Edge Functions
 - Call from Next.js API routes
 - Store results in Supabase database
 
 **Option B: Vercel AI SDK**
+
 - Use Vercel AI SDK in Next.js API routes
 - Integrate with OpenAI, Anthropic, etc.
 - Store results in Supabase
 
 **Option C: Separate AI Service**
+
 - Deploy AI service separately (e.g., Python FastAPI)
 - Call from Next.js API routes
 - Store results in Supabase
@@ -808,6 +855,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 7.2 Database Schema for AI Features
 
 **AI Insights Table:**
+
 ```sql
 CREATE TABLE public.ai_insights (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -838,6 +886,7 @@ CREATE INDEX idx_ai_insights_type ON public.ai_insights(insight_type);
 ```
 
 **AI Chat History Table:**
+
 ```sql
 CREATE TABLE public.ai_chat_history (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -869,10 +918,12 @@ CREATE INDEX idx_ai_chat_session_id ON public.ai_chat_history(session_id);
 ### 7.3 AI API Routes (Future)
 
 **Create `frontend/app/api/ai/insights/route.ts`:**
+
 - `POST` - Generate AI insight for symbol
 - `GET` - Fetch user's AI insights
 
 **Create `frontend/app/api/ai/chat/route.ts`:**
+
 - `POST` - Send chat message, get AI response
 - `GET` - Fetch chat history
 
@@ -881,6 +932,7 @@ CREATE INDEX idx_ai_chat_session_id ON public.ai_chat_history(session_id);
 **Components to Create:**
 
 1. **`frontend/components/ai/AIInsights.tsx`**
+
    - Display AI-generated insights for stocks
    - Analysis, predictions, recommendations
 
@@ -928,6 +980,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### Vercel Environment Variables
 
 **Set in Vercel Dashboard:**
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -940,6 +993,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 1. Unit Tests
 
 **Test Files to Create:**
+
 - `frontend/__tests__/lib/supabase/client.test.ts`
 - `frontend/__tests__/hooks/useAuth.test.ts`
 - `frontend/__tests__/components/auth/LoginForm.test.tsx`
@@ -947,6 +1001,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 2. Integration Tests
 
 **Test Scenarios:**
+
 - User signup → profile creation
 - User login → session management
 - Protected route access
@@ -956,6 +1011,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 3. E2E Tests (Optional)
 
 **Using Playwright or Cypress:**
+
 - Complete auth flow
 - Create watchlist, add stocks
 - Create portfolio, add holdings
@@ -1020,69 +1076,92 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## Migration Phases Summary
 
-### Phase 1: Setup (Week 1)
-- Create Supabase project
-- Install dependencies
-- Set up client files
-- Configure environment variables
+### Phase 1: Setup ✅ COMPLETE
 
-### Phase 2: Authentication (Week 1-2)
-- Create profiles table
-- Implement auth components
-- Set up middleware
-- Test auth flow
+- [x] Create Supabase project
+- [x] Install dependencies
+- [x] Set up client files (client.ts, server.ts, middleware.ts)
+- [x] Configure environment variables
 
-### Phase 3: Database (Week 2)
-- Create all database tables
-- Set up RLS policies
-- Test database operations
+### Phase 2: Authentication ✅ COMPLETE
 
-### Phase 4: Frontend Integration (Week 2-3)
-- Integrate auth context
-- Update route structure
-- Create protected routes
-- Update existing components
+- [x] Create profiles table (if not done, do this next)
+- [x] Implement auth components (LoginForm, SignupForm, etc.)
+- [x] Set up middleware with route protection
+- [x] Test auth flow (email/password working, Google OAuth configured)
+- [x] Auth API routes (callback, confirm)
+- [x] Server actions and client functions
 
-### Phase 5: User Features (Week 3-4)
-- Implement watchlists
-- Implement portfolios
-- Implement alerts
-- Test all features
+### Phase 3: Database ✅ COMPLETE
 
-### Phase 6: Backend Integration (Week 4, Optional)
-- Add Supabase to Python backend (if needed)
-- Implement user filtering (if desired)
-- Test WebSocket with auth
+- [x] Create profiles table ✅
+- [x] Create watchlists and watchlist_items tables ✅
+- [x] Create portfolios and holdings tables ✅
+- [x] Create alerts table ✅
+- [x] Set up RLS policies for all tables ✅
+- [x] Create database triggers (handle_new_user, handle_updated_at) ✅
+- [x] Test database operations ✅
+
+### Phase 4: Frontend Integration ✅ MOSTLY COMPLETE
+
+- [x] Route structure (auth and protected routes)
+- [x] Protected routes with middleware
+- [x] Auth components created
+- [x] Dashboard page (basic implementation)
+- [ ] Implement watchlist/portfolio/alert pages (currently placeholders)
+- [ ] Connect components to API routes
+
+### Phase 5: User Features ⏳ NEXT STEP
+
+- [x] API route placeholders created ✅
+- [x] Component structure exists ✅
+- [x] Database tables ready ✅
+- [ ] Implement watchlists API routes (replace placeholders) ⏳ **START HERE**
+- [ ] Implement portfolios API routes (replace placeholders)
+- [ ] Implement alerts API routes (replace placeholders)
+- [ ] Connect components to real data
+- [ ] Test all features
+
+### Phase 6: Backend Integration (Optional, Future)
+
+- [ ] Add Supabase to Python backend (if needed)
+- [ ] Implement user filtering (if desired)
+- [ ] Test WebSocket with auth
 
 ### Phase 7: AI Capabilities (Future)
-- Set up AI service
-- Create AI database tables
-- Implement AI API routes
-- Create AI components
+
+- [ ] Set up AI service
+- [ ] Create AI database tables
+- [ ] Implement AI API routes
+- [ ] Create AI components
 
 ---
 
 ## Notes & Considerations
 
 ### Security
+
 - Never expose `SUPABASE_SERVICE_ROLE_KEY` in client-side code
 - Always use RLS policies for database access
 - Validate user input on both client and server
 - Use Supabase's built-in auth validation
 
 ### Performance
+
 - Use Supabase indexes for frequently queried columns
 - Consider caching watchlist/portfolio data
 - Use Supabase Realtime for live updates (optional)
 - Optimize database queries
 
 ### Scalability
+
 - Supabase free tier: 500MB database, 2GB bandwidth
 - Consider upgrading for production
 - Monitor Supabase usage dashboard
 - Python backend can scale independently
 
 ### Cost Estimation
+
 - **Supabase:** Free tier → $25/month (Pro) for production
 - **Vercel:** Free tier → $20/month (Pro) for production
 - **Backend Hosting:** Free tier (Railway/Render) → $5-20/month
@@ -1100,7 +1179,10 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-**Last Updated:** [Date]
-**Status:** Planning Phase
-**Next Steps:** Begin Phase 1 - Setup & Configuration
+**Last Updated:** Current
+**Status:** Phase 3 Complete, Phase 5 In Progress
+**Next Steps:**
 
+1. ✅ **Create Database Schema** (Phase 3) - COMPLETE
+2. **Implement API Routes** (Phase 5) - Replace placeholders with real Supabase queries ⏳ **START HERE**
+3. **Connect Components** (Phase 5) - Wire up components to fetch/display real data

@@ -1,3 +1,6 @@
+"use client";
+
+// Middleware already protects this route - if we reach here, user is authenticated
 export default function Portfolio() {
   return (
     <div className="portfolio-page px-6">
