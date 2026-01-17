@@ -1,12 +1,19 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import PortfolioList from "@/components/portfolios/PortfolioList";
+import PortfolioView from "@/components/portfolios/PortfolioView";
+
 // Middleware already protects this route - if we reach here, user is authenticated
 export default function Portfolio() {
-  return (
-    <div className="portfolio-page px-6">
-      <h1 className="text-2xl font-bold mb-4">Portfolio</h1>
-      <p>Your portfolio content will go here.</p>
-    </div>
-  );
-}
+  const searchParams = useSearchParams();
+  const portfolioId = searchParams.get("portfolio") || searchParams.get("id");
 
+  // If a specific portfolio ID is provided, show the portfolio view
+  if (portfolioId) {
+    return <PortfolioView portfolioId={portfolioId} />;
+  }
+
+  // Otherwise, show the list of all portfolios
+  return <PortfolioList />;
+}
