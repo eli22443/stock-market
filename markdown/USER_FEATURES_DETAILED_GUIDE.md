@@ -862,62 +862,72 @@ alerts:
 
 ## Implementation Roadmap
 
-### Phase 1: Watchlists (Start Here) ⏳
+### Phase 1: Watchlists ✅ **COMPLETE**
 
 **Priority:** HIGH - Most commonly used feature
 
 **Steps:**
 
 1. ✅ Database tables created
-2. ⏳ Implement API routes (`/api/watchlists/*`)
-3. ⏳ Implement `WatchlistList` component
-4. ⏳ Implement `WatchlistView` component
-5. ⏳ Implement `AddToWatchlist` component
-6. ⏳ Connect to Yahoo Finance API for stock prices
-7. ⏳ Test full CRUD flow
+2. ✅ Implement API routes (`/api/watchlists/*`)
+3. ✅ Implement `WatchlistList` component
+4. ✅ Implement `WatchlistView` component
+5. ✅ Implement `AddToWatchlist` component
+6. ✅ Connect to Yahoo Finance API for stock prices
+7. ✅ Test full CRUD flow
 
-**Estimated Time:** 4-6 hours
+**Status:** All watchlist features are fully implemented and working.
 
-### Phase 2: Portfolios
+### Phase 2: Portfolios ✅ **COMPLETE**
 
 **Priority:** MEDIUM - More complex, requires calculations
 
 **Steps:**
 
 1. ✅ Database tables created
-2. ⏳ Implement API routes (`/api/portfolios/*`)
-3. ⏳ Implement `PortfolioList` component
-4. ⏳ Implement `PortfolioView` component
-5. ⏳ Implement `AddHoldingForm` component
-6. ⏳ Add price fetching and gain/loss calculations
-7. ⏳ Test full CRUD flow
+2. ✅ Implement API routes (`/api/portfolios/*`)
+3. ✅ Implement `PortfolioList` component
+4. ✅ Implement `PortfolioView` component
+5. ✅ Implement `AddHoldingForm` component
+6. ✅ Add price fetching and gain/loss calculations
+7. ✅ Test full CRUD flow
 
-**Estimated Time:** 6-8 hours
+**Status:** All portfolio features are fully implemented and working, including real-time price updates and gain/loss calculations.
 
-### Phase 3: Alerts
+### Phase 3: Alerts ⏳ **UI COMPLETE, PROCESSING PENDING**
 
 **Priority:** LOW - Requires background processing
 
 **Steps:**
 
 1. ✅ Database table created
-2. ⏳ Implement API routes (`/api/alerts/*`)
-3. ⏳ Implement `AlertList` component
-4. ⏳ Implement `CreateAlertForm` component
+2. ✅ Implement API routes (`/api/alerts/*`)
+3. ✅ Implement `AlertList` component
+4. ✅ Implement `CreateAlertForm` component
 5. ⏳ Add alert checking logic (client-side polling or server job)
 6. ⏳ Add notification system (optional)
 7. ⏳ Test alert creation and triggering
 
-**Estimated Time:** 4-6 hours (more if adding notifications)
+**Status:**
+
+- ✅ API routes fully implemented
+- ✅ UI components fully implemented
+- ⏳ Alert processing/checking logic not yet implemented (backend job or client-side polling needed)
+
+**Estimated Time Remaining:** 2-4 hours (for alert processing logic)
 
 ---
 
-## 🎯 Quick Start: Implement Watchlists First
+## 🎯 Current Status Summary
 
-**Recommended order:**
+**Completed Features:**
 
-1. **Watchlists** - Simplest, most used feature
-2. **Portfolios** - More complex but similar pattern
-3. **Alerts** - Requires background processing
+- ✅ Watchlists (Full CRUD + UI)
+- ✅ Portfolios (Full CRUD + UI + Calculations)
+- ✅ Alerts (Full CRUD + UI, but no processing yet)
 
-**Next Step:** Start implementing `/api/watchlists/route.ts` with real Supabase queries!
+**Next Steps:**
+
+1. Implement alert processing logic (check active alerts periodically and update `triggered_at`)
+2. Add notification system for triggered alerts (optional)
+3. Test end-to-end alert flow

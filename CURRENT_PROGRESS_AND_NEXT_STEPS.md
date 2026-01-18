@@ -53,15 +53,41 @@
 - [x] All RLS policies configured
 - [x] All triggers and functions created
 
+### Phase 5: API Routes ✅ **COMPLETE**
+
+- [x] Watchlists API routes (`/api/watchlists/*`)
+- [x] Portfolios API routes (`/api/portfolios/*`)
+- [x] Alerts API routes (`/api/alerts/*`)
+- [x] All routes support Bearer token authentication (for Postman/testing)
+- [x] All routes support cookie-based authentication (for browser)
+- [x] Full CRUD operations implemented
+- [x] Authorization checks in place
+- [x] Input validation implemented
+
+### Phase 6: UI Components ✅ **COMPLETE**
+
+- [x] Watchlists UI components:
+  - `WatchlistList.tsx` - Display all watchlists
+  - `WatchlistView.tsx` - Display watchlist with stocks and prices
+  - `AddToWatchlist.tsx` - Add stock to watchlist
+- [x] Portfolios UI components:
+  - `PortfolioList.tsx` - Display all portfolios
+  - `PortfolioView.tsx` - Display portfolio with holdings and calculations
+  - `AddHoldingForm.tsx` - Add/edit holdings
+- [x] Alerts UI components:
+  - `AlertList.tsx` - Display all alerts with filtering
+  - `CreateAlertForm.tsx` - Create/edit alerts
+- [x] All pages connected (`/watchlist`, `/portfolio`, `/alerts`)
+
 ---
 
 ## ⏳ What Needs Implementation
 
-### Phase 5: Implement API Routes ⏳ **NEXT STEP**
+### Phase 7: Alert Processing Logic ⏳ **NEXT STEP**
 
-**Priority: HIGH - Do this now!**
+**Priority: MEDIUM - Optional but recommended**
 
-Now that the database tables are created, you can implement the API routes to interact with them.
+Alert processing is not yet implemented. Alerts can be created and managed, but they won't automatically trigger when conditions are met.
 
 #### ✅ Step 1: Create Profiles Table - COMPLETE
 
@@ -399,140 +425,71 @@ export async function POST(request: Request) {
 }
 ```
 
-#### Similar Implementation Needed For:
+---
 
-- `app/api/watchlists/[id]/route.ts` (GET, PUT, DELETE)
-- `app/api/watchlists/[id]/items/route.ts` (GET, POST, DELETE)
-- `app/api/portfolios/route.ts` (GET, POST)
-- `app/api/portfolios/[id]/route.ts` (GET, PUT, DELETE)
-- `app/api/portfolios/[id]/holdings/route.ts` (GET, POST, PUT, DELETE)
-- `app/api/alerts/route.ts` (GET, POST)
-- `app/api/alerts/[id]/route.ts` (PUT, DELETE)
+### Phase 7: Alert Processing Logic ⏳ **NEXT STEP**
+
+**Priority: MEDIUM - Optional but recommended**
+
+Alert processing is not yet implemented. Alerts can be created and managed, but they won't automatically trigger when conditions are met.
+
+**Options for Implementation:**
+
+1. **Client-Side Polling** (Simple):
+
+   - Frontend periodically checks active alerts
+   - Compares current prices with thresholds
+   - Updates `triggered_at` when condition met
+   - Can be added to `AlertList` component with `useEffect` and `setInterval`
+
+2. **Server-Side Job** (Recommended for production):
+
+   - Create a cron job or scheduled function
+   - Checks all active alerts periodically
+   - Updates database when triggered
+   - Can send notifications (email, push, etc.)
+
+3. **Real-Time via WebSocket** (Advanced):
+   - Use existing WebSocket connection
+   - Monitor prices for symbols with active alerts
+   - Trigger alerts in real-time
+
+**Estimated Time:** 2-4 hours
 
 ---
 
-### Phase 6: Connect Components ⏳ **AFTER API ROUTES**
+## 🎯 Recommended Next Steps
 
-Once API routes are working, connect components to fetch/display real data:
+### ✅ 1. **Database Schema** - COMPLETE
 
-#### Watchlist Page (`app/(protected)/watchlist/page.tsx`)
+### ✅ 2. **API Routes** - COMPLETE
 
-**Current:** Placeholder
-**Needs:** Fetch watchlists and display using `WatchlistList` component
+### ✅ 3. **UI Components** - COMPLETE
 
-```typescript
-import { createClient } from "@/lib/supabase/server";
-import WatchlistList from "@/components/watchlists/WatchlistList";
-
-export default async function WatchlistPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  // Fetch watchlists from API or directly from Supabase
-  const response = await fetch(
-    `${process.env.NEXT_URL || "http://localhost:3000"}/api/watchlists`
-  );
-  const watchlists = await response.json();
-
-  return (
-    <div className="watchlist-page px-6">
-      <h1 className="text-2xl font-bold mb-4">My Watchlists</h1>
-      <WatchlistList watchlists={watchlists} />
-    </div>
-  );
-}
-```
-
-#### Similar Implementation Needed For:
-
-- `app/(protected)/portfolio/page.tsx`
-- Update `WatchlistList`, `WatchlistView`, `AddToWatchlist` components
-- Update `PortfolioList`, `PortfolioView`, `AddHoldingForm` components
-- Update `AlertList`, `CreateAlertForm` components
-
----
-
-## 🎯 Recommended Next Steps (In Order)
-
-### ✅ 1. **Create Database Schema** - COMPLETE
-
-- [x] Tables created in Supabase
-- [x] RLS policies configured
-- [x] Triggers and functions created
-
-### 2. **Test Database** (15 minutes) - Optional but Recommended
-
-- Sign up a test user (if not done already)
-- Check if profile is auto-created (trigger should work)
-- Manually insert a test watchlist in Supabase Table Editor to verify RLS policies work
-
-### 3. **Implement Watchlists API** (1-2 hours) - **START HERE**
-
-- Replace placeholder in `app/api/watchlists/route.ts`
-- Implement GET and POST
-- Test with Postman or browser
-
-### 4. **Connect Watchlist Components** (1 hour)
-
-- Update `app/(protected)/watchlist/page.tsx` to fetch data
-- Update `WatchlistList` component to display data
-- Test full flow: create watchlist → add items → view
-
-### 5. **Repeat for Portfolios** (1-2 hours)
-
-- Same process as watchlists
-
-### 6. **Repeat for Alerts** (1 hour)
-
-- Same process
+### ⏳ 4. **Alert Processing Logic** - NEXT STEP
 
 ---
 
 ## 📊 Progress Summary
 
-**Completed:** ~75%
+**Completed:** ~95%
 
 - ✅ Authentication (100%)
 - ✅ Frontend structure (100%)
-- ✅ Database schema (100%) - **JUST COMPLETED!**
-- ⏳ API implementation (0% - **NEXT STEP**)
-- ⏳ Component integration (0% - after API)
+- ✅ Database schema (100%)
+- ✅ API implementation (100%)
+- ✅ Component integration (100%)
+- ⏳ Alert processing (0% - **NEXT STEP**)
 
-**Estimated Time to Complete:**
+**Remaining Work:**
 
-- ✅ Database schema: DONE
-- ⏳ API routes: 4-6 hours (start now!)
-- ⏳ Component integration: 3-4 hours
-- **Remaining:** ~7-10 hours of focused work
+- ⏳ Alert processing logic: 2-4 hours
+- ⏳ Optional: Notification system for alerts
+- ⏳ Optional: Email alerts
+- ⏳ Optional: Push notifications
 
----
+**Core Features Status:**
 
-## 🚀 Quick Start: Implement API Routes Now
-
-1. **Start with Watchlists API** (`app/api/watchlists/route.ts`)
-
-   - Replace placeholder with real Supabase queries (code example above)
-   - Test GET endpoint: Visit `http://localhost:3000/api/watchlists` (while logged in)
-   - Test POST endpoint: Use Postman or fetch from browser console
-
-2. **Then implement Watchlist Items API** (`app/api/watchlists/[id]/items/route.ts`)
-
-   - Add GET, POST, DELETE handlers
-   - Test adding/removing items from watchlists
-
-3. **Repeat for Portfolios and Alerts**
-
-   - Same pattern as watchlists
-   - Use the code examples above as templates
-
-4. **Test Everything**
-   - Create a watchlist via API
-   - Add items to it
-   - Verify data appears in Supabase Table Editor
-   - Check RLS policies are working (can't access other users' data)
+- ✅ **Watchlists** - Fully functional (CRUD + UI + Real-time prices)
+- ✅ **Portfolios** - Fully functional (CRUD + UI + Calculations + Real-time prices)
+- ⏳ **Alerts** - UI complete, processing pending (CRUD + UI ✅, Processing ⏳)
