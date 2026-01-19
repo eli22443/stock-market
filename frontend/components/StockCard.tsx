@@ -85,19 +85,19 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
       <CardContent className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">High:</span>
-          <span className="font-semibold">${stock.data.h}</span>
+          <span className="font-semibold">${formatNumber(stock.data.h)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Low:</span>
-          <span className="font-semibold">${stock.data.l}</span>
+          <span className="font-semibold">${formatNumber(stock.data.l)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Open:</span>
-          <span className="font-semibold">${stock.data.o.toFixed(2)}</span>
+          <span className="font-semibold">${formatNumber(stock.data.o)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Close:</span>
-          <span className="font-semibold">${stock.data.pc}</span>
+          <span className="font-semibold">${formatNumber(stock.data.pc)}</span>
         </div>
       </CardContent>
       <CardFooter className="pt-4">
