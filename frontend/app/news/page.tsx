@@ -7,7 +7,7 @@ export default async function News() {
   // Skip API calls during build (static generation)
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return (
-      <div className="news-page px-6 py-6">
+      <div className="news-page py-6">
         <h1 className="text-3xl font-bold mb-6">Market News</h1>
         <MarketNews data={news} />
       </div>
@@ -22,7 +22,7 @@ export default async function News() {
     const response = await fetch(apiUrl, {
       cache: 'no-store',
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Error fetching news:", errorData);
@@ -45,7 +45,7 @@ export default async function News() {
   }
 
   return (
-    <div className="news-page px-6 py-6">
+    <div className="news-page py-6">
       <h1 className="text-3xl font-bold mb-6">Market News</h1>
       <MarketNews data={news} />
     </div>

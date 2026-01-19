@@ -17,7 +17,7 @@ export default function PortfolioPage({
   if (!portfolioId) {
     return (
       <div className="p-6">
-        <div className="text-center">Loading...</div>
+        <div className="text-center text-muted-foreground">Loading...</div>
       </div>
     );
   }

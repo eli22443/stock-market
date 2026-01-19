@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface Holding {
   id: string;
@@ -174,124 +178,127 @@ export default function AddHoldingForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="p-4 border border-indigo-950 rounded-lg"
-    >
-      <h2 className="text-xl font-semibold mb-4">
-        {holding ? "Edit Holding" : "Add Holding to Portfolio"}
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {holding ? "Edit Holding" : "Add Holding to Portfolio"}
+        </CardTitle>
+        <CardDescription>
+          {holding
+            ? "Update the details of this holding"
+            : "Add a new stock holding to track in your portfolio"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            {error && <FieldError>{error}</FieldError>}
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-          {error}
-        </div>
-      )}
+            <Field>
+              <FieldLabel>
+                Symbol <span className="text-destructive">*</span>
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  type="text"
+                  value={symbol}
+                  onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                  placeholder="e.g., AAPL"
+                  required
+                  maxLength={10}
+                  disabled={!!holding}
+                />
+                {isValidatingSymbol && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Validating symbol...
+                  </p>
+                )}
+              </FieldContent>
+            </Field>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Symbol <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., AAPL"
-            required
-            maxLength={10}
-            disabled={!!holding} // Can't change symbol when editing
-          />
-          {isValidatingSymbol && (
-            <p className="text-xs text-gray-500 mt-1">Validating symbol...</p>
-          )}
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel>
+                  Shares <span className="text-destructive">*</span>
+                </FieldLabel>
+                <FieldContent>
+                  <Input
+                    type="number"
+                    value={shares}
+                    onChange={(e) => setShares(e.target.value)}
+                    placeholder="e.g., 10.5"
+                    step="0.01"
+                    min="0.01"
+                    required
+                  />
+                </FieldContent>
+              </Field>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Shares <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              value={shares}
-              onChange={(e) => setShares(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 10.5"
-              step="0.01"
-              min="0.01"
-              required
-            />
-          </div>
+              <Field>
+                <FieldLabel>
+                  Average Price <span className="text-destructive">*</span>
+                </FieldLabel>
+                <FieldContent>
+                  <Input
+                    type="number"
+                    value={avgPrice}
+                    onChange={(e) => setAvgPrice(e.target.value)}
+                    placeholder="e.g., 150.00"
+                    step="0.01"
+                    min="0.01"
+                    required
+                  />
+                </FieldContent>
+              </Field>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Average Price <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              value={avgPrice}
-              onChange={(e) => setAvgPrice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 150.00"
-              step="0.01"
-              min="0.01"
-              required
-            />
-          </div>
-        </div>
+            <Field>
+              <FieldLabel>
+                Purchase Date <span className="text-destructive">*</span>
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  type="date"
+                  value={purchasedAt}
+                  onChange={(e) => setPurchasedAt(e.target.value)}
+                  required
+                  disabled={!!holding}
+                />
+              </FieldContent>
+            </Field>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Purchase Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={purchasedAt}
-            onChange={(e) => setPurchasedAt(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            disabled={!!holding} // Can't change purchase date when editing
-          />
-        </div>
+            <Field>
+              <FieldLabel>Notes (optional)</FieldLabel>
+              <FieldContent>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g., Bought after earnings"
+                  rows={3}
+                />
+              </FieldContent>
+            </Field>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Notes (optional)
-          </label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g., Bought after earnings"
-            rows={3}
-          />
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            type="submit"
-            disabled={isSubmitting || isValidatingSymbol}
-            className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50"
-          >
-            {isSubmitting
-              ? holding
-                ? "Updating..."
-                : "Adding..."
-              : holding
-              ? "Update"
-              : "Add"}
-          </Button>
-          <Button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </form>
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting || isValidatingSymbol}
+              >
+                {isSubmitting
+                  ? holding
+                    ? "Updating..."
+                    : "Adding..."
+                  : holding
+                  ? "Update"
+                  : "Add"}
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

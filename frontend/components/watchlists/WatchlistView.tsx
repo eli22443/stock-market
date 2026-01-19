@@ -217,7 +217,7 @@ export default function WatchlistView({
   if (error && !watchlist) {
     return (
       <Card className="watchlist-view">
-        <CardContent className="pt-6">
+        <CardContent >
           <div className="text-center space-y-4">
             <FieldError>{error}</FieldError>
             <Button asChild variant="outline">
@@ -331,7 +331,7 @@ export default function WatchlistView({
 
       {watchlist.items.length === 0 ? (
         <Card>
-          <CardContent className="pt-6">
+          <CardContent >
             <div className="text-center space-y-4 py-8">
               <p className="text-muted-foreground">This watchlist is empty.</p>
               {!showAddForm && (
@@ -348,7 +348,7 @@ export default function WatchlistView({
             const price = stockPrices[item.symbol];
             return (
               <Card key={item.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
+                <CardContent >
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-4 flex-wrap">

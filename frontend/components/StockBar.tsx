@@ -79,15 +79,15 @@ export function StockBar({
     priceDiff > 0
       ? "bg-green-900"
       : priceDiff < 0
-      ? "bg-red-900"
-      : priceBgStyle.current;
+        ? "bg-red-900"
+        : priceBgStyle.current;
 
   const priceChange = currentPrice - stockData.previousClose;
   const priceChangePercent = (priceChange / currentPrice) * 100;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="pt-6">
+      <CardContent >
         <div className="flex items-center gap-6 flex-wrap">
           <div>
             <div className="text-sm text-muted-foreground mb-1">Current Price</div>
@@ -98,9 +98,8 @@ export function StockBar({
           <div>
             <div className="text-sm text-muted-foreground mb-1">Change</div>
             <div
-              className={`text-2xl font-semibold transition-colors ${priceBgStyle.current} ${
-                priceChange >= 0 ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-2xl font-semibold transition-colors ${priceBgStyle.current} ${priceChange >= 0 ? "text-green-600" : "text-red-600"
+                }`}
             >
               {priceChange >= 0 ? "+" : ""}
               ${formatNumber(priceChange)} ({priceChangePercent >= 0 ? "+" : ""}

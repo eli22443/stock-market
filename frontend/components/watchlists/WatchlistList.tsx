@@ -186,7 +186,7 @@ export default function WatchlistList() {
   }
 
   return (
-    <div className="watchlist-list p-6 space-y-6">
+    <div className="watchlist-list space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">My Watchlists</h1>
         {!showCreateForm && (
@@ -256,7 +256,7 @@ export default function WatchlistList() {
 
       {watchlists.length === 0 ? (
         <Card>
-          <CardContent className="pt-6">
+          <CardContent >
             <div className="text-center space-y-4 py-8">
               <p className="text-muted-foreground">
                 You don't have any watchlists yet.
@@ -270,13 +270,13 @@ export default function WatchlistList() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {watchlists.map((watchlist) => (
             <Card
               key={watchlist.id}
               className="hover:shadow-md transition-shadow"
             >
-              <CardContent className="pt-6">
+              <CardContent className="">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">

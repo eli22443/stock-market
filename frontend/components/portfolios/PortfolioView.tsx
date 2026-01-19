@@ -13,7 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Card, CardContent } from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { FieldError } from "../ui/field";
+import { Badge } from "../ui/badge";
 
 interface Holding {
   id: string;
@@ -133,22 +135,23 @@ export default function PortfolioView({
   if (loading) {
     return (
       <div className="portfolio-view p-6">
-        <div className="text-center">Loading portfolio...</div>
+        <div className="text-center text-muted-foreground">Loading portfolio...</div>
       </div>
     );
   }
 
   if (error && !portfolio) {
     return (
-      <div className="portfolio-view p-6">
-        <div className="text-center text-red-600">{error}</div>
-        <Link
-          href="/portfolio"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-        >
-          ← Back to Portfolios
-        </Link>
-      </div>
+      <Card className="portfolio-view">
+        <CardContent >
+          <div className="text-center space-y-4">
+            <FieldError>{error}</FieldError>
+            <Button asChild variant="outline">
+              <Link href="/portfolio">← Back to Portfolios</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -157,81 +160,81 @@ export default function PortfolioView({
   }
 
   return (
-    <div className="portfolio-view p-6">
-      <div className="mb-6">
-        <Link
-          href="/portfolio"
-          className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
-        >
-          ← Back to Portfolios
-        </Link>
-        <div className="flex justify-between items-start mt-4">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">{portfolio.name}</h1>
-            {portfolio.description && (
-              <p className="text-gray-600">{portfolio.description}</p>
+    <div className="portfolio-view p-6 space-y-6">
+      <div className="flex items-center gap-4">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/portfolio">← Back to Portfolios</Link>
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <CardTitle className="text-3xl">{portfolio.name}</CardTitle>
+              {portfolio.description && (
+                <CardDescription className="text-base">
+                  {portfolio.description}
+                </CardDescription>
+              )}
+            </div>
+            {!showAddForm && !editingHolding && (
+              <Button onClick={() => setShowAddForm(true)}>
+                + Add Holding
+              </Button>
             )}
           </div>
-          {!showAddForm && !editingHolding && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              className="border-2 border-indigo-600"
-            >
-              + Add Holding
-            </Button>
-          )}
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
       {/* Portfolio Summary */}
-      <div className="mb-6 p-6 border border-indigo-950 rounded-lg">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Total Value</div>
-            <div className="text-2xl font-bold">
-              {formatCurrency(portfolio.total_value)}
+      <Card>
+        <CardHeader>
+          <CardTitle>Portfolio Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Total Value</div>
+              <div className="text-2xl font-bold">
+                {formatCurrency(portfolio.total_value)}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Cost Basis</div>
-            <div className="text-xl font-semibold">
-              {formatCurrency(portfolio.total_cost_basis)}
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Cost Basis</div>
+              <div className="text-xl font-semibold">
+                {formatCurrency(portfolio.total_cost_basis)}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Total Gain/Loss</div>
-            <div
-              className={`text-xl font-semibold ${
-                portfolio.total_gain_loss >= 0
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Total Gain/Loss</div>
+              <div
+                className={`text-xl font-semibold ${portfolio.total_gain_loss >= 0
                   ? "text-green-600"
                   : "text-red-600"
-              }`}
-            >
-              {portfolio.total_gain_loss >= 0 ? "+" : ""}
-              {formatCurrency(portfolio.total_gain_loss)}
+                  }`}
+              >
+                {portfolio.total_gain_loss >= 0 ? "+" : ""}
+                {formatCurrency(portfolio.total_gain_loss)}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Gain/Loss %</div>
-            <div
-              className={`text-xl font-semibold ${
-                portfolio.total_gain_loss_percent >= 0
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Gain/Loss %</div>
+              <div
+                className={`text-xl font-semibold ${portfolio.total_gain_loss_percent >= 0
                   ? "text-green-600"
                   : "text-red-600"
-              }`}
-            >
-              {portfolio.total_gain_loss_percent >= 0 ? "+" : ""}
-              {portfolio.total_gain_loss_percent.toFixed(2)}%
+                  }`}
+              >
+                {portfolio.total_gain_loss_percent >= 0 ? "+" : ""}
+                {portfolio.total_gain_loss_percent.toFixed(2)}%
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+      {error && <FieldError>{error}</FieldError>}
 
       {(showAddForm || editingHolding) && (
         <div className="mb-6">
@@ -252,17 +255,18 @@ export default function PortfolioView({
       )}
 
       {portfolio.holdings.length === 0 ? (
-        <div className="text-center py-12 border border-indigo-950 rounded-lg">
-          <p className="text-gray-600 mb-4">This portfolio is empty.</p>
-          {!showAddForm && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-            >
-              Add Your First Holding
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent >
+            <div className="text-center space-y-4 py-8">
+              <p className="text-muted-foreground">This portfolio is empty.</p>
+              {!showAddForm && (
+                <Button onClick={() => setShowAddForm(true)}>
+                  Add Your First Holding
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -304,32 +308,31 @@ export default function PortfolioView({
                       </TableCell>
                       <TableCell className="text-right">
                         {holding.current_price !== null &&
-                        holding.current_price !== undefined
+                          holding.current_price !== undefined
                           ? formatCurrency(holding.current_price)
                           : "Loading..."}
                       </TableCell>
                       <TableCell className="text-right">
                         {holding.current_value !== null &&
-                        holding.current_value !== undefined
+                          holding.current_value !== undefined
                           ? formatCurrency(holding.current_value)
                           : "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
                         {holding.cost_basis !== null &&
-                        holding.cost_basis !== undefined
+                          holding.cost_basis !== undefined
                           ? formatCurrency(holding.cost_basis)
                           : "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
                         {holding.gain_loss !== null &&
-                        holding.gain_loss !== undefined ? (
+                          holding.gain_loss !== undefined ? (
                           <div>
                             <div
-                              className={`font-semibold ${
-                                holding.gain_loss >= 0
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`font-semibold ${holding.gain_loss >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
                             >
                               {holding.gain_loss >= 0 ? "+" : ""}
                               {formatCurrency(holding.gain_loss)}
@@ -337,11 +340,10 @@ export default function PortfolioView({
                             {holding.gain_loss_percent !== null &&
                               holding.gain_loss_percent !== undefined && (
                                 <div
-                                  className={`text-sm ${
-                                    holding.gain_loss_percent >= 0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
+                                  className={`text-sm ${holding.gain_loss_percent >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
                                 >
                                   ({holding.gain_loss_percent >= 0 ? "+" : ""}
                                   {holding.gain_loss_percent.toFixed(2)}%)

@@ -33,7 +33,7 @@ export default function StockNews({
         key={index}
         className="mb-4 hover:shadow-md transition-shadow"
       >
-        <CardContent className="pt-6">
+        <CardContent >
           <div className="flex justify-between gap-4">
             <div className="flex-1 space-y-2">
               <CardTitle className="text-base">

@@ -20,10 +20,10 @@ interface Alert {
   id: string;
   symbol: string;
   alert_type:
-    | "price_above"
-    | "price_below"
-    | "price_change_percent"
-    | "volume_spike";
+  | "price_above"
+  | "price_below"
+  | "price_change_percent"
+  | "volume_spike";
   threshold: number;
   is_active: boolean;
   triggered_at: string | null;
@@ -204,41 +204,37 @@ export default function AlertList() {
       <div className="mb-4 flex gap-2">
         <Button
           onClick={() => setFilter("all")}
-          className={`px-3 py-1 text-sm rounded ${
-            filter === "all"
+          className={`px-3 py-1 text-sm rounded ${filter === "all"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           All
         </Button>
         <Button
           onClick={() => setFilter("active")}
-          className={`px-3 py-1 text-sm rounded ${
-            filter === "active"
+          className={`px-3 py-1 text-sm rounded ${filter === "active"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Active
         </Button>
         <Button
           onClick={() => setFilter("inactive")}
-          className={`px-3 py-1 text-sm rounded ${
-            filter === "inactive"
+          className={`px-3 py-1 text-sm rounded ${filter === "inactive"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Inactive
         </Button>
         <Button
           onClick={() => setFilter("triggered")}
-          className={`px-3 py-1 text-sm rounded ${
-            filter === "triggered"
+          className={`px-3 py-1 text-sm rounded ${filter === "triggered"
               ? "bg-indigo-600 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Triggered
         </Button>
@@ -275,7 +271,7 @@ export default function AlertList() {
         </div>
       ) : filteredAlerts.length === 0 ? (
         <Card>
-          <CardContent className="pt-6">
+          <CardContent >
             <div className="text-center py-8">
               <p className="text-muted-foreground">No alerts match the selected filter.</p>
             </div>

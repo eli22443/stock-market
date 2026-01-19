@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 interface Portfolio {
   id: string;
@@ -174,169 +179,172 @@ export default function PortfolioList() {
   if (loading) {
     return (
       <div className="portfolio-list p-6">
-        <div className="text-center">Loading portfolios...</div>
+        <div className="text-center text-muted-foreground">Loading portfolios...</div>
       </div>
     );
   }
 
   return (
-    <div className="portfolio-list p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Portfolios</h1>
+    <div className="portfolio-list p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">My Portfolios</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your investment portfolios and track performance
+          </p>
+        </div>
         {!showCreateForm && (
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="border-2 border-indigo-600"
-          >
+          <Button onClick={() => setShowCreateForm(true)}>
             + Create New Portfolio
           </Button>
         )}
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+      {error && <FieldError>{error}</FieldError>}
 
       {showCreateForm && (
-        <form
-          onSubmit={handleCreatePortfolio}
-          className="mb-6 p-4 border border-indigo-950 rounded-lg"
-        >
-          <h2 className="text-xl font-semibold mb-4">Create New Portfolio</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={newPortfolioName}
-                onChange={(e) => setNewPortfolioName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Retirement Portfolio"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Description (optional)
-              </label>
-              <textarea
-                value={newPortfolioDescription}
-                onChange={(e) => setNewPortfolioDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Long-term investments"
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                disabled={isCreating}
-                className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50"
-              >
-                {isCreating ? "Creating..." : "Create"}
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewPortfolioName("");
-                  setNewPortfolioDescription("");
-                  setError(null);
-                }}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Create New Portfolio</CardTitle>
+            <CardDescription>
+              Create a new portfolio to track your investments
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreatePortfolio}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel>
+                    Name <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="text"
+                      value={newPortfolioName}
+                      onChange={(e) => setNewPortfolioName(e.target.value)}
+                      placeholder="e.g., Retirement Portfolio"
+                      required
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Description (optional)</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      value={newPortfolioDescription}
+                      onChange={(e) => setNewPortfolioDescription(e.target.value)}
+                      placeholder="e.g., Long-term investments"
+                      rows={3}
+                    />
+                  </FieldContent>
+                </Field>
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={isCreating}>
+                    {isCreating ? "Creating..." : "Create"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      setNewPortfolioName("");
+                      setNewPortfolioDescription("");
+                      setError(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
       {portfolios.length === 0 ? (
-        <div className="text-center py-12 border border-indigo-950 rounded-lg">
-          <p className="text-gray-600 mb-4">
-            You don't have any portfolios yet.
-          </p>
-          {!showCreateForm && (
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-            >
-              Create Your First Portfolio
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent >
+            <div className="text-center space-y-4 py-8">
+              <p className="text-muted-foreground">
+                You don't have any portfolios yet.
+              </p>
+              {!showCreateForm && (
+                <Button onClick={() => setShowCreateForm(true)}>
+                  Create Your First Portfolio
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-4">
           {portfolios.map((portfolio) => (
-            <div
+            <Card
               key={portfolio.id}
-              className="border border-indigo-950 rounded-lg p-4 hover:border-indigo-800 transition-colors"
+              className="hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="mb-2">
-                    <Link
-                      href={`/portfolio/${portfolio.id}`}
-                      className="text-xl font-semibold text-indigo-500 hover:text-indigo-600"
-                    >
-                      {portfolio.name}
-                    </Link>
-                  </div>
-                  {portfolio.description && (
-                    <p className="text-gray-600 mb-3">
-                      {portfolio.description}
-                    </p>
-                  )}
-                  <div className="flex gap-6 text-sm">
+              <CardContent >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1 space-y-3">
                     <div>
-                      <span className="text-gray-500">Total Value: </span>
-                      <span className="font-semibold">
-                        {formatCurrency(portfolio.total_value || 0)}
-                      </span>
+                      <Link
+                        href={`/portfolio/${portfolio.id}`}
+                        className="text-xl font-semibold text-primary hover:text-primary/80 transition-colors"
+                      >
+                        {portfolio.name}
+                      </Link>
+                      {portfolio.description && (
+                        <CardDescription className="mt-1">
+                          {portfolio.description}
+                        </CardDescription>
+                      )}
                     </div>
-                    <div>
-                      <span className="text-gray-500">Gain/Loss: </span>
-                      <span
-                        className={`font-semibold ${
-                          (portfolio.total_gain_loss || 0) >= 0
+                    <div className="flex flex-wrap gap-6 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Total Value: </span>
+                        <span className="font-semibold">
+                          {formatCurrency(portfolio.total_value || 0)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Gain/Loss: </span>
+                        <span
+                          className={`font-semibold ${(portfolio.total_gain_loss || 0) >= 0
                             ? "text-green-600"
                             : "text-red-600"
-                        }`}
-                      >
-                        {(portfolio.total_gain_loss || 0) >= 0 ? "+" : ""}
-                        {formatCurrency(portfolio.total_gain_loss || 0)} (
-                        {(portfolio.total_gain_loss_percent || 0) >= 0
-                          ? "+"
-                          : ""}
-                        {(portfolio.total_gain_loss_percent || 0).toFixed(2)}%)
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Holdings: </span>
-                      <span className="font-semibold">
-                        {portfolio.holdings_count || 0}
-                      </span>
+                            }`}
+                        >
+                          {(portfolio.total_gain_loss || 0) >= 0 ? "+" : ""}
+                          {formatCurrency(portfolio.total_gain_loss || 0)} (
+                          {(portfolio.total_gain_loss_percent || 0) >= 0
+                            ? "+"
+                            : ""}
+                          {(portfolio.total_gain_loss_percent || 0).toFixed(2)}%)
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Holdings: </span>
+                        <Badge variant="secondary">
+                          {portfolio.holdings_count || 0}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Button size="sm" asChild>
+                      <Link href={`/portfolio/${portfolio.id}`}>View</Link>
+                    </Button>
+                    <Button
+                      onClick={() => handleDeletePortfolio(portfolio.id)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button className="px-3 py-1 text-sm rounded hover:bg-indigo-200 border-2 border-indigo-600">
-                    <Link href={`/portfolio/${portfolio.id}`}>View</Link>
-                  </Button>
-                  <Button
-                    onClick={() => handleDeletePortfolio(portfolio.id)}
-                    className="px-3 py-1 text-sm rounded hover:bg-red-200 border-2 border-red-600"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

@@ -10,7 +10,7 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
       <Card className="mx-10">
-        <CardContent className="pt-6">
+        <CardContent >
           <div className="text-center space-y-2">
             <p className="text-muted-foreground">No market news available at the moment.</p>
             <p className="text-sm text-muted-foreground">Please try again later.</p>

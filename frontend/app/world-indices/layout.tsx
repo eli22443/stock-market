@@ -4,7 +4,7 @@ export default function WorldIndicesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="world-indices-layout px-6">
+    <div className="world-indices-layout">
       <h1 className="mb-6 font-bold text-2xl">World Indices</h1>
       {children}
     </div>
