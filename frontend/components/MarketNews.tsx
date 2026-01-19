@@ -62,7 +62,7 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
   });
 
   return (
-    <div className="mx-10 space-y-4">
+    <div className="mx-2 space-y-4">
       {renderedNews}
     </div>
   );
