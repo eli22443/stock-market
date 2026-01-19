@@ -25,8 +25,8 @@ export default async function WorldIndices() {
   // Skip API calls during build (static generation)
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">No indices data available</p>
+      <div className="flex justify-center items-center h-64 p-6">
+        <p className="text-muted-foreground">No indices data available</p>
       </div>
     );
   }
@@ -48,22 +48,24 @@ export default async function WorldIndices() {
 
     if (!data || !data.indices || data.indices.length === 0) {
       return (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-gray-500">No indices data available</p>
+        <div className="flex justify-center items-center h-64 p-6">
+          <p className="text-muted-foreground">No indices data available</p>
         </div>
       );
     }
 
     return (
-      <div className="flex justify-center">
-        <WorldIndicesTable data={data} />
+      <div className="flex justify-center p-6">
+        <div className="w-full max-w-7xl">
+          <WorldIndicesTable data={data} />
+        </div>
       </div>
     );
   } catch (error) {
     console.error("Error fetching world indices:", error);
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">
+      <div className="flex justify-center items-center h-64 p-6">
+        <p className="text-muted-foreground">
           No indices data available. Please try again later.
         </p>
       </div>

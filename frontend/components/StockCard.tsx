@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import type { StockRecord } from "@/types";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStockWebSocketContext } from "@/context/WebSocketContext";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
 
 export default function StockCard({ stock }: { stock: StockRecord }) {
   const ws = useStockWebSocketContext();
@@ -63,58 +65,46 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
     priceDiff > 0
       ? "bg-green-900"
       : priceDiff < 0
-      ? "bg-red-900"
-      : priceBgStyle.current;
+        ? "bg-red-900"
+        : priceBgStyle.current;
 
   return (
-    <div className="hover:border-indigo-900 w-60 rounded-2xl border-y-2 px-2 py-4">
-      <div className="stock-info">
-        <div className="flex justify-center my-4">
-          <h1 className="text-2xl font-bold font-mono mr-6">{stock.symbol}</h1>
+    <Card className="w-60 hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex justify-center items-center gap-4">
+          <CardTitle className="text-2xl font-bold font-mono">
+            {stock.symbol}
+          </CardTitle>
           <span
-            className={`text-2xl font-bold font-mono ${priceBgStyle.current}`}
+            className={`text-2xl font-bold font-mono transition-colors ${priceBgStyle.current}`}
           >
             ${formatNumber(currentPrice)}
           </span>
         </div>
-        <div className="mx-2">
-          <div className="flex justify-between">
-            <span>High:</span>
-            <span>
-              <strong>${stock.data.h}</strong>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Low:</span>
-            <span>
-              <strong>${stock.data.l}</strong>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Open:</span>
-            <span>
-              <strong>${stock.data.o.toFixed(2)}</strong>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Close:</span>
-            <span>
-              <strong>${stock.data.pc}</strong>
-            </span>
-          </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">High:</span>
+          <span className="font-semibold">${stock.data.h}</span>
         </div>
-      </div>
-      <div className="stock-graph py-4">
-        {/* Placeholder for stock chart - to be implemented */}
-      </div>
-      <div className="stock-overlay mb-2 ml-6">
-        <Link
-          href={`/quote/${stock.symbol}`}
-          className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-        >
-          $$$
-        </Link>
-      </div>
-    </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Low:</span>
+          <span className="font-semibold">${stock.data.l}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Open:</span>
+          <span className="font-semibold">${stock.data.o.toFixed(2)}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Close:</span>
+          <span className="font-semibold">${stock.data.pc}</span>
+        </div>
+      </CardContent>
+      <CardFooter className="pt-4">
+        <Button asChild className="w-full">
+          <Link href={`/quote/${stock.symbol}`}>View Details</Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

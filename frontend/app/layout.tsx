@@ -35,22 +35,25 @@ export default function RootLayout({
       >
         <WebSocketProvider>
           <AuthProvider>
-            <div className="header flex justify-between my-4 pb-3 border-b-2 border-indigo-600">
-              <div className="ml-6">
-                <LoginLogoutButton />
+            <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <div className="container mx-auto flex items-center justify-between px-6 py-4">
+                <div className="flex items-center gap-4">
+                  <h1 className="text-xl font-bold">Stock Market</h1>
+                </div>
+                <div className="flex items-center gap-4">
+                  <SearchBar />
+                  <LoginLogoutButton />
+                </div>
               </div>
-              <div className="mr-24">
-                <SearchBar />
-              </div>
-            </div>
-            <div className="grid grid-cols-10">
-              <div className="col-span-1">
+            </header>
+            <div className="container mx-auto grid grid-cols-12 gap-6 px-6 py-6">
+              <aside className="col-span-2">
                 <NavBar />
-              </div>
-              <div className="col-span-7 mx-2">{children}</div>
-              <div className="col-span-2 ">
+              </aside>
+              <main className="col-span-8">{children}</main>
+              <aside className="col-span-2">
                 <GeneralInfo />
-              </div>
+              </aside>
             </div>
           </AuthProvider>
         </WebSocketProvider>

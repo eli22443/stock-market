@@ -3,6 +3,7 @@
 import { useStockWebSocketContext } from "@/context/WebSocketContext";
 import { ComprehensiveData } from "@/types";
 import { useEffect, useRef, useState } from "react";
+import { Card, CardContent } from "./ui/card";
 
 export function StockBar({
   symbol,
@@ -85,27 +86,29 @@ export function StockBar({
   const priceChangePercent = (priceChange / currentPrice) * 100;
 
   return (
-    <div className="border-l-3 hover:border-indigo-800 rounded-lg px-6 py-4">
-      <div className="flex items-center gap-4">
-        <div>
-          <div className="text-sm text-gray-600 mb-1">Current Price</div>
-          <div className={`text-3xl font-bold ${priceBgStyle.current}`}>
-            {formatNumber(currentPrice)}
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-6 flex-wrap">
+          <div>
+            <div className="text-sm text-muted-foreground mb-1">Current Price</div>
+            <div className={`text-3xl font-bold transition-colors ${priceBgStyle.current}`}>
+              ${formatNumber(currentPrice)}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground mb-1">Change</div>
+            <div
+              className={`text-2xl font-semibold transition-colors ${priceBgStyle.current} ${
+                priceChange >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {priceChange >= 0 ? "+" : ""}
+              ${formatNumber(priceChange)} ({priceChangePercent >= 0 ? "+" : ""}
+              {formatNumber(priceChangePercent)}%)
+            </div>
           </div>
         </div>
-        <div>
-          <div className="text-sm text-gray-600 mb-1">Change</div>
-          <div
-            className={`text-2xl font-semibold ${priceBgStyle.current} ${
-              priceChange >= 0 ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {priceChange >= 0 ? "+" : ""}
-            {formatNumber(priceChange)}({priceChangePercent >= 0 ? "+" : ""}
-            {formatNumber(priceChangePercent)}%)
-          </div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -5,6 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import AddHoldingForm from "./AddHoldingForm";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Card, CardContent } from "../ui/card";
 
 interface Holding {
   id: string;
@@ -255,126 +264,119 @@ export default function PortfolioView({
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border border-indigo-950 rounded-lg">
-            <thead className="">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">Symbol</th>
-                <th className="px-4 py-3 text-right font-semibold">Shares</th>
-                <th className="px-4 py-3 text-right font-semibold">
-                  Avg Price
-                </th>
-                <th className="px-4 py-3 text-right font-semibold">
-                  Current Price
-                </th>
-                <th className="px-4 py-3 text-right font-semibold">
-                  Current Value
-                </th>
-                <th className="px-4 py-3 text-right font-semibold">
-                  Cost Basis
-                </th>
-                <th className="px-4 py-3 text-right font-semibold">
-                  Gain/Loss
-                </th>
-                <th className="px-4 py-3 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {portfolio.holdings.map((holding) => (
-                <tr
-                  key={holding.id}
-                  className="border-t border-indigo-950 hover"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/quote/${holding.symbol}`}
-                      className="font-bold text-indigo-500 hover:text-indigo-600"
-                    >
-                      {holding.symbol}
-                    </Link>
-                    {holding.notes && (
-                      <div className="text-xs text-gray-500 italic mt-1">
-                        {holding.notes}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {formatNumber(holding.shares)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {formatCurrency(holding.avg_price)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {holding.current_price !== null &&
-                    holding.current_price !== undefined
-                      ? formatCurrency(holding.current_price)
-                      : "Loading..."}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {holding.current_value !== null &&
-                    holding.current_value !== undefined
-                      ? formatCurrency(holding.current_value)
-                      : "N/A"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {holding.cost_basis !== null &&
-                    holding.cost_basis !== undefined
-                      ? formatCurrency(holding.cost_basis)
-                      : "N/A"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {holding.gain_loss !== null &&
-                    holding.gain_loss !== undefined ? (
-                      <div>
-                        <div
-                          className={`font-semibold ${
-                            holding.gain_loss >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Symbol</TableHead>
+                    <TableHead className="text-right">Shares</TableHead>
+                    <TableHead className="text-right">Avg Price</TableHead>
+                    <TableHead className="text-right">Current Price</TableHead>
+                    <TableHead className="text-right">Current Value</TableHead>
+                    <TableHead className="text-right">Cost Basis</TableHead>
+                    <TableHead className="text-right">Gain/Loss</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {portfolio.holdings.map((holding) => (
+                    <TableRow key={holding.id}>
+                      <TableCell>
+                        <Link
+                          href={`/quote/${holding.symbol}`}
+                          className="font-bold text-primary hover:text-primary/80 transition-colors"
                         >
-                          {holding.gain_loss >= 0 ? "+" : ""}
-                          {formatCurrency(holding.gain_loss)}
-                        </div>
-                        {holding.gain_loss_percent !== null &&
-                          holding.gain_loss_percent !== undefined && (
+                          {holding.symbol}
+                        </Link>
+                        {holding.notes && (
+                          <div className="text-xs text-muted-foreground italic mt-1">
+                            {holding.notes}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatNumber(holding.shares)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(holding.avg_price)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {holding.current_price !== null &&
+                        holding.current_price !== undefined
+                          ? formatCurrency(holding.current_price)
+                          : "Loading..."}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {holding.current_value !== null &&
+                        holding.current_value !== undefined
+                          ? formatCurrency(holding.current_value)
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {holding.cost_basis !== null &&
+                        holding.cost_basis !== undefined
+                          ? formatCurrency(holding.cost_basis)
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {holding.gain_loss !== null &&
+                        holding.gain_loss !== undefined ? (
+                          <div>
                             <div
-                              className={`text-sm ${
-                                holding.gain_loss_percent >= 0
+                              className={`font-semibold ${
+                                holding.gain_loss >= 0
                                   ? "text-green-600"
                                   : "text-red-600"
                               }`}
                             >
-                              ({holding.gain_loss_percent >= 0 ? "+" : ""}
-                              {holding.gain_loss_percent.toFixed(2)}%)
+                              {holding.gain_loss >= 0 ? "+" : ""}
+                              {formatCurrency(holding.gain_loss)}
                             </div>
-                          )}
-                      </div>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        onClick={() => setEditingHolding(holding)}
-                        className="px-2 py-1 text-xs rounded hover:bg-indigo-200 border-2 border-indigo-600"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteHolding(holding.id)}
-                        className="px-2 py-1 text-xs rounded hover:bg-red-200 border-2 border-red-600"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                            {holding.gain_loss_percent !== null &&
+                              holding.gain_loss_percent !== undefined && (
+                                <div
+                                  className={`text-sm ${
+                                    holding.gain_loss_percent >= 0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  ({holding.gain_loss_percent >= 0 ? "+" : ""}
+                                  {holding.gain_loss_percent.toFixed(2)}%)
+                                </div>
+                              )}
+                          </div>
+                        ) : (
+                          "N/A"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            onClick={() => setEditingHolding(holding)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteHolding(holding.id)}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

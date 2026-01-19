@@ -57,14 +57,17 @@ export default async function QuotePage({
   const candle1: StockCandle = await hourlyRes.json();
 
   return (
-    <div className="stock-page px-6">
-      <h2 className="text-2xl font-bold my-5">{`${stockData.name} (${stockData.symbol})`}</h2>
+    <div className="stock-page px-6 space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold mb-2">{stockData.name}</h2>
+        <p className="text-muted-foreground text-lg">{stockData.symbol}</p>
+      </div>
 
       {/* Current Price & Change */}
       <StockBar symbol={symbol} stockData={stockData} />
 
       {/* Stock graph */}
-      <div className="stock-graph border mb-8">
+      <div className="stock-graph">
         <ChartContainer candleD={candleD} candle1={candle1} />
       </div>
 
@@ -72,8 +75,8 @@ export default async function QuotePage({
       <StockList data={stockData} symbol={symbol} />
 
       {/* Stock news */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mt-10 mb-8">Recent News: {symbol}</h2>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Recent News: {symbol}</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
       </div>
     </div>

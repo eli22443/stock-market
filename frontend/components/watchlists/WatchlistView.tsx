@@ -4,6 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 interface WatchlistItem {
   id: string;
@@ -204,22 +209,23 @@ export default function WatchlistView({
   if (loading) {
     return (
       <div className="watchlist-view p-6">
-        <div className="text-center">Loading watchlist...</div>
+        <div className="text-center text-muted-foreground">Loading watchlist...</div>
       </div>
     );
   }
 
   if (error && !watchlist) {
     return (
-      <div className="watchlist-view p-6">
-        <div className="text-center text-red-600">{error}</div>
-        <Link
-          href="/watchlist"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-        >
-          ← Back to Watchlists
-        </Link>
-      </div>
+      <Card className="watchlist-view">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            <FieldError>{error}</FieldError>
+            <Button asChild variant="outline">
+              <Link href="/watchlist">← Back to Watchlists</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -228,170 +234,172 @@ export default function WatchlistView({
   }
 
   return (
-    <div className="watchlist-view p-6">
-      <div className="mb-6">
-        <Link
-          href="/watchlist"
-          className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
-        >
-          ← Back to Watchlists
-        </Link>
-        <div className="flex justify-between items-start mt-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-2xl font-bold">{watchlist.name}</h1>
-              {watchlist.is_default && (
-                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                  Default
-                </span>
-              )}
-            </div>
-            {watchlist.description && (
-              <p className="text-gray-600">{watchlist.description}</p>
-            )}
-          </div>
-          {!showAddForm && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-            >
-              + Add Stock
-            </Button>
-          )}
-        </div>
+    <div className="watchlist-view p-6 space-y-6">
+      <div className="flex items-center gap-4">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/watchlist">← Back to Watchlists</Link>
+        </Button>
       </div>
 
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl">{watchlist.name}</CardTitle>
+                {watchlist.is_default && (
+                  <Badge variant="secondary">Default</Badge>
+                )}
+              </div>
+              {watchlist.description && (
+                <CardDescription>{watchlist.description}</CardDescription>
+              )}
+            </div>
+            {!showAddForm && (
+              <Button onClick={() => setShowAddForm(true)}>
+                + Add Stock
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+      </Card>
+
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
+        <FieldError>{error}</FieldError>
       )}
 
       {showAddForm && (
-        <form
-          onSubmit={handleAddStock}
-          className="mb-6 p-4 border border-indigo-950 rounded-lg"
-        >
-          <h2 className="text-xl font-semibold mb-4">Add Stock to Watchlist</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Symbol <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={newSymbol}
-                onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., AAPL"
-                required
-                maxLength={10}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Notes (optional)
-              </label>
-              <textarea
-                value={newNotes}
-                onChange={(e) => setNewNotes(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Watching for earnings"
-                rows={2}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={"secondary"}
-                type="submit"
-                disabled={isAdding}
-              >
-                {isAdding ? "Adding..." : "Add"}
-              </Button>
-              <Button
-                variant={"destructive"}
-                type="button"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setNewSymbol("");
-                  setNewNotes("");
-                  setError(null);
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Add Stock to Watchlist</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddStock}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel>
+                    Symbol <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="text"
+                      value={newSymbol}
+                      onChange={(e) => setNewSymbol(e.target.value.toUpperCase())}
+                      placeholder="e.g., AAPL"
+                      required
+                      maxLength={10}
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Notes (optional)</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      value={newNotes}
+                      onChange={(e) => setNewNotes(e.target.value)}
+                      placeholder="e.g., Watching for earnings"
+                      rows={2}
+                    />
+                  </FieldContent>
+                </Field>
+                <div className="flex gap-2">
+                  <Button
+                    variant="default"
+                    type="submit"
+                    disabled={isAdding}
+                  >
+                    {isAdding ? "Adding..." : "Add"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setNewSymbol("");
+                      setNewNotes("");
+                      setError(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
       {watchlist.items.length === 0 ? (
-        <div className="text-center py-12 border border-indigo-950 rounded-lg">
-          <p className="text-gray-600 mb-4">This watchlist is empty.</p>
-          {!showAddForm && (
-            <Button
-              onClick={() => setShowAddForm(true)}
-            >
-              Add Your First Stock
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4 py-8">
+              <p className="text-muted-foreground">This watchlist is empty.</p>
+              {!showAddForm && (
+                <Button onClick={() => setShowAddForm(true)}>
+                  Add Your First Stock
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-3">
           {watchlist.items.map((item) => {
             const price = stockPrices[item.symbol];
             return (
-              <div
-                key={item.id}
-                className="border border-indigo-950 rounded-lg p-4 hover:border-indigo-800 transition-colors"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-2">
-                      <Link
-                        href={`/quote/${item.symbol}`}
-                        className="text-xl font-bold text-indigo-500 hover:text-indigo-600"
-                      >
-                        {item.symbol}
-                      </Link>
-                      {price ? (
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg font-semibold">
-                            ${formatPrice(price.price)}
+              <Card key={item.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <Link
+                          href={`/quote/${item.symbol}`}
+                          className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+                        >
+                          {item.symbol}
+                        </Link>
+                        {price ? (
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-lg font-semibold">
+                              ${formatPrice(price.price)}
+                            </span>
+                            <span
+                              className={`text-sm font-medium ${price.change >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
+                            >
+                              {price.change >= 0 ? "+" : ""}
+                              {formatPrice(price.change)} (
+                              {price.change >= 0 ? "+" : ""}
+                              {price.changePercent.toFixed(2)}%)
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">
+                            Loading price...
                           </span>
-                          <span
-                            className={`text-sm font-medium ${price.change >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                              }`}
-                          >
-                            {price.change >= 0 ? "+" : ""}
-                            {formatPrice(price.change)} (
-                            {price.change >= 0 ? "+" : ""}
-                            {price.changePercent.toFixed(2)}%)
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">Loading price...</span>
+                        )}
+                      </div>
+                      {item.notes && (
+                        <p className="text-sm text-muted-foreground italic">
+                          Notes: {item.notes}
+                        </p>
                       )}
-                    </div>
-                    {item.notes && (
-                      <p className="text-sm text-gray-600 italic">
-                        Notes: {item.notes}
+                      <p className="text-xs text-muted-foreground">
+                        Added {new Date(item.added_at).toLocaleDateString()}
                       </p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      Added {new Date(item.added_at).toLocaleDateString()}
-                    </p>
+                    </div>
+                    <Button
+                      onClick={() => handleRemoveStock(item.symbol)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Remove
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => handleRemoveStock(item.symbol)}
-                    variant={"destructive"}
-                    size={"sm"}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>

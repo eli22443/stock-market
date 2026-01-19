@@ -32,7 +32,7 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
   };
 
   return (
-    <div className="border border-indigo-950 w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -56,7 +56,7 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
               <TableCell>
                 <Link
                   href={`/quote/${stock.symbol.toUpperCase()}`}
-                  className="nav-link px-2 text-indigo-500 font-bold"
+                  className="font-bold text-primary hover:text-primary/80 transition-colors"
                 >
                   {stock.symbol}
                 </Link>

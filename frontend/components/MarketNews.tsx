@@ -3,15 +3,20 @@
  * Shows general market news (not specific to a stock).
  */
 import { MarketNewsRecord } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
   // Ensure data is an array and handle empty/undefined cases
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
-      <div className="mx-10 text-center text-gray-500">
-        <p>No market news available at the moment.</p>
-        <p className="text-sm mt-2">Please try again later.</p>
-      </div>
+      <Card className="mx-10">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-2">
+            <p className="text-muted-foreground">No market news available at the moment.</p>
+            <p className="text-sm text-muted-foreground">Please try again later.</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -35,24 +40,30 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
     ) : null;
 
     return (
-      <div key={index} className="mb-30">
-        <a
-          href={news.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold italic"
-        >
-          {news.headline}
-        </a>
-        {imgRendered}
-        <p>{news.summary}</p>
-      </div>
+      <Card key={index} className="mb-6 hover:shadow-md transition-shadow">
+        <CardHeader>
+          <CardTitle className="text-lg">
+            <a
+              href={news.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              {news.headline}
+            </a>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {imgRendered}
+          <CardDescription className="text-base">{news.summary}</CardDescription>
+        </CardContent>
+      </Card>
     );
   });
 
   return (
-    <div className="mx-10">
-      <div className="">{renderedNews}</div>
+    <div className="mx-10 space-y-4">
+      {renderedNews}
     </div>
   );
 }

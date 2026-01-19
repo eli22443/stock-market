@@ -2,6 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface Watchlist {
   id: string;
@@ -124,110 +143,111 @@ export default function AddToWatchlist({
   }
 
   return (
-    <>
-      <Button
-        onClick={() => setShowDialog(true)}
-      >
-        Add to Watchlist
-      </Button>
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <DialogTrigger asChild>
+        <Button>Add to Watchlist</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add {symbol} to Watchlist</DialogTitle>
+          <DialogDescription>
+            Select a watchlist and optionally add notes for this stock.
+          </DialogDescription>
+        </DialogHeader>
 
-      {showDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h2 className="text-xl font-semibold mb-4">
-              Add {symbol} to Watchlist
-            </h2>
+        {error && (
+          <FieldError className="mt-2">{error}</FieldError>
+        )}
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-                {error}
-              </div>
-            )}
-
-            {loading ? (
-              <div className="text-center py-4">Loading watchlists...</div>
-            ) : watchlists.length === 0 ? (
-              <div className="text-center py-4">
-                <p className="text-gray-600 mb-4">
-                  You don't have any watchlists yet.
-                </p>
-                <a
-                  href="/watchlist"
-                  className="text-blue-600 hover:text-blue-800"
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            Loading watchlists...
+          </div>
+        ) : watchlists.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">No Watchlists</CardTitle>
+              <CardDescription>
+                You don't have any watchlists yet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <a href="/watchlist">Create a watchlist first</a>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Select Watchlist</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={selectedWatchlistId || undefined}
+                  onValueChange={(value: string | null) => setSelectedWatchlistId(value)}
                 >
-                  Create a watchlist first
-                </a>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Select Watchlist
-                  </label>
-                  <select
-                    value={selectedWatchlistId || ""}
-                    onChange={(e) => setSelectedWatchlistId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a watchlist" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {watchlists.map((watchlist) => (
-                      <option key={watchlist.id} value={watchlist.id}>
+                      <SelectItem key={watchlist.id} value={watchlist.id}>
                         {watchlist.name}
                         {watchlist.is_default ? " (Default)" : ""}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
-                </div>
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Notes (optional)
-                  </label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., Watching for earnings"
-                    rows={3}
-                  />
-                </div>
+            <Field>
+              <FieldLabel>Notes (optional)</FieldLabel>
+              <FieldContent>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g., Watching for earnings"
+                  rows={3}
+                />
+              </FieldContent>
+            </Field>
 
-                <div className="flex gap-2">
-                  <Button
-                    size={"sm"}
-                    onClick={handleAddToWatchlist}
-                    disabled={isAdding || !selectedWatchlistId}
-                  >
-                    {isAdding ? "Adding..." : "Add"}
-                  </Button>
-                  {watchlists.some((w) => w.is_default) && (
-                    <Button
-                      variant={"secondary"}
-                      size={"sm"}
-                      onClick={handleAddToDefault}
-                      disabled={isAdding}
-                      title="Quick add to default watchlist"
-                    >
-                      Add to Default
-                    </Button>
-                  )}
-                  <Button
-                    variant={"destructive"}
-                    size={"sm"}
-                    onClick={() => {
-                      setShowDialog(false);
-                      setNotes("");
-                      setError(null);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button
+                onClick={handleAddToWatchlist}
+                disabled={isAdding || !selectedWatchlistId}
+                className="w-full sm:w-auto"
+              >
+                {isAdding ? "Adding..." : "Add"}
+              </Button>
+              {watchlists.some((w) => w.is_default) && (
+                <Button
+                  variant="secondary"
+                  onClick={handleAddToDefault}
+                  disabled={isAdding}
+                  title="Quick add to default watchlist"
+                  className="w-full sm:w-auto"
+                >
+                  Add to Default
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDialog(false);
+                  setNotes("");
+                  setError(null);
+                }}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </FieldGroup>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

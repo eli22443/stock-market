@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 interface Watchlist {
   id: string;
@@ -175,156 +180,148 @@ export default function WatchlistList() {
   if (loading) {
     return (
       <div className="watchlist-list p-6">
-        <div className="text-center">Loading watchlists...</div>
+        <div className="text-center text-muted-foreground">Loading watchlists...</div>
       </div>
     );
   }
 
   return (
-    <div className="watchlist-list p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="watchlist-list p-6 space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">My Watchlists</h1>
         {!showCreateForm && (
-          <Button
-            onClick={() => setShowCreateForm(true)}
-          >
+          <Button onClick={() => setShowCreateForm(true)}>
             + Create New Watchlist
           </Button>
         )}
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+      {error && <FieldError>{error}</FieldError>}
 
       {showCreateForm && (
-        <form
-          onSubmit={handleCreateWatchlist}
-          className="mb-6 p-4 border border-indigo-950 rounded-lg"
-        >
-          <h2 className="text-xl font-semibold mb-4">Create New Watchlist</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={newWatchlistName}
-                onChange={(e) => setNewWatchlistName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Tech Stocks"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Description (optional)
-              </label>
-              <textarea
-                value={newWatchlistDescription}
-                onChange={(e) => setNewWatchlistDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., My favorite tech companies"
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={"secondary"}
-                type="submit"
-                disabled={isCreating}
-              >
-                {isCreating ? "Creating..." : "Create"}
-              </Button>
-              <Button
-                variant={"destructive"}
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setNewWatchlistName("");
-                  setNewWatchlistDescription("");
-                  setError(null);
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Create New Watchlist</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreateWatchlist}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel>
+                    Name <span className="text-destructive">*</span>
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      type="text"
+                      value={newWatchlistName}
+                      onChange={(e) => setNewWatchlistName(e.target.value)}
+                      placeholder="e.g., Tech Stocks"
+                      required
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Description (optional)</FieldLabel>
+                  <FieldContent>
+                    <Textarea
+                      value={newWatchlistDescription}
+                      onChange={(e) => setNewWatchlistDescription(e.target.value)}
+                      placeholder="e.g., My favorite tech companies"
+                      rows={3}
+                    />
+                  </FieldContent>
+                </Field>
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={isCreating}>
+                    {isCreating ? "Creating..." : "Create"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      setNewWatchlistName("");
+                      setNewWatchlistDescription("");
+                      setError(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
       {watchlists.length === 0 ? (
-        <div className="text-center py-12 border border-indigo-950 rounded-lg">
-          <p className="text-gray-600 mb-4">
-            You don't have any watchlists yet.
-          </p>
-          {!showCreateForm && (
-            <Button
-              onClick={() => setShowCreateForm(true)}
-              className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
-            >
-              Create Your First Watchlist
-            </Button>
-          )}
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4 py-8">
+              <p className="text-muted-foreground">
+                You don't have any watchlists yet.
+              </p>
+              {!showCreateForm && (
+                <Button onClick={() => setShowCreateForm(true)}>
+                  Create Your First Watchlist
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-4">
           {watchlists.map((watchlist) => (
-            <div
+            <Card
               key={watchlist.id}
-              className="border border-indigo-950 rounded-lg p-4 hover:border-indigo-800 transition-colors"
+              className="hover:shadow-md transition-shadow"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Link
-                      href={`/watchlist/${watchlist.id}`}
-                      className="text-xl font-semibold text-indigo-500 hover:text-indigo-600"
-                    >
-                      {watchlist.name}
-                    </Link>
-                    {watchlist.is_default && (
-                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                        Default
-                      </span>
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        href={`/watchlist/${watchlist.id}`}
+                        className="text-xl font-semibold text-primary hover:text-primary/80 transition-colors"
+                      >
+                        {watchlist.name}
+                      </Link>
+                      {watchlist.is_default && (
+                        <Badge variant="secondary">Default</Badge>
+                      )}
+                    </div>
+                    {watchlist.description && (
+                      <CardDescription>{watchlist.description}</CardDescription>
                     )}
-                  </div>
-                  {watchlist.description && (
-                    <p className="text-gray-600 mb-2">
-                      {watchlist.description}
+                    <p className="text-sm text-muted-foreground">
+                      {watchlist.item_count || 0} item
+                      {(watchlist.item_count || 0) !== 1 ? "s" : ""}
                     </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    {watchlist.item_count || 0} item
-                    {(watchlist.item_count || 0) !== 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button size={"sm"}>
-                    <Link href={`/watchlist/${watchlist.id}`}>View</Link>
-                  </Button>
-                  {!watchlist.is_default && (
-                    <Button
-                      variant={"secondary"}
-                      size={"sm"}
-                      onClick={() => handleSetDefault(watchlist.id)}
-                    >
-                      Set Default
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Button size="sm" asChild>
+                      <Link href={`/watchlist/${watchlist.id}`}>View</Link>
                     </Button>
-                  )}
-                  <Button
-                    variant={"destructive"}
-                    size={"sm"}
-                    onClick={() => handleDeleteWatchlist(watchlist.id)}
-                  >
-                    Delete
-                  </Button>
+                    {!watchlist.is_default && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleSetDefault(watchlist.id)}
+                      >
+                        Set Default
+                      </Button>
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteWatchlist(watchlist.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

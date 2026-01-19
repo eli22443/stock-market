@@ -7,8 +7,8 @@ export default async function News() {
   // Skip API calls during build (static generation)
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return (
-      <div className="news-page px-6">
-        <h1 className="text-2xl font-bold mb-10">MARKET NEWS</h1>
+      <div className="news-page px-6 py-6">
+        <h1 className="text-3xl font-bold mb-6">Market News</h1>
         <MarketNews data={news} />
       </div>
     );
@@ -45,8 +45,8 @@ export default async function News() {
   }
 
   return (
-    <div className="news-page px-6">
-      <h1 className="text-2xl font-bold mb-10">MARKET NEWS</h1>
+    <div className="news-page px-6 py-6">
+      <h1 className="text-3xl font-bold mb-6">Market News</h1>
       <MarketNews data={news} />
     </div>
   );

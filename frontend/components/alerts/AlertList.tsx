@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import CreateAlertForm from "./CreateAlertForm";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 interface Alert {
   id: string;
@@ -161,9 +171,6 @@ export default function AlertList() {
     return true;
   });
 
-  // Group alerts by status
-  const activeAlerts = filteredAlerts.filter((a) => a.is_active);
-  const inactiveAlerts = filteredAlerts.filter((a) => !a.is_active);
 
   if (loading) {
     return (
@@ -267,145 +274,99 @@ export default function AlertList() {
           )}
         </div>
       ) : filteredAlerts.length === 0 ? (
-        <div className="text-center py-12 border border-indigo-950 rounded-lg">
-          <p className="text-gray-600">No alerts match the selected filter.</p>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No alerts match the selected filter.</p>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="space-y-6">
-          {/* Active Alerts Section */}
-          {activeAlerts.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 text-green-700">
-                Active Alerts ({activeAlerts.length})
-              </h2>
-              <div className="space-y-3">
-                {activeAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="border border-indigo-950 rounded-lg p-4 hover:border-indigo-800 transition-colors"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Link
-                            href={`/quote/${alert.symbol}`}
-                            className="text-xl font-bold text-indigo-500 hover:text-indigo-600"
-                          >
-                            {alert.symbol}
-                          </Link>
-                          <span className="px-2 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded">
-                            {getAlertTypeLabel(alert.alert_type)}
-                          </span>
-                          {alert.triggered_at && (
-                            <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
-                              Triggered
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          Threshold:{" "}
-                          {formatThreshold(alert.alert_type, alert.threshold)}
-                        </div>
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Symbol</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Threshold</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Triggered</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAlerts.map((alert) => (
+                    <TableRow
+                      key={alert.id}
+                      className={!alert.is_active ? "opacity-60" : ""}
+                    >
+                      <TableCell>
+                        <Link
+                          href={`/quote/${alert.symbol}`}
+                          className="font-bold text-primary hover:text-primary/80 transition-colors"
+                        >
+                          {alert.symbol}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={alert.is_active ? "secondary" : "outline"}
+                        >
+                          {getAlertTypeLabel(alert.alert_type)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatThreshold(alert.alert_type, alert.threshold)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={alert.is_active ? "default" : "outline"}
+                        >
+                          {alert.is_active ? "Active" : "Inactive"}
+                        </Badge>
                         {alert.triggered_at && (
-                          <div className="text-xs text-yellow-700">
-                            Triggered: {formatDate(alert.triggered_at)}
-                          </div>
+                          <Badge variant="outline" className="ml-2 bg-yellow-100 text-yellow-800 border-yellow-300">
+                            Triggered
+                          </Badge>
                         )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleToggleActive(alert)}
-                          className="px-3 py-1 text-sm rounded hover:bg-gray-200 border-2 border-gray-600"
-                        >
-                          Disable
-                        </Button>
-                        <Button
-                          onClick={() => setEditingAlert(alert)}
-                          className="px-3 py-1 text-sm rounded hover:bg-indigo-200 border-2 border-indigo-600"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteAlert(alert.id)}
-                          className="px-3 py-1 text-sm rounded hover:bg-red-200 border-2 border-red-600"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Inactive Alerts Section */}
-          {inactiveAlerts.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 text-gray-600">
-                Inactive Alerts ({inactiveAlerts.length})
-              </h2>
-              <div className="space-y-3">
-                {inactiveAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="border border-gray-300 rounded-lg p-4 hover:border-gray-400 transition-colors opacity-75"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Link
-                            href={`/quote/${alert.symbol}`}
-                            className="text-xl font-bold text-gray-600 hover:text-gray-800"
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {alert.triggered_at ? formatDate(alert.triggered_at) : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            onClick={() => handleToggleActive(alert)}
+                            variant={alert.is_active ? "outline" : "default"}
+                            size="sm"
                           >
-                            {alert.symbol}
-                          </Link>
-                          <span className="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded">
-                            {getAlertTypeLabel(alert.alert_type)}
-                          </span>
-                          {alert.triggered_at && (
-                            <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
-                              Triggered
-                            </span>
-                          )}
+                            {alert.is_active ? "Disable" : "Enable"}
+                          </Button>
+                          <Button
+                            onClick={() => setEditingAlert(alert)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteAlert(alert.id)}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            Delete
+                          </Button>
                         </div>
-                        <div className="text-sm text-gray-500 mb-2">
-                          Threshold:{" "}
-                          {formatThreshold(alert.alert_type, alert.threshold)}
-                        </div>
-                        {alert.triggered_at && (
-                          <div className="text-xs text-gray-600">
-                            Triggered: {formatDate(alert.triggered_at)}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleToggleActive(alert)}
-                          className="px-3 py-1 text-sm rounded hover:bg-green-200 border-2 border-green-600"
-                        >
-                          Enable
-                        </Button>
-                        <Button
-                          onClick={() => setEditingAlert(alert)}
-                          className="px-3 py-1 text-sm rounded hover:bg-indigo-200 border-2 border-indigo-600"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteAlert(alert.id)}
-                          className="px-3 py-1 text-sm rounded hover:bg-red-200 border-2 border-red-600"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

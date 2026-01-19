@@ -57,7 +57,7 @@ export const fetchStockData = cache(
 // Cache the multi-stock fetch to deduplicate requests across components
 export const fetchMultiStocksData = cache(async (): Promise<StockRecord[]> => {
   // Fetch stocks sequentially with delays to avoid rate limiting
-  const stockSymbols = symbols.slice(0, 4);
+  const stockSymbols = symbols.slice(0, 5);
   const multiData: (StockRecord | null)[] = [];
 
   for (let i = 0; i < stockSymbols.length; i++) {

@@ -1,4 +1,6 @@
 import { ComprehensiveData } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Separator } from "./ui/separator";
 
 interface StockListProps {
   data: ComprehensiveData;
@@ -35,145 +37,156 @@ export default function StockList({ data, symbol }: StockListProps) {
     }
   };
 
-  const gridStyle = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1";
-  const boxStyle = "border-l-2 hover:border-indigo-800 rounded px-4 py-1";
-  const textStyle = "text-sm text-gray-600 mb-1";
+  const gridStyle = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
+  const textStyle = "text-sm text-muted-foreground mb-1";
   const statStyle = "text-lg font-semibold";
 
   return (
-    <div className="comprehensive-stock-data space-y-4 ">
+    <div className="comprehensive-stock-data space-y-6">
       {/* Price Section */}
-      <div className={gridStyle}>
-        <div className={boxStyle}>
-          <div className={textStyle}>Previous Close</div>
-          <div className={statStyle}>{formatNumber(data.previousClose)}</div>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Price Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className={gridStyle}>
+            <div className="space-y-1">
+              <div className={textStyle}>Previous Close</div>
+              <div className={statStyle}>${formatNumber(data.previousClose)}</div>
+            </div>
 
-        <div className={boxStyle}>
-          <div className={textStyle}>Open</div>
-          <div className={statStyle}>{formatNumber(data.open)}</div>
-        </div>
+            <div className="space-y-1">
+              <div className={textStyle}>Open</div>
+              <div className={statStyle}>${formatNumber(data.open)}</div>
+            </div>
 
-        {data.bid && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Bid</div>
-            <div className={statStyle}>
-              {formatNumber(data.bid)}
-              {data.bidSize && (
-                <span className="text-sm text-gray-500"> x {data.bidSize}</span>
-              )}
+            {data.bid && (
+              <div className="space-y-1">
+                <div className={textStyle}>Bid</div>
+                <div className={statStyle}>
+                  ${formatNumber(data.bid)}
+                  {data.bidSize && (
+                    <span className="text-sm text-muted-foreground"> x {data.bidSize}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {data.ask && (
+              <div className="space-y-1">
+                <div className={textStyle}>Ask</div>
+                <div className={statStyle}>
+                  ${formatNumber(data.ask)}
+                  {data.askSize && (
+                    <span className="text-sm text-muted-foreground"> x {data.askSize}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <div className={textStyle}>Day&apos;s Range</div>
+              <div className={statStyle}>
+                ${formatNumber(data.dayRange.low)} - ${formatNumber(data.dayRange.high)}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className={textStyle}>52 Week Range</div>
+              <div className={statStyle}>
+                ${formatNumber(data.week52Range.low)} - ${formatNumber(data.week52Range.high)}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className={textStyle}>Volume</div>
+              <div className={statStyle}>{formatLargeNumber(data.volume)}</div>
+            </div>
+
+            <div className="space-y-1">
+              <div className={textStyle}>Avg. Volume</div>
+              <div className={statStyle}>{formatLargeNumber(data.avgVolume)}</div>
             </div>
           </div>
-        )}
-
-        {data.ask && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Ask</div>
-            <div className={statStyle}>
-              {formatNumber(data.ask)}
-              {data.askSize && (
-                <span className="text-sm text-gray-500"> x {data.askSize}</span>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className={boxStyle}>
-          <div className={textStyle}>Day&apos;s Range</div>
-          <div className={statStyle}>
-            {formatNumber(data.dayRange.low)} -{" "}
-            {formatNumber(data.dayRange.high)}
-          </div>
-        </div>
-
-        <div className={boxStyle}>
-          <div className={textStyle}>52 Week Range</div>
-          <div className={statStyle}>
-            {formatNumber(data.week52Range.low)} -{" "}
-            {formatNumber(data.week52Range.high)}
-          </div>
-        </div>
-
-        <div className={boxStyle}>
-          <div className={textStyle}>Volume</div>
-          <div className={statStyle}>{formatLargeNumber(data.volume)}</div>
-        </div>
-
-        <div className={boxStyle}>
-          <div className={textStyle}>Avg. Volume</div>
-          <div className={statStyle}>{formatLargeNumber(data.avgVolume)}</div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Metrics Section */}
-      <div className={gridStyle}>
-        {data.marketCap && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Market Cap (intraday)</div>
-            <div className={statStyle}>{formatLargeNumber(data.marketCap)}</div>
-          </div>
-        )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Key Metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className={gridStyle}>
+            {data.marketCap && (
+              <div className="space-y-1">
+                <div className={textStyle}>Market Cap (intraday)</div>
+                <div className={statStyle}>{formatLargeNumber(data.marketCap)}</div>
+              </div>
+            )}
 
-        {data.beta !== undefined && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Beta (5Y Monthly)</div>
-            <div className={statStyle}>{formatNumber(data.beta)}</div>
-          </div>
-        )}
+            {data.beta !== undefined && (
+              <div className="space-y-1">
+                <div className={textStyle}>Beta (5Y Monthly)</div>
+                <div className={statStyle}>{formatNumber(data.beta)}</div>
+              </div>
+            )}
 
-        {data.peRatio !== undefined && (
-          <div className={boxStyle}>
-            <div className={textStyle}>PE Ratio (TTM)</div>
-            <div className={statStyle}>{formatNumber(data.peRatio)}</div>
-          </div>
-        )}
+            {data.peRatio !== undefined && (
+              <div className="space-y-1">
+                <div className={textStyle}>PE Ratio (TTM)</div>
+                <div className={statStyle}>{formatNumber(data.peRatio)}</div>
+              </div>
+            )}
 
-        {data.eps !== undefined && (
-          <div className={boxStyle}>
-            <div className={textStyle}>EPS (TTM)</div>
-            <div className={statStyle}>{formatNumber(data.eps)}</div>
-          </div>
-        )}
+            {data.eps !== undefined && (
+              <div className="space-y-1">
+                <div className={textStyle}>EPS (TTM)</div>
+                <div className={statStyle}>${formatNumber(data.eps)}</div>
+              </div>
+            )}
 
-        {data.earningsDate && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Earnings Date</div>
-            <div className={statStyle}>{formatDate(data.earningsDate)}</div>
-          </div>
-        )}
+            {data.earningsDate && (
+              <div className="space-y-1">
+                <div className={textStyle}>Earnings Date</div>
+                <div className={statStyle}>{formatDate(data.earningsDate)}</div>
+              </div>
+            )}
 
-        {(data.forwardDividend !== undefined ||
-          data.forwardDividendYield !== undefined) && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Forward Dividend & Yield</div>
-            <div className={statStyle}>
-              {data.forwardDividend !== undefined
-                ? formatNumber(data.forwardDividend)
-                : "N/A"}
-              {data.forwardDividendYield !== undefined && (
-                <span className="text-sm">
-                  {" "}
-                  ({formatNumber(data.forwardDividendYield)}%)
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+            {(data.forwardDividend !== undefined ||
+              data.forwardDividendYield !== undefined) && (
+              <div className="space-y-1">
+                <div className={textStyle}>Forward Dividend & Yield</div>
+                <div className={statStyle}>
+                  {data.forwardDividend !== undefined
+                    ? `$${formatNumber(data.forwardDividend)}`
+                    : "N/A"}
+                  {data.forwardDividendYield !== undefined && (
+                    <span className="text-sm text-muted-foreground">
+                      {" "}
+                      ({formatNumber(data.forwardDividendYield)}%)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
-        {data.exDividendDate && (
-          <div className={boxStyle}>
-            <div className={textStyle}>Ex-Dividend Date</div>
-            <div className={statStyle}>{formatDate(data.exDividendDate)}</div>
-          </div>
-        )}
+            {data.exDividendDate && (
+              <div className="space-y-1">
+                <div className={textStyle}>Ex-Dividend Date</div>
+                <div className={statStyle}>{formatDate(data.exDividendDate)}</div>
+              </div>
+            )}
 
-        {data.targetEstimate !== undefined && (
-          <div className={boxStyle}>
-            <div className={textStyle}>1y Target Est</div>
-            <div className={statStyle}>{formatNumber(data.targetEstimate)}</div>
+            {data.targetEstimate !== undefined && (
+              <div className="space-y-1">
+                <div className={textStyle}>1y Target Est</div>
+                <div className={statStyle}>${formatNumber(data.targetEstimate)}</div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

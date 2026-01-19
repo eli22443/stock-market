@@ -3,6 +3,8 @@
  * Use inside /stocks page.
  */
 import { StockNewsRecord } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Separator } from "./ui/separator";
 
 export default function StockNews({
   symbol,
@@ -27,42 +29,39 @@ export default function StockNews({
     ) : null;
 
     return (
-      <div
+      <Card
         key={index}
-        className={`flex justify-between border-gray-600 mb-6 pb-6 ${
-          index % 2 == 0 ? "mr-6" : "ml-6"
-        } ${
-          index < newsCount - 2
-            ? "border-b"
-            : index % 2 != 0 && index == newsCount - 2 && "border-b"
-        }`}
+        className="mb-4 hover:shadow-md transition-shadow"
       >
-        <div>
-          <a
-            href={news.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold italic text-sm"
-          >
-            <h3>{news.headline}</h3>
-          </a>
-          <div className="footer text-xs pt-2">
-            {new Date(news.datetime * 1000).toLocaleString()}
+        <CardContent className="pt-6">
+          <div className="flex justify-between gap-4">
+            <div className="flex-1 space-y-2">
+              <CardTitle className="text-base">
+                <a
+                  href={news.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  {news.headline}
+                </a>
+              </CardTitle>
+              <CardDescription className="text-xs">
+                {new Date(news.datetime * 1000).toLocaleString()}
+              </CardDescription>
+            </div>
+            {img_rendered && (
+              <div className="flex-shrink-0">{img_rendered}</div>
+            )}
           </div>
-        </div>
-        {img_rendered}
-      </div>
+        </CardContent>
+      </Card>
     );
   });
 
   return (
-    <div className="relative mb-6">
-      <div className="grid grid-cols-2">{rendered_news}</div>
-      <div
-        className={`absolute top-0 left-1/2 w-px bg-gray-600`}
-        style={{ height: `${125 * Math.ceil(rendered_news.length / 2)}px` }}
-      ></div>
-      <div className={`relative -top-2 h-px bg-gray-600`}></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {rendered_news}
     </div>
   );
 }

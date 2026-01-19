@@ -2,26 +2,43 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
+import { cn } from "@/lib/utils";
+
+const categories = [
+  { slug: "most-active", label: "Most Active" },
+  { slug: "trending", label: "Trending Now" },
+  { slug: "gainers", label: "Top Gainers" },
+  { slug: "losers", label: "Top Losers" },
+];
 
 export default function StocksMenu() {
   const pathname = usePathname();
-  const categories = ["most-active", "trending", "gainers", "losers"];
-  const titles = ["Most Active", "Trending now", "Top Gainers", "Top Losers"];
 
   return (
-    <nav className="menu border-blue-600 border-t border-b my-6 py-1 ">
-      <div className="menu-links flex flex-row ">
-        {categories.map((category, index) => (
-          <Link
-            key={index}
-            href={`/stocks/${category}`}
-            className={`nav-link px-2 hover:bg-sky-100 hover:text-blue-600 ${
-              pathname === `/stocks/${category}` ? "font-bold" : ""
-            }`}
-          >
-            {titles[index]}
-          </Link>
-        ))}
+    <nav className="menu mb-6">
+      <div className="flex items-center gap-1 border-b">
+        {categories.map((category) => {
+          const href = `/stocks/${category.slug}`;
+          const isActive = pathname === href;
+
+          return (
+            <Button
+              key={category.slug}
+              asChild
+              variant="ghost"
+              className={cn(
+                "rounded-none border-b-2 border-transparent -mb-px",
+                isActive
+                  ? "border-primary bg-transparent font-semibold text-primary"
+                  : "hover:bg-muted/50"
+              )}
+            >
+              <Link href={href}>{category.label}</Link>
+            </Button>
+          );
+        })}
       </div>
     </nav>
   );
