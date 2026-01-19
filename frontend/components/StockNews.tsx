@@ -31,7 +31,6 @@ export default function StockNews({
     return (
       <Card
         key={index}
-        className="mb-4 hover:shadow-md transition-shadow"
       >
         <CardContent >
           <div className="flex justify-between gap-4">
@@ -60,7 +59,7 @@ export default function StockNews({
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
       {rendered_news}
     </div>
   );

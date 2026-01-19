@@ -160,7 +160,7 @@ export default function PortfolioView({
   }
 
   return (
-    <div className="portfolio-view p-6 space-y-6">
+    <div className="portfolio-view p-6 space-y-4">
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="sm">
           <Link href="/portfolio">← Back to Portfolios</Link>

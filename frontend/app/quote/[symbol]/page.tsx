@@ -75,7 +75,7 @@ export default async function QuotePage({
       <StockList data={stockData} symbol={symbol} />
 
       {/* Stock news */}
-      <div className="space-y-4">
+      <div className="space-y-4 mt-8">
         <h2 className="text-2xl font-bold">Recent News: {symbol}</h2>
         <NewsTable symbol={symbol} stockNews={stockNews} />
       </div>

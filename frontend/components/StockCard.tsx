@@ -101,7 +101,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
         </div>
       </CardContent>
       <CardFooter className="pt-4">
-        <Button asChild className="w-full">
+        <Button asChild variant={"secondary"} className="w-full">
           <Link href={`/quote/${stock.symbol}`}>View Details</Link>
         </Button>
       </CardFooter>

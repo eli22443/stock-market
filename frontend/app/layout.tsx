@@ -50,7 +50,7 @@ export default function RootLayout({
               <aside className="col-span-2">
                 <NavBar />
               </aside>
-              <main className="col-span-8">{children}</main>
+              <main className="col-span-8 mx-2">{children}</main>
               <aside className="col-span-2">
                 <GeneralInfo />
               </aside>

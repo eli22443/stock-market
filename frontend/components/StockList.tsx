@@ -42,7 +42,7 @@ export default function StockList({ data, symbol }: StockListProps) {
   const statStyle = "text-lg font-semibold";
 
   return (
-    <div className="comprehensive-stock-data space-y-6">
+    <div className="comprehensive-stock-data space-y-2">
       {/* Price Section */}
       <Card>
         <CardHeader>
@@ -155,21 +155,21 @@ export default function StockList({ data, symbol }: StockListProps) {
 
             {(data.forwardDividend !== undefined ||
               data.forwardDividendYield !== undefined) && (
-              <div className="space-y-1">
-                <div className={textStyle}>Forward Dividend & Yield</div>
-                <div className={statStyle}>
-                  {data.forwardDividend !== undefined
-                    ? `$${formatNumber(data.forwardDividend)}`
-                    : "N/A"}
-                  {data.forwardDividendYield !== undefined && (
-                    <span className="text-sm text-muted-foreground">
-                      {" "}
-                      ({formatNumber(data.forwardDividendYield)}%)
-                    </span>
-                  )}
+                <div className="space-y-1">
+                  <div className={textStyle}>Forward Dividend & Yield</div>
+                  <div className={statStyle}>
+                    {data.forwardDividend !== undefined
+                      ? `$${formatNumber(data.forwardDividend)}`
+                      : "N/A"}
+                    {data.forwardDividendYield !== undefined && (
+                      <span className="text-sm text-muted-foreground">
+                        {" "}
+                        ({formatNumber(data.forwardDividendYield)}%)
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {data.exDividendDate && (
               <div className="space-y-1">
