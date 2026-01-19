@@ -46,7 +46,7 @@ export default function RootLayout({
                 </div>
               </div>
             </header>
-            <div className="container mx-auto grid grid-cols-12 gap-6 px-6 py-6">
+            <div className="container mx-auto grid grid-cols-12 gap-2 px-6 py-6">
               <aside className="col-span-2">
                 <NavBar />
               </aside>
