@@ -30,6 +30,7 @@ export default function StockNews({
 
     return (
       <Card
+        className="rounded"
         key={index}
       >
         <CardContent >
