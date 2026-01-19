@@ -187,7 +187,6 @@ export default function WatchlistList() {
         {!showCreateForm && (
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="border-2 border-indigo-600"
           >
             + Create New Watchlist
           </Button>
@@ -234,13 +233,14 @@ export default function WatchlistList() {
             </div>
             <div className="flex gap-2">
               <Button
+                variant={"secondary"}
                 type="submit"
                 disabled={isCreating}
-                className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50"
               >
                 {isCreating ? "Creating..." : "Create"}
               </Button>
               <Button
+                variant={"destructive"}
                 type="button"
                 onClick={() => {
                   setShowCreateForm(false);
@@ -248,7 +248,6 @@ export default function WatchlistList() {
                   setNewWatchlistDescription("");
                   setError(null);
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               >
                 Cancel
               </Button>
@@ -304,20 +303,22 @@ export default function WatchlistList() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button className="px-3 py-1 text-sm rounded hover:bg-indigo-200 border-2 border-indigo-600">
+                  <Button size={"sm"}>
                     <Link href={`/watchlist/${watchlist.id}`}>View</Link>
                   </Button>
                   {!watchlist.is_default && (
                     <Button
+                      variant={"secondary"}
+                      size={"sm"}
                       onClick={() => handleSetDefault(watchlist.id)}
-                      className="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700"
                     >
                       Set Default
                     </Button>
                   )}
                   <Button
+                    variant={"destructive"}
+                    size={"sm"}
                     onClick={() => handleDeleteWatchlist(watchlist.id)}
-                    className="px-3 py-1 text-sm rounded hover:bg-red-200 border-2 border-red-600"
                   >
                     Delete
                   </Button>

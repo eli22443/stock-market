@@ -253,7 +253,6 @@ export default function WatchlistView({
           {!showAddForm && (
             <Button
               onClick={() => setShowAddForm(true)}
-              className="border-2 border-indigo-600"
             >
               + Add Stock
             </Button>
@@ -302,13 +301,14 @@ export default function WatchlistView({
             </div>
             <div className="flex gap-2">
               <Button
+                variant={"secondary"}
                 type="submit"
                 disabled={isAdding}
-                className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50"
               >
                 {isAdding ? "Adding..." : "Add"}
               </Button>
               <Button
+                variant={"destructive"}
                 type="button"
                 onClick={() => {
                   setShowAddForm(false);
@@ -316,7 +316,6 @@ export default function WatchlistView({
                   setNewNotes("");
                   setError(null);
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               >
                 Cancel
               </Button>
@@ -331,7 +330,6 @@ export default function WatchlistView({
           {!showAddForm && (
             <Button
               onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800"
             >
               Add Your First Stock
             </Button>
@@ -361,11 +359,10 @@ export default function WatchlistView({
                             ${formatPrice(price.price)}
                           </span>
                           <span
-                            className={`text-sm font-medium ${
-                              price.change >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
+                            className={`text-sm font-medium ${price.change >= 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                              }`}
                           >
                             {price.change >= 0 ? "+" : ""}
                             {formatPrice(price.change)} (
@@ -388,7 +385,8 @@ export default function WatchlistView({
                   </div>
                   <Button
                     onClick={() => handleRemoveStock(item.symbol)}
-                    className="px-3 py-1 text-sm rounded hover:bg-red-200 border-2 border-red-600"
+                    variant={"destructive"}
+                    size={"sm"}
                   >
                     Remove
                   </Button>

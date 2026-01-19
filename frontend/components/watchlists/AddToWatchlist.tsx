@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
 
 interface Watchlist {
   id: string;
@@ -118,18 +119,17 @@ export default function AddToWatchlist({
   };
 
   if (watchlists.length === 0 && !showDialog) {
-    // Don't show button if no watchlists exist
+    // Don't show Button if no watchlists exist
     return null;
   }
 
   return (
     <>
-      <button
+      <Button
         onClick={() => setShowDialog(true)}
-        className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
       >
         Add to Watchlist
-      </button>
+      </Button>
 
       {showDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -192,33 +192,35 @@ export default function AddToWatchlist({
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    size={"sm"}
                     onClick={handleAddToWatchlist}
                     disabled={isAdding || !selectedWatchlistId}
-                    className="flex-1 px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50"
                   >
                     {isAdding ? "Adding..." : "Add"}
-                  </button>
+                  </Button>
                   {watchlists.some((w) => w.is_default) && (
-                    <button
+                    <Button
+                      variant={"secondary"}
+                      size={"sm"}
                       onClick={handleAddToDefault}
                       disabled={isAdding}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
                       title="Quick add to default watchlist"
                     >
                       Add to Default
-                    </button>
+                    </Button>
                   )}
-                  <button
+                  <Button
+                    variant={"destructive"}
+                    size={"sm"}
                     onClick={() => {
                       setShowDialog(false);
                       setNotes("");
                       setError(null);
                     }}
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

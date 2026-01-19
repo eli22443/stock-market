@@ -12,7 +12,7 @@ export default function LoginLogoutButton() {
   // Show loading state while checking auth
   if (auth?.loading) {
     return (
-      <Button className="border-2 border-indigo-600" disabled>
+      <Button disabled>
         Loading...
       </Button>
     );
@@ -22,7 +22,7 @@ export default function LoginLogoutButton() {
   if (auth?.user) {
     return (
       <Button
-        className="border-2 border-indigo-600"
+        variant={"logout"}
         onClick={async () => {
           setLoading(true);
           try {
@@ -43,7 +43,7 @@ export default function LoginLogoutButton() {
   // Show login button if user is not authenticated
   return (
     <Button
-      className="border-2 border-indigo-600"
+      variant={"login"}
       onClick={() => {
         router.push("/login");
       }}
