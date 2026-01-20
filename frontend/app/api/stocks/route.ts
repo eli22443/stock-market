@@ -53,7 +53,7 @@ async function categorizeStocksWithComprehensiveData(
 ): Promise<StocksMetrics[]> {
   // Fetch comprehensive data for all stocks in parallel
   const comprehensiveDataPromises = stockSymbols
-    .slice(0, 5)
+    .slice(0, 10)
     .map((symbol) => fetchYahooComprehensiveData(symbol));
   const comprehensiveDataArray = await Promise.all(comprehensiveDataPromises);
 

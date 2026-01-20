@@ -96,7 +96,7 @@ export async function GET() {
   try {
     // Fetch comprehensive data for all indices in parallel
     const comprehensiveDataPromises = worldIndicesSymbols
-      .slice(0, 5)
+      .slice(0, 10)
       .map(({ symbol }) => fetchYahooComprehensiveData(symbol));
     const comprehensiveDataArray = await Promise.all(comprehensiveDataPromises);
 

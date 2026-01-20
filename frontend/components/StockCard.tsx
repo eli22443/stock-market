@@ -69,7 +69,7 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
         : priceBgStyle.current;
 
   return (
-    <Card className="w-80 hover:shadow-lg transition-shadow rounded-3xl hover:border-y-indigo-500">
+    <Card className="w-80 hover:shadow-lg transition-shadow rounded-2xl hover:border-y-indigo-900">
       <CardHeader className="pb-1">
         <div className="flex justify-center items-center gap-4">
           <CardTitle className="text-2xl font-bold font-mono">

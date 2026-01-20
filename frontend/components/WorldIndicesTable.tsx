@@ -69,7 +69,7 @@ export default function WorldIndicesTable({
             <TableHead>Change %</TableHead>
             <TableHead>Volume</TableHead>
             <TableHead>Avg Vol</TableHead>
-            <TableHead>52W Change %</TableHead>
+            <TableHead><div className="flex flex-col"><span>52W</span><span>Change %</span></div></TableHead>
             <TableHead>Low</TableHead>
             <TableHead>High</TableHead>
           </TableRow>
@@ -108,15 +108,14 @@ export default function WorldIndicesTable({
               <TableCell
                 className={
                   index.week52ChangePercent !== undefined &&
-                  index.week52ChangePercent >= 0
+                    index.week52ChangePercent >= 0
                     ? "text-green-600"
                     : "text-red-600"
                 }
               >
                 {index.week52ChangePercent !== undefined
-                  ? `${
-                      index.week52ChangePercent >= 0 ? "+" : ""
-                    }${index.week52ChangePercent.toFixed(2)}%`
+                  ? `${index.week52ChangePercent >= 0 ? "+" : ""
+                  }${index.week52ChangePercent.toFixed(2)}%`
                   : "N/A"}
               </TableCell>
               <TableCell>{index.data.l.toFixed(2)}</TableCell>

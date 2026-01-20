@@ -43,9 +43,9 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
             <TableHead>Change %</TableHead>
             <TableHead>Volume</TableHead>
             <TableHead>Avg Vol</TableHead>
-            <TableHead>Market Cap</TableHead>
-            <TableHead>P/E Ratio</TableHead>
-            <TableHead>52W Change %</TableHead>
+            <TableHead><div className="flex flex-col"><span>Market</span><span>Cap</span></div></TableHead>
+            <TableHead><div className="flex flex-col"><span>P/E</span><span>Ratio</span></div></TableHead>
+            <TableHead><div className="flex flex-col"><span>52W</span><span>Change %</span></div></TableHead>
             <TableHead>Low</TableHead>
             <TableHead>High</TableHead>
           </TableRow>
@@ -88,15 +88,14 @@ export default function StocksTable({ data }: { data: StockCategorized }) {
               <TableCell
                 className={
                   stock.week52ChangePercent !== undefined &&
-                  stock.week52ChangePercent >= 0
+                    stock.week52ChangePercent >= 0
                     ? "text-green-600"
                     : "text-red-600"
                 }
               >
                 {stock.week52ChangePercent !== undefined
-                  ? `${
-                      stock.week52ChangePercent >= 0 ? "+" : ""
-                    }${stock.week52ChangePercent.toFixed(2)}%`
+                  ? `${stock.week52ChangePercent >= 0 ? "+" : ""
+                  }${stock.week52ChangePercent.toFixed(2)}%`
                   : "N/A"}
               </TableCell>
               <TableCell>{stock.data.l.toFixed(2)}</TableCell>

@@ -337,7 +337,7 @@ export default function GeneralInfo() {
           <CardTitle>Market Movers</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 mb-4 flex-wrap">
+          <div className="flex gap-3 mb-4 flex-wrap">
             <Button
               variant={activeSection === "trending" ? "default" : "outline"}
               size="sm"
