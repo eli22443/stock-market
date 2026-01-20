@@ -46,12 +46,12 @@ export default function RootLayout({
                 </div>
               </div>
             </header>
-            <div className="container mx-auto grid grid-cols-12 gap-2 px-6 py-6">
-              <aside className="col-span-2">
+            <div className="container mx-auto grid grid-cols-48 gap-1 px-2 py-6">
+              <aside className="col-span-6">
                 <NavBar />
               </aside>
-              <main className="col-span-8 mx-2">{children}</main>
-              <aside className="col-span-2">
+              <main className="col-span-31 mx-2">{children}</main>
+              <aside className="col-span-11">
                 <GeneralInfo />
               </aside>
             </div>
