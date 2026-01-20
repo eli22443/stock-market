@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { useAuthContext } from "@/context/AuthContext";
 import type { StockCategorized, StocksMetrics } from "@/types";
+import AlertCard from "./alerts/AlertCard";
 
 interface Portfolio {
   id: string;
@@ -23,14 +24,6 @@ interface Watchlist {
   item_count?: number;
 }
 
-interface Alert {
-  id: string;
-  symbol: string;
-  alert_type: string;
-  threshold: number;
-  is_active: boolean;
-  triggered_at: string | null;
-}
 
 interface IndexData {
   symbol: string;
@@ -53,12 +46,12 @@ export default function GeneralInfo() {
   const [indicesData, setIndicesData] = useState<IndexData[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [watchlists, setWatchlists] = useState<Watchlist[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [userDataLoading, setUserDataLoading] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const userDataAbortControllerRef = useRef<AbortController | null>(null);
   const previousUserIdRef = useRef<string | undefined>(undefined);
+  const isFetchingUserDataRef = useRef(false);
 
   // Fetch market data (trending, gainers, losers, most active)
   useEffect(() => {
@@ -133,16 +126,20 @@ export default function GeneralInfo() {
       // Clear data when user logs out
       setPortfolios([]);
       setWatchlists([]);
-      setAlerts([]);
       return;
     }
 
     // If user changed, clear previous user's data
     if (previousUserIdRef.current !== userId) {
       previousUserIdRef.current = userId;
+      isFetchingUserDataRef.current = false;
       setPortfolios([]);
       setWatchlists([]);
-      setAlerts([]);
+    }
+
+    // Prevent duplicate concurrent fetches or refetching if we already have data
+    if (isFetchingUserDataRef.current || (!userDataLoading && portfolios.length > 0)) {
+      return;
     }
 
     // Cancel previous request if it exists
@@ -152,6 +149,7 @@ export default function GeneralInfo() {
 
     const abortController = new AbortController();
     userDataAbortControllerRef.current = abortController;
+    isFetchingUserDataRef.current = true;
 
     const fetchUserData = async () => {
       try {
@@ -249,16 +247,6 @@ export default function GeneralInfo() {
           }
         }
 
-        // Fetch alerts
-        if (!abortController.signal.aborted) {
-          const alertsRes = await fetch("/api/alerts", {
-            signal: abortController.signal,
-          });
-          if (alertsRes.ok && !abortController.signal.aborted) {
-            const alertsData = await alertsRes.json();
-            setAlerts(alertsData || []);
-          }
-        }
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Error fetching user data:", error);
@@ -267,6 +255,7 @@ export default function GeneralInfo() {
         if (!abortController.signal.aborted) {
           setUserDataLoading(false);
         }
+        isFetchingUserDataRef.current = false;
       }
     };
 
@@ -274,6 +263,7 @@ export default function GeneralInfo() {
 
     return () => {
       abortController.abort();
+      isFetchingUserDataRef.current = false;
     };
   }, [auth?.user?.id]); // Use user ID instead of user object for stable dependency
 
@@ -536,63 +526,7 @@ export default function GeneralInfo() {
           </Card>
 
           {/* Alerts */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>My Alerts</CardTitle>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/alerts">View All</Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {userDataLoading ? (
-                <p className="text-muted-foreground">Loading alerts...</p>
-              ) : alerts.length > 0 ? (
-                <div className="space-y-1">
-                  {alerts.slice(0, 5).map((alert) => (
-                    <div
-                      key={alert.id}
-                      className="flex justify-between items-center p-3 bg-muted/30 rounded-lg"
-                    >
-                      <div>
-                        <div className="font-semibold">{alert.symbol}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {alert.alert_type === "price_above"
-                            ? `Price above $${formatNumber(alert.threshold)}`
-                            : alert.alert_type === "price_below"
-                              ? `Price below $${formatNumber(alert.threshold)}`
-                              : `${alert.alert_type}: $${formatNumber(alert.threshold)}`}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {alert.triggered_at && (
-                          <span className="text-xs bg-green-500/20 text-green-600 px-2 py-1 rounded">
-                            Triggered
-                          </span>
-                        )}
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${alert.is_active
-                            ? "bg-blue-500/20 text-blue-600"
-                            : "bg-gray-500/20 text-gray-600"
-                            }`}
-                        >
-                          {alert.is_active ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground mb-2">No alerts yet</p>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/alerts">Create Alert</Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <AlertCard />
         </>
       )}
 

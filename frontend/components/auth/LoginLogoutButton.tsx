@@ -30,6 +30,7 @@ export default function LoginLogoutButton() {
             // Router push happens in signOut
           } catch (error) {
             console.error("Logout error:", error);
+          } finally {
             setLoading(false);
           }
         }}
