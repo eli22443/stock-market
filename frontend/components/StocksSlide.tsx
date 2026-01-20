@@ -28,7 +28,7 @@ export default function StocksSlide({ stocks }: { stocks: StockRecord[] }) {
   ));
 
   return (
-    <div className="grid grid-cols-1 mx-4 my-4 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 mx-2 my-2 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
       {rendered_stocks}
     </div>
   );
