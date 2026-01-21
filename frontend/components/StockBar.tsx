@@ -20,21 +20,10 @@ export function StockBar({
 
   useEffect(() => {
     // Subscribe to symbols when component mounts
-    // if (ws?.connectionState) {
-    //   const reconnectAttemptsRef = ws?.reconnectAttemptsRef;
-    //   if (reconnectAttemptsRef) {
-    //     reconnectAttemptsRef.current = 0;
-    //   }
-    //   ws?.connect();
-    //   console.log("component connecting...");
-    // }
-
-    // console.log("subscribing...");
     ws?.subscribe([symbol]);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      // console.log("unsubscribing...");
       ws?.unsubscribe([symbol]);
     };
   }, []);
@@ -53,12 +42,10 @@ export function StockBar({
       const interval = setInterval(() => {
         setTick((prev) => prev + 1);
         priceBgStyle.current = "";
-        // console.log("executed delay");
       }, 750);
 
       return () => {
         clearInterval(interval);
-        // console.log("cancelled delay");
       };
     }
   });
@@ -66,9 +53,6 @@ export function StockBar({
   // Get latest price for a symbol
   const currentPrice = ws?.getPrice(symbol)?.price || stockData.currentPrice;
   const priceDiff = currentPrice - prevPrice.current;
-  // console.log(
-  //   `prev:${prevPrice.current}, current:${currentPrice}, diff:${priceDiff}`
-  // );
 
   // Update prevPrice after render to avoid stale comparisons
   useEffect(() => {

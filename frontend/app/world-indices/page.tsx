@@ -23,13 +23,13 @@ type WorldIndicesData = {
 
 export default async function WorldIndices() {
   // Skip API calls during build (static generation)
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
-    return (
-      <div className="flex justify-center items-center h-64 p-6">
-        <p className="text-muted-foreground">No indices data available</p>
-      </div>
-    );
-  }
+  // if (process.env.NEXT_PHASE === 'phase-production-build') {
+  //   return (
+  //     <div className="flex justify-center items-center h-64 p-6">
+  //       <p className="text-muted-foreground">No indices data available</p>
+  //     </div>
+  //   );
+  // }
 
   try {
     const apiUrl = process.env.NEXT_URL

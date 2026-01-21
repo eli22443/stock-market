@@ -160,7 +160,6 @@ export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  // console.log("GET /api/stocks called");
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");

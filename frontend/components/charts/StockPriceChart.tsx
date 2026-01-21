@@ -38,7 +38,6 @@ export default function StockPriceChart({
     data: CandleData;
   };
 }) {
-  // console.log(candle);
 
   // Generate labels for all data points
   let labels: string[] = [];

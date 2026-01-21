@@ -65,7 +65,7 @@ export function useStockWebSocket(
   options: UseStockWebSocketOptions = {}
 ): UseStockWebSocketReturn {
   const {
-    url = "ws://localhost:8000/ws",
+    url = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws",
     autoReconnect = true,
     reconnectDelay = 3000,
     maxReconnectAttempts = 5,
@@ -209,7 +209,6 @@ export function useStockWebSocket(
     try {
       const ws = new WebSocket(url);
       wsRef.current = ws;
-      // console.log("CREATES NEW SOCKET");
 
       ws.onopen = () => {
         setConnectionState("connected");

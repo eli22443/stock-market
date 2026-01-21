@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 
 /**
  * GET/PUT/DELETE /api/users/:id
+ * Note: User management is handled by Supabase Auth
+ * These endpoints are placeholders for future user profile features
  */
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  // TODO: Implement get user by id
+  // User management is handled by Supabase Auth
+  // This endpoint can be used for future user profile features
   return NextResponse.json({ message: "Not implemented", id });
 }
 
@@ -17,7 +20,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  // TODO: Implement user update
+  // User updates are handled by Supabase Auth
+  // This endpoint can be used for future user profile features
   return NextResponse.json({ message: "Not implemented", id });
 }
 
@@ -26,6 +30,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  // TODO: Implement user deletion
+  // User deletion is handled by Supabase Auth
+  // This endpoint can be used for future user profile features
   return NextResponse.json({ message: "Not implemented", id });
 }

@@ -20,7 +20,6 @@ export const login = async (formData: FormData) => {
     // redirect("/error");
     return;
   }
-  // console.log(data);
   redirect("/dashboard");
 };
 
@@ -73,8 +72,6 @@ export const signup = async (formData: FormData) => {
   //   .from("profiles")
   //   .update({ username: fullName })
   //   .eq("id", data.user.id);
-
-  // console.log(profile);
 
   if (!data.session) {
     // Email confirmation required

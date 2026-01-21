@@ -58,7 +58,6 @@ export async function updateSession(request: NextRequest) {
 
   // If Bearer token is provided, validate it directly
   if (accessToken) {
-    // console.log(accessToken);
     const supabaseClient = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,

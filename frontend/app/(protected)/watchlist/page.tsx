@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import WatchlistList from "@/components/watchlists/WatchlistList";
 import WatchlistView from "@/components/watchlists/WatchlistView";
 
-// Middleware already protects this route - if we reach here, user is authenticated
-export default function Watchlist() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function WatchlistContent() {
   const searchParams = useSearchParams();
   const watchlistId = searchParams.get("watchlist") || searchParams.get("id");
 
@@ -16,5 +17,14 @@ export default function Watchlist() {
 
   // Otherwise, show the list of all watchlists
   return <WatchlistList />;
+}
+
+// Middleware already protects this route - if we reach here, user is authenticated
+export default function Watchlist() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WatchlistContent />
+    </Suspense>
+  );
 }
 

@@ -16,13 +16,10 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
 
   useEffect(() => {
     // Subscribe to symbols when component mounts
-    // console.log("subscribing...");
-
     ws?.subscribe([stock.symbol]);
 
     // Cleanup: unsubscribe on unmount
     return () => {
-      // console.log("unsubscribing...");
       ws?.unsubscribe([stock.symbol]);
     };
   }, []);
@@ -41,12 +38,10 @@ export default function StockCard({ stock }: { stock: StockRecord }) {
       const interval = setInterval(() => {
         setTick((prev) => prev + 1);
         priceBgStyle.current = "";
-        // console.log("executed delay");
       }, 750);
 
       return () => {
         clearInterval(interval);
-        // console.log("cancelled delay");
       };
     }
   });

@@ -12,8 +12,16 @@ const WebSocketContext = React.createContext<UseStockWebSocketReturn | null>(
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const ws = useStockWebSocket({
-    onConnect: () => console.log("WebSocket Connected!"),
-    onDisconnect: () => console.log("WebSocket Disconnected"),
+    onConnect: () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("WebSocket Connected!");
+      }
+    },
+    onDisconnect: () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("WebSocket Disconnected");
+      }
+    },
   });
 
   return (
