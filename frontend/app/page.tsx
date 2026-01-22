@@ -1,25 +1,14 @@
 import StocksSlide from "@/components/StocksSlide";
 import { StockRecord } from "@/types";
 
+// Force dynamic rendering for real-time stock data
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   /**
    * Show market overview
    */
   let data: StockRecord[] = [];
-
-  // Skip API calls during build (static generation)
-  // The page will be hydrated with real data at runtime
-  // if (process.env.NEXT_PHASE === 'phase-production-build') {
-  //   // During build, return empty array
-  //   // Data will be fetched client-side or on first request
-  //   return (
-  //     <div className="main-page">
-  //       <div className="stocks-slide mt-20">
-  //         <StocksSlide stocks={data} />
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   try {
     const apiUrl = process.env.NEXT_URL

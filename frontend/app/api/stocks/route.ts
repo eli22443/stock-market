@@ -154,9 +154,9 @@ async function categorizeStocksWithComprehensiveData(
  */
 
 // Cache for 60 seconds to reduce API calls
-export const revalidate = 60;
+// export const revalidate = 60;
 
-// Force dynamic rendering since we use request.url
+// Force dynamic rendering since we use request.url for query parameters
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
