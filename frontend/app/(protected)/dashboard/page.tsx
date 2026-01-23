@@ -8,7 +8,7 @@ export default function Dashboard() {
   // Middleware already protects this route - if we reach here, user is authenticated
   // We can safely use auth.user for display purposes
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page pb-4">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       {/* Dashboard content will go here. */}
       <p>Hello {auth?.user?.user_metadata?.full_name || "there"}!</p>

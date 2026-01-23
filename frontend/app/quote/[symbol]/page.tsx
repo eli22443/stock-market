@@ -57,7 +57,7 @@ export default async function QuotePage({
   const candle1: StockCandle = await hourlyRes.json();
 
   return (
-    <div className="stock-page space-y-4 sm:space-y-6">
+    <div className="stock-page space-y-4 sm:space-y-6 pb-4">
       <div>
         <h2 className="text-2xl sm:text-3xl font-bold mb-2">{stockData.name}</h2>
         <p className="text-muted-foreground text-base sm:text-lg">{stockData.symbol}</p>

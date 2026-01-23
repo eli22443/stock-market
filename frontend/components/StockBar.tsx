@@ -72,22 +72,24 @@ export function StockBar({
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent >
-        <div className="flex items-center gap-6 flex-wrap">
+        <div className="grid grid-cols-4">
           <div>
             <div className="text-sm text-muted-foreground mb-1">Current Price</div>
             <div className={`text-3xl font-bold transition-colors ${priceBgStyle.current}`}>
               ${formatNumber(currentPrice)}
             </div>
           </div>
-          <div>
-            <div className="text-sm text-muted-foreground mb-1">Change</div>
-            <div
-              className={`text-2xl font-semibold transition-colors ${priceBgStyle.current} ${priceChange >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-            >
-              {priceChange >= 0 ? "+" : ""}
-              ${formatNumber(priceChange)} ({priceChangePercent >= 0 ? "+" : ""}
-              {formatNumber(priceChangePercent)}%)
+          <div className="col-span-3 flex justify-center">
+            <div className="">
+              <div className="text-sm text-muted-foreground mb-1">Change</div>
+              <div
+                className={`text-2xl font-semibold transition-colors ${priceBgStyle.current} ${priceChange >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+              >
+                {priceChange >= 0 ? "+" : ""}
+                ${formatNumber(priceChange)} ({priceChangePercent >= 0 ? "+" : ""}
+                {formatNumber(priceChangePercent)}%)
+              </div>
             </div>
           </div>
         </div>
