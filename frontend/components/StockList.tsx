@@ -37,7 +37,7 @@ export default function StockList({ data, symbol }: StockListProps) {
     }
   };
 
-  const gridStyle = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
+  const gridStyle = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
   const textStyle = "text-sm text-muted-foreground mb-1";
   const statStyle = "text-lg font-semibold";
 

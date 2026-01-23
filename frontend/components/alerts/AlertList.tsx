@@ -181,13 +181,13 @@ export default function AlertList() {
   }
 
   return (
-    <div className="alert-list p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Alerts</h1>
+    <div className="alert-list p-4 sm:p-6 pb-20 lg:pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">My Alerts</h1>
         {!showCreateForm && !editingAlert && (
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="border-2 border-indigo-600"
+            className="w-full sm:w-auto"
           >
             + Create New Alert
           </Button>
@@ -201,40 +201,32 @@ export default function AlertList() {
       )}
 
       {/* Filter buttons */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex gap-2 flex-wrap">
         <Button
           onClick={() => setFilter("all")}
-          className={`px-3 py-1 text-sm rounded ${filter === "all"
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          variant={filter === "all" ? "default" : "outline"}
+          size="sm"
         >
           All
         </Button>
         <Button
           onClick={() => setFilter("active")}
-          className={`px-3 py-1 text-sm rounded ${filter === "active"
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          variant={filter === "active" ? "default" : "outline"}
+          size="sm"
         >
           Active
         </Button>
         <Button
           onClick={() => setFilter("inactive")}
-          className={`px-3 py-1 text-sm rounded ${filter === "inactive"
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          variant={filter === "inactive" ? "default" : "outline"}
+          size="sm"
         >
           Inactive
         </Button>
         <Button
           onClick={() => setFilter("triggered")}
-          className={`px-3 py-1 text-sm rounded ${filter === "triggered"
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          variant={filter === "triggered" ? "default" : "outline"}
+          size="sm"
         >
           Triggered
         </Button>

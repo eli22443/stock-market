@@ -186,11 +186,11 @@ export default function WatchlistList() {
   }
 
   return (
-    <div className="watchlist-list space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">My Watchlists</h1>
+    <div className="watchlist-list p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 lg:pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">My Watchlists</h1>
         {!showCreateForm && (
-          <Button onClick={() => setShowCreateForm(true)}>
+          <Button onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
             + Create New Watchlist
           </Button>
         )}

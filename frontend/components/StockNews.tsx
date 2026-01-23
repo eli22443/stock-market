@@ -24,7 +24,7 @@ export default function StockNews({
       <img
         src={news.image}
         alt={news.headline}
-        className="h-20 w-40 object-cover rounded"
+        className="h-16 sm:h-20 w-24 sm:w-40 object-cover rounded flex-shrink-0"
       />
     ) : null;
 
@@ -34,14 +34,14 @@ export default function StockNews({
         key={index}
       >
         <CardContent >
-          <div className="flex justify-between gap-4">
-            <div className="flex-1 space-y-2">
-              <CardTitle className="text-base">
+          <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4">
+            <div className="flex-1 space-y-2 min-w-0">
+              <CardTitle className="text-sm sm:text-base">
                 <a
                   href={news.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary transition-colors line-clamp-2"
                 >
                   {news.headline}
                 </a>

@@ -9,7 +9,7 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
   // Ensure data is an array and handle empty/undefined cases
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
-      <Card className="mx-10">
+      <Card className="mx-2 sm:mx-10">
         <CardContent >
           <div className="text-center space-y-2">
             <p className="text-muted-foreground">No market news available at the moment.</p>
@@ -35,7 +35,7 @@ export default function MarketNews({ data }: { data: MarketNewsRecord[] }) {
       <img
         src={news.image}
         alt={news.headline}
-        className="h-40 w-80 object-cover rounded mb-2"
+        className="h-32 sm:h-40 w-full sm:w-80 object-cover rounded mb-2"
       />
     ) : null;
 

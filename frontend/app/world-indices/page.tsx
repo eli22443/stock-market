@@ -42,15 +42,16 @@ export default async function WorldIndices() {
 
     if (!data || !data.indices || data.indices.length === 0) {
       return (
-        <div className="flex justify-center items-center h-64 p-6">
+        <div className="flex justify-center items-center h-64 p-4 sm:p-6 pb-20 lg:pb-6">
           <p className="text-muted-foreground">No indices data available</p>
         </div>
       );
     }
 
     return (
-      <div className="flex justify-center p-2">
+      <div className="flex justify-center p-4 sm:p-6 pb-20 lg:pb-6">
         <div className="w-full max-w-7xl">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">World Indices</h1>
           <WorldIndicesTable data={data} />
         </div>
       </div>
@@ -58,7 +59,7 @@ export default async function WorldIndices() {
   } catch (error) {
     console.error("Error fetching world indices:", error);
     return (
-      <div className="flex justify-center items-center h-64 p-6">
+      <div className="flex justify-center items-center h-64 p-4 sm:p-6 pb-20 lg:pb-6">
         <p className="text-muted-foreground">
           No indices data available. Please try again later.
         </p>

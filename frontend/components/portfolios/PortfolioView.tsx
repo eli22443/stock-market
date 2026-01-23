@@ -160,7 +160,7 @@ export default function PortfolioView({
   }
 
   return (
-    <div className="portfolio-view p-6 space-y-4">
+    <div className="portfolio-view p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 lg:pb-6">
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="sm">
           <Link href="/portfolio">← Back to Portfolios</Link>
@@ -193,7 +193,7 @@ export default function PortfolioView({
           <CardTitle>Portfolio Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Total Value</div>
               <div className="text-2xl font-bold">

@@ -38,8 +38,8 @@ export default async function News() {
   }
 
   return (
-    <div className="news-page py-6">
-      <h1 className="text-3xl font-bold mb-6">Market News</h1>
+    <div className="news-page py-4 sm:py-6 pb-20 lg:pb-6">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Market News</h1>
       <MarketNews data={news} />
     </div>
   );

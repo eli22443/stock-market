@@ -18,7 +18,7 @@ export default function StocksMenu() {
 
   return (
     <nav className="menu mb-6">
-      <div className="flex items-center gap-1 border-b">
+      <div className="flex items-center gap-1 border-b overflow-x-auto scrollbar-hide">
         {categories.map((category) => {
           const href = `/stocks/${category.slug}`;
           const isActive = pathname === href;
@@ -29,7 +29,7 @@ export default function StocksMenu() {
               asChild
               variant="ghost"
               className={cn(
-                "rounded-none border-b-2 border-transparent -mb-px",
+                "rounded-none border-b-2 border-transparent -mb-px whitespace-nowrap flex-shrink-0",
                 isActive
                   ? "border-primary bg-transparent font-semibold text-primary"
                   : "hover:bg-muted/50"

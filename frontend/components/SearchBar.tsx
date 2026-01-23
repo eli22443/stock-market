@@ -19,8 +19,8 @@ export default function SearchBar() {
   };
 
   return (
-    <form className="search-form flex justify-end" onSubmit={handleSubmit}>
-      <div className="flex gap-2 items-center">
+    <form className="search-form flex justify-end w-full" onSubmit={handleSubmit}>
+      <div className="flex gap-2 items-center w-full sm:w-auto">
         <Input
           type="text"
           name="search"
@@ -28,10 +28,10 @@ export default function SearchBar() {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             setSearchQuerry(event.target.value)
           }
-          placeholder="Search for stocks..."
-          className="w-64"
+          placeholder="Search stocks..."
+          className="w-full sm:w-64"
         />
-        <Button type="submit">Search</Button>
+        <Button type="submit" className="flex-shrink-0">Search</Button>
       </div>
     </form>
   );

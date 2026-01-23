@@ -36,25 +36,29 @@ export default function RootLayout({
         <WebSocketProvider>
           <AuthProvider>
             <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container mx-auto flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-4">
-                  <h1 className="text-xl font-bold">Stock Market</h1>
-                </div>
-                <div className="flex items-center gap-4">
-                  <SearchBar />
+              <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 gap-2">
+                <h1 className="text-lg sm:text-xl font-bold truncate">Stock Market</h1>
+                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                  <div className="hidden sm:block">
+                    <SearchBar />
+                  </div>
                   <LoginLogoutButton />
                 </div>
               </div>
+              <div className="container mx-auto px-4 sm:px-6 pb-3 sm:hidden">
+                <SearchBar />
+              </div>
             </header>
-            <div className="container mx-auto grid grid-cols-48 gap-1 px-2 py-6">
-              <aside className="col-span-6">
+            <div className="container mx-auto grid grid-cols-1 lg:grid-cols-12  lg:gap-6 px-4 sm:px-6 py-4 sm:py-6 pb-20 lg:pb-6">
+              <aside className="sm:absolute lg:relative lg:block lg:col-span-2">
                 <NavBar />
               </aside>
-              <main className="col-span-31 mx-2">{children}</main>
-              <aside className="col-span-11">
+              <main className="col-span-1 lg:col-span-6 xl:col-span-7 min-w-0">{children}</main>
+              <aside className="lg:col-span-4 xl:col-span-3">
                 <GeneralInfo />
               </aside>
             </div>
+            <footer className="h-15"></footer>
           </AuthProvider>
         </WebSocketProvider>
       </body>

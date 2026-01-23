@@ -234,7 +234,7 @@ export default function WatchlistView({
   }
 
   return (
-    <div className="watchlist-view p-6 space-y-6">
+    <div className="watchlist-view p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 lg:pb-6">
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="sm">
           <Link href="/watchlist">← Back to Watchlists</Link>
@@ -243,10 +243,10 @@ export default function WatchlistView({
 
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-2xl">{watchlist.name}</CardTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <CardTitle className="text-xl sm:text-2xl">{watchlist.name}</CardTitle>
                 {watchlist.is_default && (
                   <Badge variant="secondary">Default</Badge>
                 )}
@@ -256,7 +256,7 @@ export default function WatchlistView({
               )}
             </div>
             {!showAddForm && (
-              <Button onClick={() => setShowAddForm(true)}>
+              <Button onClick={() => setShowAddForm(true)} className="w-full sm:w-auto">
                 + Add Stock
               </Button>
             )}
