@@ -43,7 +43,7 @@ export default async function Home() {
 
   return (
     <div className="main-page">
-      <div className="stocks-slide mt-20">
+      <div className="stocks-slide mt-2">
         <StocksSlide stocks={data} />
       </div>
     </div>

@@ -21,7 +21,7 @@ export default function StocksSlide({ stocks }: { stocks: StockRecord[] }) {
     );
   }
 
-  const rendered_stocks = stocks.slice(0, 4).map((stock, index) => (
+  const rendered_stocks = stocks.slice(0, 8).map((stock, index) => (
     <div className="flex justify-center" key={index}>
       <StockCard stock={stock} />
     </div>
