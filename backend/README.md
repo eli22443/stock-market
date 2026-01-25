@@ -190,3 +190,61 @@ uvicorn main:app --reload
 ```
 
 The `--reload` flag automatically restarts the server when you make code changes.
+
+---
+
+## 🚀 Deployment
+
+### Production Deployment
+
+**Status:** ✅ **Deployed to Railway**
+
+The backend is configured for Railway deployment:
+
+1. **Railway Setup:**
+   - Root directory: `backend`
+   - Build command: `pip install -r requirements.txt`
+   - Start command: `python main.py` or `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Python version: 3.11+
+
+2. **Environment Variables (Railway):**
+   ```env
+   FINNHUB_API_KEY=your_finnhub_api_key_here
+   HOST=0.0.0.0
+   PORT=$PORT
+   FRONTEND_URL=https://your-app.vercel.app
+   ```
+
+3. **Production URL:**
+   - Backend: `https://your-backend.railway.app` (Update with your actual URL)
+   - Health Check: `https://your-backend.railway.app/health`
+   - API Docs: `https://your-backend.railway.app/docs`
+   - WebSocket: `wss://your-backend.railway.app/ws`
+
+---
+
+## 📝 Environment Variables
+
+### Required
+
+- `FINNHUB_API_KEY` - Finnhub API key for WebSocket connection
+- `FRONTEND_URL` - Frontend URL for CORS (production: Vercel URL)
+- `HOST` - Server host (use `0.0.0.0` for production)
+- `PORT` - Server port (usually provided by platform as `$PORT`)
+
+### Optional
+
+- `SUPABASE_URL` - Supabase URL (if implementing user filtering)
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (if implementing user filtering)
+
+---
+
+## 🔗 Related Documentation
+
+- [Deployment Plan](../markdown/DEPLOYMENT_PLAN.md)
+- [Frontend README](../frontend/README.md)
+- [Environment Variables](../markdown/deploy/ENVIRONMENT_VARIABLES.md)
+
+---
+
+**Last Updated:** [Current Date]
