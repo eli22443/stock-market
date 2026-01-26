@@ -7,6 +7,7 @@ import GeneralInfo from "@/components/GeneralInfo";
 import { WebSocketProvider } from "@/context/WebSocketContext";
 import LoginLogoutButton from "@/components/auth/LoginLogoutButton";
 import { AuthProvider } from "@/context/AuthContext";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,7 +54,7 @@ export default function RootLayout({
               <aside className="sm:absolute lg:relative lg:block lg:col-span-2">
                 <NavBar />
               </aside>
-              <main className="col-span-1 lg:col-span-6 xl:col-span-7 min-w-0">{children}</main>
+              <main className="col-span-1 lg:col-span-6 xl:col-span-7 min-w-0">{children}<Analytics /></main>
               <aside className="lg:col-span-4 xl:col-span-3">
                 <GeneralInfo />
               </aside>
