@@ -72,7 +72,7 @@ export function StockBar({
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent >
-        <div className="grid grid-cols-4">
+        <div className="flex space-x-1">
           <div>
             <div className="text-sm text-muted-foreground mb-1">Current Price</div>
             <div className={`text-3xl font-bold transition-colors ${priceBgStyle.current}`}>
