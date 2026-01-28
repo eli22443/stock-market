@@ -317,34 +317,8 @@ python main.py  # Test server startup
 - [ ] Historical data analysis
 - [ ] Options trading data
 
-## 🤝 Contributing
-
-This is a private project. For questions or issues, please contact the project maintainer.
-
-## 📄 License
-
-Private project - All rights reserved
-
----
-
-## 🎉 Getting Started Checklist
-
-- [ ] Clone the repository
-- [ ] Set up Supabase project
-- [ ] Get Finnhub API key
-- [ ] Configure environment variables
-- [ ] Run database migrations (if needed)
-- [ ] Start backend server
-- [ ] Start frontend server
-- [ ] Test authentication
-- [ ] Create your first portfolio
-- [ ] Add holdings to your portfolio
-- [ ] Test real-time updates
-- [ ] Deploy to production (if needed)
-
----
 
 **Last Updated:** [Current Date]  
-**Version:** 1.0.0  
+**Version:** 0.0.1  
 **Status:** ✅ Production Ready
 
