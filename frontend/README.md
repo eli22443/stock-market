@@ -241,5 +241,3 @@ npm run lint
 ## 📄 License
 
 Private project
-
----
