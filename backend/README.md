@@ -241,9 +241,8 @@ The backend is configured for Railway deployment:
 
 ## 🔗 Related Documentation
 
-- [Deployment Plan](../markdown/DEPLOYMENT_PLAN.md)
 - [Frontend README](../frontend/README.md)
-- [Environment Variables](../markdown/deploy/ENVIRONMENT_VARIABLES.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
 
 ---
 

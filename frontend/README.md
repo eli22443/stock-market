@@ -235,8 +235,7 @@ npm run lint
 
 ## 🔗 Related Documentation
 
-- [Deployment Plan](../../markdown/DEPLOYMENT_PLAN.md)
-- [Environment Variables](../../markdown/deploy/ENVIRONMENT_VARIABLES.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
 - [Backend README](../backend/README.md)
 
 ## 📄 License
