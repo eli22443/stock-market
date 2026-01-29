@@ -243,5 +243,3 @@ npm run lint
 Private project
 
 ---
-
-**Last Updated:** [Current Date]

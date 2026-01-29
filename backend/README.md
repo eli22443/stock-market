@@ -246,4 +246,3 @@ The backend is configured for Railway deployment:
 
 ---
 
-**Last Updated:** [Current Date]
