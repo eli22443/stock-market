@@ -209,10 +209,9 @@ The core feature of this application is comprehensive portfolio management:
 
 ## 📚 Documentation
 
-- **[Deployment Plan](markdown/DEPLOYMENT_PLAN.md)**: Complete deployment guide
 - **[Frontend README](frontend/README.md)**: Frontend setup and documentation
 - **[Backend README](backend/README.md)**: Backend setup and documentation
-- **[Environment Variables](markdown/deploy/ENVIRONMENT_VARIABLES.md)**: Environment variable documentation
+- **[Environment Variables](ENVIRONMENT_VARIABLES.md)**: Environment variable documentation
 
 ## 🔧 Development
 
@@ -237,7 +236,7 @@ The core feature of this application is comprehensive portfolio management:
 
 ### Environment Variables
 
-See [Environment Variables Documentation](markdown/deploy/ENVIRONMENT_VARIABLES.md) for complete setup.
+See [Environment Variables Documentation](ENVIRONMENT_VARIABLES.md) for complete setup.
 
 **Quick Setup:**
 
