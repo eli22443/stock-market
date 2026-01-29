@@ -316,8 +316,9 @@ python main.py  # Test server startup
 - [ ] Historical data analysis
 - [ ] Options trading data
 
-
+---
 **Last Updated:** '`r format(Sys.Date(), "%B %d, %Y")`'
 **Version:** 0.0.1  
 **Status:** ✅ Production Ready
+---
 
