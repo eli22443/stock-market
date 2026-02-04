@@ -142,13 +142,44 @@ export default function WatchlistView({
       setIsAdding(true);
       setError(null);
 
+      const symbol = newSymbol.trim().toUpperCase();
+
+      // Basic format validation (instant, no API call needed)
+      // Stock symbols are typically 1-5 characters, alphanumeric, may include dots or hyphens
+      const symbolPattern = /^[A-Z0-9.\-^]{1,10}$/;
+      if (!symbolPattern.test(symbol)) {
+        setError(`Invalid symbol format. Symbols should be 1-10 alphanumeric characters and may include dots, hyphens, or ^ for indices.`);
+        return;
+      }
+
+      // Validate symbol exists by checking if it returns valid data
+      try {
+        const validationResponse = await fetch(`/api/quote?symbol=${symbol}`);
+
+        if (!validationResponse.ok) {
+          const errorData = await validationResponse.json().catch(() => ({}));
+          setError(`Symbol "${symbol}" is invalid or not found. Please check the symbol and try again.`);
+          return;
+        }
+        const validationData = await validationResponse.json();
+        if (!validationData.stockData) {
+          setError(`Symbol "${symbol}" is invalid or not found. Please check the symbol and try again.`);
+          return;
+        }
+        console.log(validationData.stockData);
+      } catch (validationErr: any) {
+        setError(`Failed to validate symbol. Please try again.`);
+        return;
+      }
+
+      // Symbol is valid, proceed with adding to watchlist
       const response = await fetch(`/api/watchlists/${watchlistId}/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          symbol: newSymbol.trim().toUpperCase(),
+          symbol: symbol,
           notes: newNotes.trim() || null,
         }),
       });

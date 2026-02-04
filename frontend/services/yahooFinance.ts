@@ -95,6 +95,22 @@ export async function fetchYahooFinanceCandles(
         | "1mo",
     });
 
+    // Validate chart result
+    if (!chartResult) {
+      console.error(`Invalid symbol: ${symbol}. No chart data returned.`);
+      return null;
+    }
+
+    // Check if the symbol in the result matches the requested symbol
+    if (chartResult.meta?.symbol) {
+      const resultSymbol = chartResult.meta.symbol.toUpperCase();
+      const requestedSymbol = symbol.toUpperCase();
+      if (resultSymbol !== requestedSymbol) {
+        console.error(`Invalid symbol: ${symbol}. Chart returned symbol: ${resultSymbol}`);
+        return null;
+      }
+    }
+
     // Chart module returns ChartResultArray with quotes array
     if (chartResult?.quotes && Array.isArray(chartResult.quotes)) {
       quote = chartResult.quotes.map((item) => ({
@@ -109,7 +125,7 @@ export async function fetchYahooFinanceCandles(
     }
 
     if (!quote || quote.length === 0) {
-      console.warn(`No data found for symbol: ${symbol}`);
+      console.warn(`No data found for symbol: ${symbol}. This may indicate an invalid symbol.`);
       return null;
     }
 
@@ -126,17 +142,28 @@ export async function fetchYahooFinanceCandles(
       volume: item.volume ?? 0,
       adjClose: item.adjClose,
     }));
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching Yahoo Finance candles:", error);
+
+    // Handle rate limiting
+    if (error?.code === 429) {
+      console.error(`Rate limited for ${symbol} candles. Please wait.`);
+      throw new Error("RATE_LIMITED");
+    }
 
     // Handle specific error types
     if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      const errorCode = (error as any)?.code;
       // Check for invalid symbol errors
       if (
-        error.message.includes("Invalid symbol") ||
-        error.message.includes("not found")
+        errorMessage.includes("invalid symbol") ||
+        errorMessage.includes("not found") ||
+        errorMessage.includes("symbol not found") ||
+        errorMessage.includes("no such ticker") ||
+        errorCode === 404
       ) {
-        console.error(`Invalid symbol: ${symbol}`);
+        console.error(`Invalid symbol: ${symbol} - ${error.message}`);
         return null;
       }
     }
@@ -171,11 +198,53 @@ export async function fetchYahooComprehensiveData(
         console.error(`Rate limited for ${symbol}. Please wait.`);
         throw new Error("RATE_LIMITED");
       }
+
+      // Check for invalid symbol errors
+      const errorMessage = error?.message?.toLowerCase() || "";
+      const errorCode = (error as any)?.code;
+      if (
+        errorMessage.includes("invalid symbol") ||
+        errorMessage.includes("not found") ||
+        errorMessage.includes("symbol not found") ||
+        errorMessage.includes("no such ticker") ||
+        errorCode === 404
+      ) {
+        console.error(`Invalid symbol: ${symbol} - ${error?.message || "Symbol not found"}`);
+        return null;
+      }
+
       console.error("quote promise rejected:", error?.message || error);
       return null;
     });
 
     if (!quote) {
+      return null;
+    }
+
+    // Validate that the symbol is correct and has valid data
+    // Check if symbol matches (Yahoo Finance might return different symbol for invalid ones)
+    const quoteSymbol = quote.symbol?.toUpperCase();
+    const requestedSymbol = symbol.toUpperCase();
+
+    if (!quoteSymbol || quoteSymbol !== requestedSymbol) {
+      console.error(`Invalid symbol: ${symbol}. Quote returned symbol: ${quoteSymbol}`);
+      return null;
+    }
+
+    // Check if essential data exists (at least price or name should be present)
+    const hasPrice = quote.regularMarketPrice !== null && quote.regularMarketPrice !== undefined;
+    const hasName = !!(quote.longName || quote.shortName);
+    const hasSymbol = !!quote.symbol;
+
+    // If none of the essential fields exist, it's likely an invalid symbol
+    if (!hasSymbol || (!hasPrice && !hasName)) {
+      console.error(`Invalid symbol: ${symbol}. Missing essential data (price: ${hasPrice}, name: ${hasName}, symbol: ${hasSymbol})`);
+      return null;
+    }
+
+    // Additional check: if price is 0 or negative and there's no name, likely invalid
+    if (!hasPrice && quote.regularMarketPrice === 0 && !hasName) {
+      console.error(`Invalid symbol: ${symbol}. No price data and no name available.`);
       return null;
     }
 
