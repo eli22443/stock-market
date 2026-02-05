@@ -5,12 +5,14 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
 ## 🚀 Features
 
 ### Portfolio Management
+
 - **Investment Portfolios**: Create and manage multiple investment portfolios
 - **Holdings Management**: Add, edit, and remove stock holdings with purchase details
 - **Performance Tracking**: Real-time portfolio performance with gains/losses calculations
 - **Portfolio Valuation**: Live portfolio value updates based on current stock prices
 
 ### Stock Tracking
+
 - **Real-time Stock Data**: Live price updates via WebSocket connection
 - **Watchlists**: Create and manage custom stock watchlists
 - **Price Alerts**: Set up alerts for price movements
@@ -18,6 +20,7 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
 - **World Indices**: Track major global stock indices
 
 ### User Features
+
 - **User Authentication**: Secure authentication with Supabase (Email/Password & Google OAuth)
 - **Market News**: View latest market and company news
 - **Responsive Design**: Mobile-friendly UI with Tailwind CSS
@@ -39,12 +42,13 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm, yarn, pnpm, or bun
 
 ### Setup
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -54,8 +58,9 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
    ```
 
 2. **Configure environment variables:**
-   
+
    Create a `.env.local` file in the `frontend` directory:
+
    ```env
    # Supabase Configuration
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -70,6 +75,7 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
    ```
 
 3. **Run development server:**
+
    ```bash
    npm run dev
    # or
