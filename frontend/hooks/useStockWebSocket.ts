@@ -26,6 +26,16 @@ interface UseStockWebSocketOptions {
   onError?: (error: Event) => void;
 }
 
+function resolveDefaultWsUrl(): string {
+  if (typeof window === "undefined") {
+    return "ws://localhost:8000/ws";
+  }
+
+  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  const host = window.location.hostname || "localhost";
+  return `${protocol}://${host}:8000/ws`;
+}
+
 export interface UseStockWebSocketReturn {
   /** Current connection state */
   connectionState: WebSocketConnectionState;
@@ -65,7 +75,7 @@ export function useStockWebSocket(
   options: UseStockWebSocketOptions = {}
 ): UseStockWebSocketReturn {
   const {
-    url = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws",
+    url = process.env.NEXT_PUBLIC_WS_URL || resolveDefaultWsUrl(),
     autoReconnect = true,
     reconnectDelay = 3000,
     maxReconnectAttempts = 5,
