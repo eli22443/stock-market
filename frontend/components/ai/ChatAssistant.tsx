@@ -89,7 +89,7 @@ export default function ChatAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLines(loadStored());
@@ -101,7 +101,9 @@ export default function ChatAssistant() {
   }, [lines, hydrated]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messageContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [lines, loading]);
 
   const send = useCallback(async () => {
@@ -172,6 +174,7 @@ export default function ChatAssistant() {
       </CardHeader>
       <CardContent className="flex-1 flex flex-col min-h-0 gap-2">
         <div
+          ref={messageContainerRef}
           className={cn(
             "flex flex-col gap-3 rounded-md border bg-background/60 p-3 flex-1 min-h-[220px]",
             "max-h-[min(50vh,400px)] overflow-y-auto overscroll-contain"
@@ -204,7 +207,6 @@ export default function ChatAssistant() {
               Thinking…
             </div>
           )}
-          <div ref={bottomRef} />
         </div>
         {error && (
           <p className="text-sm text-destructive" role="alert">
