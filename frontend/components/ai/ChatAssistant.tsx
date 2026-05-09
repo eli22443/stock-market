@@ -14,9 +14,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2, Send } from "lucide-react";
 
-const STORAGE_KEY = "assistant-chat-v1";
-const MAX_STORED = 40;
-
 type Role = "user" | "assistant";
 
 type ChatLine = { role: Role; content: string };
@@ -52,53 +49,12 @@ function emitAssistantEvent(kind: "message_sent" | "response_ok" | "response_fai
   );
 }
 
-function loadStored(): ChatLine[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter(
-        (x): x is ChatLine =>
-          x &&
-          typeof x === "object" &&
-          (x as ChatLine).role !== undefined &&
-          typeof (x as ChatLine).content === "string" &&
-          ((x as ChatLine).role === "user" || (x as ChatLine).role === "assistant")
-      )
-      .slice(-MAX_STORED);
-  } catch {
-    return [];
-  }
-}
-
-function persist(lines: ChatLine[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lines.slice(-MAX_STORED)));
-  } catch {
-    /* ignore quota */
-  }
-}
-
 export default function ChatAssistant() {
   const [lines, setLines] = useState<ChatLine[]>([]);
-  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setLines(loadStored());
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (hydrated) persist(lines);
-  }, [lines, hydrated]);
 
   useEffect(() => {
     const el = messageContainerRef.current;
@@ -180,9 +136,7 @@ export default function ChatAssistant() {
             "max-h-[min(50vh,400px)] overflow-y-auto overscroll-contain"
           )}
         >
-          {!hydrated ? (
-            <p className="text-sm text-muted-foreground">Loading conversation…</p>
-          ) : lines.length === 0 ? (
+          {lines.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Start by asking a question below.
             </p>
@@ -237,7 +191,6 @@ export default function ChatAssistant() {
             disabled={loading || lines.length === 0}
             onClick={() => {
               setLines([]);
-              persist([]);
               setError(null);
             }}
           >
