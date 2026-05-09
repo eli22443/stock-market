@@ -70,6 +70,9 @@ Next.js 16 frontend application for a real-time stock market tracking and portfo
    # WebSocket Backend URL
    NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
 
+   # HTTP base for FastAPI (AI chat proxy); optional if WS URL targets the same host:port
+   # BACKEND_URL=http://127.0.0.1:8000
+
    # Next.js URL (for internal API calls)
    NEXT_URL=http://localhost:3000
    ```

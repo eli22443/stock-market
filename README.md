@@ -5,12 +5,14 @@ A full-stack real-time stock market tracking and portfolio management applicatio
 ## 🌟 Features
 
 ### Portfolio Management
+
 - **Investment Portfolios**: Create and manage multiple investment portfolios
 - **Holdings Tracking**: Track individual stock holdings with purchase price, quantity, and dates
 - **Performance Analytics**: View portfolio performance, gains/losses, and percentage changes
 - **Portfolio Valuation**: Real-time portfolio value calculations
 
 ### Stock Tracking
+
 - **Real-time Stock Data**: Live price updates via WebSocket
 - **Watchlists**: Create and manage custom stock watchlists
 - **Price Alerts**: Set up alerts for price movements and volume spikes
@@ -18,8 +20,10 @@ A full-stack real-time stock market tracking and portfolio management applicatio
 - **World Indices**: Track major global stock indices (S&P 500, NASDAQ, etc.)
 
 ### User Features
+
 - **User Authentication**: Secure auth with Supabase (Email/Password & Google OAuth)
 - **Market News**: Latest market and company news
+- **AI Chat Assistant**: Protected Gemini-powered assistant for market/app Q&A
 - **Responsive Design**: Mobile-friendly UI with Tailwind CSS
 
 ## 🏗️ Architecture
@@ -131,7 +135,9 @@ stock-market/
 ## 🎯 Key Features
 
 ### Portfolio Manager
+
 The core feature of this application is comprehensive portfolio management:
+
 - Create multiple investment portfolios
 - Add holdings with purchase details (price, quantity, date)
 - Track portfolio performance in real-time
@@ -140,6 +146,7 @@ The core feature of this application is comprehensive portfolio management:
 - Analyze individual holding performance
 
 ### Public Pages
+
 - **Home**: Market overview with trending stocks
 - **Stocks**: Browse stocks by category (gainers, losers, most-active, trending)
 - **Quote**: Detailed stock information with charts and news
@@ -147,10 +154,12 @@ The core feature of this application is comprehensive portfolio management:
 - **World Indices**: Global stock indices
 
 ### Protected Pages (Requires Login)
+
 - **Dashboard**: User dashboard with portfolio overview
 - **Portfolios**: **Portfolio Manager** - Create, manage, and track investment portfolios with holdings, performance metrics, and real-time valuations
 - **Watchlists**: Create and manage stock watchlists
 - **Alerts**: Set up price alerts for stocks
+- **Assistant**: Gemini chat assistant for market and product-help questions
 
 ## 🔐 Authentication
 
@@ -169,6 +178,7 @@ The core feature of this application is comprehensive portfolio management:
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **UI**: React 19
@@ -178,19 +188,23 @@ The core feature of this application is comprehensive portfolio management:
 - **Database Client**: Supabase JS
 
 ### Backend
+
 - **Framework**: FastAPI
 - **Language**: Python 3.11+
 - **WebSocket**: websockets library
 - **Server**: Uvicorn
 
 ### Database & Auth
+
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
 - **Real-time**: Supabase Realtime (for future features)
 
 ### External APIs
+
 - **Yahoo Finance**: Stock data, news, quotes
 - **Finnhub**: Real-time WebSocket stock prices
+- **Google Gemini**: AI chat completion
 
 ## 🚀 Deployment Status
 
@@ -218,12 +232,14 @@ The core feature of this application is comprehensive portfolio management:
 ### Running Locally
 
 1. **Start Backend:**
+
    ```bash
    cd backend
    python main.py
    ```
 
 2. **Start Frontend:**
+
    ```bash
    cd frontend
    npm run dev
@@ -241,6 +257,7 @@ See [Environment Variables Documentation](ENVIRONMENT_VARIABLES.md) for complete
 **Quick Setup:**
 
 **Frontend (`.env.local`):**
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
@@ -249,6 +266,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
 ```
 
 **Backend (`.env`):**
+
 ```env
 FINNHUB_API_KEY=your_finnhub_key
 HOST=0.0.0.0
@@ -259,6 +277,7 @@ FRONTEND_URL=http://localhost:3000
 ## 📝 API Endpoints
 
 ### Frontend API Routes (Next.js)
+
 - `GET /api` - Get all stocks
 - `GET /api/stocks?category=...` - Get stocks by category
 - `GET /api/quote?symbol=...` - Get stock quote
@@ -268,15 +287,19 @@ FRONTEND_URL=http://localhost:3000
 - `GET/POST /api/watchlists` - Watchlist operations
 - `GET/POST /api/portfolios` - Portfolio operations
 - `GET/POST /api/alerts` - Alert operations
+- `POST /api/ai/chat` - Protected proxy route for assistant chat
 
 ### Backend API Routes (FastAPI)
+
 - `GET /` - Health check
 - `GET /health` - Detailed health status
+- `POST /ai/chat` - Gemini chat endpoint (protected via frontend middleware)
 - `WS /ws` - WebSocket endpoint for real-time updates
 
 ## 🧪 Testing
 
 ### Frontend
+
 ```bash
 cd frontend
 npm run build  # Test production build
@@ -284,6 +307,7 @@ npm start      # Test production server
 ```
 
 ### Backend
+
 ```bash
 cd backend
 python main.py  # Test server startup
@@ -301,6 +325,7 @@ python main.py  # Test server startup
 ## 📈 Future Enhancements
 
 ### Portfolio Management
+
 - [ ] Portfolio performance history and analytics
 - [ ] Dividend tracking
 - [ ] Tax reporting and capital gains calculations
@@ -308,6 +333,7 @@ python main.py  # Test server startup
 - [ ] Export portfolio data (CSV, PDF)
 
 ### Additional Features
+
 - [ ] AI-powered stock predictions
 - [ ] Advanced charting features
 - [ ] Mobile app (React Native)
@@ -322,4 +348,3 @@ Private project
 
 **Version:** 0.0.1  
 **Status:** ✅ Production Ready
-

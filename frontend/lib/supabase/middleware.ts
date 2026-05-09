@@ -10,10 +10,16 @@ export async function updateSession(request: NextRequest) {
     "/api/watchlists",
     "/api/portfolios",
     "/api/alerts",
+    "/api/ai/chat",
   ];
 
   // Define protected page routes that require authentication
-  const protectedPageRoutes = ["/dashboard", "/watchlist", "/portfolio"];
+  const protectedPageRoutes = [
+    "/dashboard",
+    "/watchlist",
+    "/portfolio",
+    "/assistant",
+  ];
 
   // Check if the current path is a protected API route
   const isProtectedApiRoute = protectedApiRoutes.some((route) =>

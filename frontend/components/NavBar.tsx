@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { Home, Newspaper, TrendingUp, Globe } from "lucide-react";
+import { Home, Newspaper, TrendingUp, Globe, MessageCircle } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Overview", icon: Home },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/stocks", label: "Stocks", icon: TrendingUp },
   { href: "/world-indices", label: "World Indices", icon: Globe },
+  { href: "/assistant", label: "Assistant", icon: MessageCircle },
 ];
 
 export default function NavBar() {
@@ -50,7 +51,7 @@ export default function NavBar() {
 
       {/* Mobile Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t">
-        <div className="grid grid-cols-4 gap-1 p-2">
+        <div className="grid grid-cols-5 gap-1 p-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
