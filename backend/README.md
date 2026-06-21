@@ -208,6 +208,7 @@ The backend is configured for Railway deployment:
    - Python version: 3.11+
 
 2. **Environment Variables (Railway):**
+
    ```env
    FINNHUB_API_KEY=your_finnhub_api_key_here
    HOST=0.0.0.0
@@ -245,4 +246,3 @@ The backend is configured for Railway deployment:
 - [Environment Variables](../ENVIRONMENT_VARIABLES.md)
 
 ---
-
