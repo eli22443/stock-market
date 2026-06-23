@@ -34,13 +34,14 @@ A full-stack real-time stock market tracking and portfolio management applicatio
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
 │  Frontend (Next.js 16)                                  │
-│  └─ Vercel (Deployed)                                   │
+│  └─ Vercel → stock-market-seven-delta.app               │
 │     - TypeScript, React 19                              │
 │     - Tailwind CSS, Shadcn UI                           │
 │     - Real-time WebSocket client                        │
 │                                                         │
 │  Backend (Python FastAPI)                               │
-│  └─ Railway (Deployed)                                  │
+│  └─ AWS EC2 (eu-north-1) + nginx + Let's Encrypt      │
+│     - api.stock-market-seven-delta.app                  │
 │     - WebSocket server for real-time data               │
 │     - Finnhub WebSocket integration                     │
 │                                                         │
@@ -120,6 +121,7 @@ stock-market/
 │
 ├── backend/               # Python FastAPI backend
 │   ├── main.py          # FastAPI application
+│   ├── deploy/          # EC2 nginx, systemd configs
 │   ├── websocket_manager.py    # Finnhub WebSocket handler
 │   ├── client_manager.py        # Client connection manager
 │   ├── subscription_manager.py  # Subscription logic
@@ -210,16 +212,16 @@ The core feature of this application is comprehensive portfolio management:
 
 **Status:** ✅ **DEPLOYED**
 
-- ✅ **Frontend**: Deployed to Vercel
-- ✅ **Backend**: Deployed to Railway
+- ✅ **Frontend**: Deployed to Vercel → `https://stock-market-seven-delta.app`
+- ✅ **Backend**: Deployed to AWS EC2 (`eu-north-1`) → `https://api.stock-market-seven-delta.app`
 - ✅ **Database**: Supabase (Production)
 
 ### Production URLs
 
-- **Frontend**: `https://your-app.vercel.app` (Update with your actual URL)
-- **Backend**: `https://your-backend.railway.app` (Update with your actual URL)
-- **API Docs**: `https://your-backend.railway.app/docs`
-- **WebSocket**: `wss://your-backend.railway.app/ws`
+- **Frontend**: `https://stock-market-seven-delta.app`
+- **Backend**: `https://api.stock-market-seven-delta.app`
+- **API Docs**: `https://api.stock-market-seven-delta.app/docs`
+- **WebSocket**: `wss://api.stock-market-seven-delta.app/ws`
 
 ## 📚 Documentation
 

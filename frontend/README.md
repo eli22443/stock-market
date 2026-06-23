@@ -188,7 +188,11 @@ The app is configured for Vercel deployment:
 4. Add environment variables in Vercel dashboard
 5. Deploy
 
-**Status:** ✅ Deployed to Vercel
+**Status:** ✅ Deployed to Vercel → `https://stock-market-seven-delta.app`
+
+**Backend:** AWS EC2 → `https://api.stock-market-seven-delta.app`
+
+Production WebSocket URL: `wss://api.stock-market-seven-delta.app/ws`
 
 ## 📝 Environment Variables
 
@@ -199,11 +203,12 @@ See `ENVIRONMENT_VARIABLES.md` in the root directory for complete documentation.
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` - Supabase anon key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side)
-- `NEXT_PUBLIC_WS_URL` - WebSocket backend URL
+- `NEXT_PUBLIC_WS_URL` - WebSocket backend URL (`wss://api.stock-market-seven-delta.app/ws` in production)
+- `BACKEND_URL` - HTTP base URL for `/api/ai/chat` proxy (`https://api.stock-market-seven-delta.app`)
 
 ### Optional Variables
 
-- `NEXT_URL` - Base URL for internal API calls
+- `NEXT_URL` - Base URL for internal API calls (`https://stock-market-seven-delta.app` in production)
 - `SKIP_YAHOO_FINANCE` - Skip Yahoo Finance API (development only)
 
 ## 🧪 Development

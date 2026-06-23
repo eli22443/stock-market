@@ -29,7 +29,7 @@ This document lists all environment variables used in the Stock Market applicati
 - **`NEXT_PUBLIC_WS_URL`**
   - Description: WebSocket URL for real-time stock data backend
   - Development: `ws://localhost:8000/ws`
-  - Production: `wss://your-backend.railway.app/ws` (or your backend URL)
+  - Production: `wss://api.stock-market-seven-delta.app/ws`
   - Public: Yes (used in client-side code)
   - Note: Must use `wss://` (secure WebSocket) in production
 
@@ -38,14 +38,14 @@ This document lists all environment variables used in the Stock Market applicati
 - **`BACKEND_URL`**
   - Description: HTTP base URL used by frontend `/api/ai/chat` proxy
   - Development: `http://127.0.0.1:8000`
-  - Production: `https://your-backend.railway.app`
+  - Production: `https://api.stock-market-seven-delta.app`
   - Public: No (server-side only)
   - Note: If not set, frontend tries deriving HTTP URL from `NEXT_PUBLIC_WS_URL`
 
 - **`NEXT_URL`**
   - Description: Base URL for internal API calls
   - Development: `http://localhost:3000`
-  - Production: `https://your-app.vercel.app`
+  - Production: `https://stock-market-seven-delta.app`
   - Public: No (server-side only)
 
 - **`SKIP_YAHOO_FINANCE`**
@@ -69,18 +69,19 @@ This document lists all environment variables used in the Stock Market applicati
 - **`FRONTEND_URL`**
   - Description: Frontend URL for CORS configuration
   - Development: `http://localhost:3000`
-  - Production: `https://your-app.vercel.app`
+  - Production: `https://stock-market-seven-delta.app`
   - Public: No (server-side only)
 
 - **`HOST`**
   - Description: Server host address
-  - Value: `0.0.0.0` (to accept connections from all interfaces)
+  - Development: `0.0.0.0`
+  - Production (EC2 behind nginx): `127.0.0.1`
   - Public: No
 
 - **`PORT`**
   - Description: Server port number
   - Development: `8000`
-  - Production: Usually provided by hosting platform (e.g., `$PORT` in Railway)
+  - Production (EC2): `8000` (nginx proxies 443 → localhost:8000)
   - Public: No
 
 - **`GEMINI_API_KEY`**
@@ -163,12 +164,12 @@ FRONTEND_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
-NEXT_PUBLIC_WS_URL=wss://your-backend.railway.app/ws
-BACKEND_URL=https://your-backend.railway.app
-NEXT_URL=https://your-app.vercel.app
+NEXT_PUBLIC_WS_URL=wss://api.stock-market-seven-delta.app/ws
+BACKEND_URL=https://api.stock-market-seven-delta.app
+NEXT_URL=https://stock-market-seven-delta.app
 ```
 
-**Backend (Railway/Render Dashboard → Variables):**
+**Backend (EC2 `backend/.env`):**
 ```env
 FINNHUB_API_KEY=your_finnhub_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -177,9 +178,9 @@ GEMINI_CHAT_RATE_LIMIT=30
 GEMINI_CHAT_RATE_WINDOW_SECONDS=60
 GEMINI_CHAT_COMPLETION_MAX_RETRIES=4
 GEMINI_CHAT_MODERATION=0
-HOST=0.0.0.0
-PORT=$PORT
-FRONTEND_URL=https://your-app.vercel.app
+HOST=127.0.0.1
+PORT=8000
+FRONTEND_URL=https://stock-market-seven-delta.app
 ```
 
 ---
@@ -214,5 +215,5 @@ Before deployment, verify:
 
 ---
 
-**Last Updated:** 2026-05-09
+**Last Updated:** 2026-06-23
 

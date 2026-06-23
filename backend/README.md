@@ -145,9 +145,12 @@ backend/
 ├── websocket_manager.py    # Finnhub WebSocket connection handler
 ├── client_manager.py       # Next.js client connection manager
 ├── subscription_manager.py # Subscription logic and routing
+├── deploy/                 # AWS EC2 production configs
+│   ├── nginx.conf
+│   ├── stock-market.service
+│   └── README.md
 ├── requirements.txt        # Python dependencies
-├── .env.example           # Environment variables template
-└── README.md              # This file
+└── README.md               # This file
 ```
 
 ## How It Works
@@ -197,30 +200,40 @@ The `--reload` flag automatically restarts the server when you make code changes
 
 ### Production Deployment
 
-**Status:** ✅ **Deployed to Railway**
+**Status:** ✅ **Deployed to AWS EC2** (`eu-north-1`)
 
-The backend is configured for Railway deployment:
+| | |
+|--|--|
+| API | `https://api.stock-market-seven-delta.app` |
+| WebSocket | `wss://api.stock-market-seven-delta.app/ws` |
+| Health | `https://api.stock-market-seven-delta.app/health` |
+| Docs | `https://api.stock-market-seven-delta.app/docs` |
 
-1. **Railway Setup:**
-   - Root directory: `backend`
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `python main.py` or `uvicorn main:app --host 0.0.0.0 --port $PORT`
-   - Python version: 3.11+
+**Stack:** EC2 (`t3.small`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL
 
-2. **Environment Variables (Railway):**
+Deployment configs live in [`deploy/`](deploy/):
 
-   ```env
-   FINNHUB_API_KEY=your_finnhub_api_key_here
-   HOST=0.0.0.0
-   PORT=$PORT
-   FRONTEND_URL=https://your-app.vercel.app
-   ```
+- [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
+- [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
+- [`deploy/README.md`](deploy/README.md) — full EC2 setup and update instructions
 
-3. **Production URL:**
-   - Backend: `https://your-backend.railway.app` (Update with your actual URL)
-   - Health Check: `https://your-backend.railway.app/health`
-   - API Docs: `https://your-backend.railway.app/docs`
-   - WebSocket: `wss://your-backend.railway.app/ws`
+### Production environment (`backend/.env` on EC2)
+
+```env
+FINNHUB_API_KEY=your_finnhub_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+FRONTEND_URL=https://stock-market-seven-delta.app
+HOST=127.0.0.1
+PORT=8000
+```
+
+Use `127.0.0.1` in production — nginx is the only public entry point.
+
+### Local development
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
 ---
 
@@ -229,14 +242,24 @@ The backend is configured for Railway deployment:
 ### Required
 
 - `FINNHUB_API_KEY` - Finnhub API key for WebSocket connection
-- `FRONTEND_URL` - Frontend URL for CORS (production: Vercel URL)
-- `HOST` - Server host (use `0.0.0.0` for production)
-- `PORT` - Server port (usually provided by platform as `$PORT`)
+- `FRONTEND_URL` - Frontend URL for CORS (production: `https://stock-market-seven-delta.app`)
+- `GEMINI_API_KEY` - Enables `POST /ai/chat`
+
+### Production (EC2)
+
+- `HOST` - `127.0.0.1` (behind nginx)
+- `PORT` - `8000`
+
+### Development
+
+- `HOST` - `0.0.0.0`
+- `PORT` - `8000`
 
 ### Optional
 
 - `SUPABASE_URL` - Supabase URL (if implementing user filtering)
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (if implementing user filtering)
+- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
 
 ---
 
