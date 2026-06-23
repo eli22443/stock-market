@@ -74,8 +74,32 @@ sudo systemctl restart stock-market
 ```bash
 curl https://api.stock-market-seven-delta.app/health
 sudo systemctl status stock-market
+```
+
+## Live logs
+
+Watch backend output in real time (WebSocket connects, Finnhub, errors, restarts):
+
+```bash
 sudo journalctl -u stock-market -f
 ```
+
+Press `Ctrl+C` to stop following.
+
+Other useful commands:
+
+```bash
+# Last 100 lines
+sudo journalctl -u stock-market -n 100
+
+# Logs since last boot
+sudo journalctl -u stock-market -b
+
+# Logs from the last hour
+sudo journalctl -u stock-market --since "1 hour ago"
+```
+
+Logs come from uvicorn stdout/stderr via systemd. Use this after deploys or when debugging WebSocket issues.
 
 ## Vercel environment variables
 

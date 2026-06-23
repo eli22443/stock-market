@@ -229,6 +229,14 @@ PORT=8000
 
 Use `127.0.0.1` in production — nginx is the only public entry point.
 
+### Live logs (EC2)
+
+```bash
+sudo journalctl -u stock-market -f
+```
+
+See [`deploy/README.md`](deploy/README.md) for more logging commands.
+
 ### Local development
 
 ```bash
