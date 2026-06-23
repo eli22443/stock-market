@@ -213,9 +213,11 @@ The `--reload` flag automatically restarts the server when you make code changes
 
 Deployment configs live in [`deploy/`](deploy/):
 
+- [`deploy/README.md`](deploy/README.md) — SSH, setup, deploy, and logs
 - [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
 - [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
-- [`deploy/README.md`](deploy/README.md) — full EC2 setup and update instructions
+
+**SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
 
 ### Production environment (`backend/.env` on EC2)
 

@@ -2,6 +2,14 @@
 
 Backend runs on **EC2** in `eu-north-1` behind **nginx** with **Let's Encrypt** TLS.
 
+## Connect to EC2
+
+```bash
+ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app
+```
+
+Region: `eu-north-1` · User: `ec2-user` (Amazon Linux). Elastic IP is set in AWS Console (DNS `api` A record points to it).
+
 ## Production URLs
 
 | Service | URL |
@@ -54,7 +62,7 @@ sudo systemctl enable --now stock-market
 sudo cp deploy/nginx.conf /etc/nginx/conf.d/api.conf
 sudo nginx -t && sudo systemctl enable --now nginx
 
-# DNS: api.stock-market-seven-delta.app → Elastic IP (A record)
+# DNS: api.stock-market-seven-delta.app → your Elastic IP (A record, see AWS Console)
 # SSL (after DNS propagates)
 sudo certbot --nginx -d api.stock-market-seven-delta.app
 ```
