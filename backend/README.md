@@ -14,7 +14,7 @@ Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real
 
 ### 1. Install Python Dependencies
 
-Make sure you have Python 3.8+ installed, then:
+Make sure you have Python 3.11+ installed, then:
 
 ```bash
 cd backend
@@ -202,12 +202,12 @@ The `--reload` flag automatically restarts the server when you make code changes
 
 **Status:** ✅ **Deployed to AWS EC2** (`eu-north-1`)
 
-| | |
-|--|--|
-| API | `https://api.stock-market-seven-delta.app` |
-| WebSocket | `wss://api.stock-market-seven-delta.app/ws` |
-| Health | `https://api.stock-market-seven-delta.app/health` |
-| Docs | `https://api.stock-market-seven-delta.app/docs` |
+|           |                                                   |
+| --------- | ------------------------------------------------- |
+| API       | `https://api.stock-market-seven-delta.app`        |
+| WebSocket | `wss://api.stock-market-seven-delta.app/ws`       |
+| Health    | `https://api.stock-market-seven-delta.app/health` |
+| Docs      | `https://api.stock-market-seven-delta.app/docs`   |
 
 **Stack:** EC2 (`t3.small`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL
 
@@ -237,7 +237,7 @@ Use `127.0.0.1` in production — nginx is the only public entry point.
 sudo journalctl -u stock-market -f
 ```
 
-See [`deploy/README.md`](deploy/README.md) for more logging commands.
+See [`deploy/README.md`](deploy/README.md) for SSH, **sync to EC2**, setup, and logs.
 
 ### Local development
 

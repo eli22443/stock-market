@@ -77,6 +77,34 @@ pip install -r backend/requirements.txt
 sudo systemctl restart stock-market
 ```
 
+## Sync repo configs to EC2
+
+After `git pull`, copy nginx and systemd files from the repo to match production. Run on the server (SSH in first).
+
+```bash
+ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app
+
+cd ~/stock-market
+git pull
+
+# nginx + systemd from repo
+sudo cp backend/deploy/nginx.conf /etc/nginx/conf.d/api.conf
+sudo cp backend/deploy/stock-market.service /etc/systemd/system/stock-market.service
+
+sudo systemctl daemon-reload
+sudo nginx -t && sudo systemctl reload nginx
+sudo systemctl restart stock-market
+
+# SSL — (re)apply cert if nginx was overwritten; safe to re-run if cert already exists
+sudo certbot --nginx -d api.stock-market-seven-delta.app
+
+# Verify
+curl https://api.stock-market-seven-delta.app/health
+sudo systemctl status stock-market
+```
+
+**Note:** Copying `nginx.conf` replaces the HTTP-only block. Certbot adds HTTPS and redirect; run `certbot --nginx` after each nginx overwrite so port 443 keeps working.
+
 ## Verify
 
 ```bash
