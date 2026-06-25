@@ -36,6 +36,22 @@ Browser → wss://api.stock-market-seven-delta.app/ws → nginx :443 → uvicorn
 
 ## Initial setup (EC2)
 
+### Option A — automated ([`bootstrap.sh`](bootstrap.sh))
+
+Provisions packages, repo, venv, systemd, and nginx in one run. Idempotent.
+
+```bash
+# On the instance, after first SSH in
+git clone https://github.com/YOUR_USER/stock-market.git
+cd stock-market/backend/deploy
+chmod +x bootstrap.sh
+REPO_URL=https://github.com/YOUR_USER/stock-market.git ./bootstrap.sh
+```
+
+Then finish the manual steps the script prints: create `backend/.env`, confirm DNS, and run certbot.
+
+### Option B — manual
+
 ```bash
 # System packages
 sudo dnf update -y

@@ -214,6 +214,7 @@ The `--reload` flag automatically restarts the server when you make code changes
 Deployment configs live in [`deploy/`](deploy/):
 
 - [`deploy/README.md`](deploy/README.md) — SSH, setup, deploy, and logs
+- [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning script
 - [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
 - [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
 
