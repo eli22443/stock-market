@@ -128,6 +128,45 @@ sudo systemctl restart stock-market
 
 The generated file is `/home/ec2-user/stock-market/backend/.env` with mode `600`.
 
+## GitHub Actions CI/CD (OIDC + SSM)
+
+Backend deploys can run from GitHub Actions without SSH keys. The workflow uses GitHub OIDC to assume an AWS role, then calls SSM Run Command on the EC2 instance.
+
+Files:
+
+- [`../../.github/workflows/deploy-backend.yml`](../../.github/workflows/deploy-backend.yml) — workflow
+- [`iam/`](iam/) — IAM trust and permission policy templates
+
+One-time setup:
+
+1. Create or confirm the GitHub OIDC provider in AWS.
+2. Create `github-actions-deploy-role` using [`iam/github-actions-trust.json`](iam/github-actions-trust.json).
+3. Attach [`iam/github-actions-permissions.json`](iam/github-actions-permissions.json) to that role.
+4. Attach `AmazonSSMManagedInstanceCore` to the EC2 instance role.
+5. Attach [`iam/ec2-instance-permissions.json`](iam/ec2-instance-permissions.json) to the EC2 instance role so `fetch-env.sh` can read `/stock-market/prod/*`.
+6. In GitHub Actions variables, set these either at repository level or under the `production` environment:
+   - `AWS_DEPLOY_ROLE_ARN`
+   - `AWS_REGION`
+   - `EC2_INSTANCE_ID`
+
+Deploy triggers:
+
+- Push to `master` when files under `backend/**` change
+- Manual `workflow_dispatch`
+
+The remote deploy command runs:
+
+```bash
+cd /home/ec2-user/stock-market
+git pull --ff-only origin master
+backend/venv/bin/pip install -r backend/requirements.txt
+sudo systemctl restart stock-market-env
+sudo systemctl restart stock-market
+curl -fsS http://127.0.0.1:8000/health
+```
+
+See [`iam/README.md`](iam/README.md) for setup commands.
+
 ## Sync repo configs to EC2
 
 After `git pull`, copy nginx and systemd files from the repo to match production. Run on the server (SSH in first).

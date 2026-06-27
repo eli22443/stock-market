@@ -147,6 +147,7 @@ backend/
 ├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
 │   ├── fetch-env.sh
+│   ├── iam/                 # GitHub OIDC + EC2 IAM policy templates
 │   ├── nginx.conf
 │   ├── stock-market-env.service
 │   ├── stock-market.service
@@ -218,9 +219,12 @@ Deployment configs live in [`deploy/`](deploy/):
 - [`deploy/README.md`](deploy/README.md) — SSH, setup, deploy, and logs
 - [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning script
 - [`deploy/fetch-env.sh`](deploy/fetch-env.sh) — fetches production env from SSM Parameter Store
+- [`deploy/iam/`](deploy/iam/) — GitHub OIDC + SSM deployment IAM templates
 - [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
 - [`deploy/stock-market-env.service`](deploy/stock-market-env.service) — systemd oneshot that writes `.env`
 - [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
+
+CI/CD is handled by [`.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml): GitHub Actions assumes an AWS role with OIDC, then deploys through SSM Run Command.
 
 **SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
 
