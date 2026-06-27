@@ -4,7 +4,9 @@
 
 [Unit]
 Description=Stock Market Backend
-After=network.target
+Requires=stock-market-env.service
+After=network-online.target stock-market-env.service
+Wants=network-online.target
 
 [Service]
 User=ec2-user

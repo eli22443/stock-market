@@ -146,7 +146,9 @@ backend/
 ├── client_manager.py       # Next.js client connection manager
 ├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
+│   ├── fetch-env.sh
 │   ├── nginx.conf
+│   ├── stock-market-env.service
 │   ├── stock-market.service
 │   └── README.md
 ├── requirements.txt        # Python dependencies
@@ -215,12 +217,16 @@ Deployment configs live in [`deploy/`](deploy/):
 
 - [`deploy/README.md`](deploy/README.md) — SSH, setup, deploy, and logs
 - [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning script
+- [`deploy/fetch-env.sh`](deploy/fetch-env.sh) — fetches production env from SSM Parameter Store
 - [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
+- [`deploy/stock-market-env.service`](deploy/stock-market-env.service) — systemd oneshot that writes `.env`
 - [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
 
 **SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
 
 ### Production environment (`backend/.env` on EC2)
+
+Production `.env` is generated from AWS SSM Parameter Store by [`deploy/fetch-env.sh`](deploy/fetch-env.sh). Do not edit it manually except for emergency rollback.
 
 ```env
 FINNHUB_API_KEY=your_finnhub_api_key_here

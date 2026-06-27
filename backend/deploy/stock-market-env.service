@@ -1,0 +1,22 @@
+# Install: sudo cp stock-market-env.service /etc/systemd/system/stock-market-env.service
+# Then:  sudo systemctl daemon-reload
+#
+# This runs before stock-market.service and writes /home/ec2-user/stock-market/backend/.env
+# from AWS SSM Parameter Store.
+
+[Unit]
+Description=Fetch Stock Market Backend Environment From SSM
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ec2-user
+WorkingDirectory=/home/ec2-user/stock-market/backend
+Environment=AWS_REGION=eu-north-1
+Environment=SSM_PATH=/stock-market/prod/
+Environment=BACKEND_DIR=/home/ec2-user/stock-market/backend
+ExecStart=/home/ec2-user/stock-market/backend/deploy/fetch-env.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -48,14 +48,14 @@ chmod +x bootstrap.sh
 REPO_URL=https://github.com/YOUR_USER/stock-market.git ./bootstrap.sh
 ```
 
-Then finish the manual steps the script prints: create `backend/.env`, confirm DNS, and run certbot.
+Then finish the manual steps the script prints: create SSM parameters, confirm DNS, and run certbot.
 
 ### Option B — manual
 
 ```bash
 # System packages
 sudo dnf update -y
-sudo dnf install python3.11 nginx certbot python3-certbot-nginx git -y
+sudo dnf install python3.11 nginx certbot python3-certbot-nginx git awscli-2 -y
 
 # App
 cd ~
@@ -65,13 +65,15 @@ python3.11 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Environment (create .env with secrets — never commit)
-cp .env.example .env   # if example exists, else create manually
-# Set FRONTEND_URL=https://stock-market-seven-delta.app
+# Environment comes from AWS SSM Parameter Store.
+# See "SSM Parameter Store environment" below.
 
 # systemd
+chmod +x deploy/fetch-env.sh
+sudo cp deploy/stock-market-env.service /etc/systemd/system/stock-market-env.service
 sudo cp deploy/stock-market.service /etc/systemd/system/stock-market.service
 sudo systemctl daemon-reload
+sudo systemctl enable --now stock-market-env
 sudo systemctl enable --now stock-market
 
 # nginx
@@ -90,8 +92,41 @@ cd ~/stock-market
 git pull
 source backend/venv/bin/activate
 pip install -r backend/requirements.txt
+sudo systemctl restart stock-market-env
 sudo systemctl restart stock-market
 ```
+
+## SSM Parameter Store environment
+
+Production environment variables live in AWS SSM Parameter Store under `/stock-market/prod/`.
+The EC2 instance role must allow `ssm:GetParametersByPath` with decryption for that path.
+
+Create parameters in `eu-north-1`:
+
+```bash
+# Secrets
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/FINNHUB_API_KEY --type SecureString --value "REPLACE_ME"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_API_KEY --type SecureString --value "REPLACE_ME"
+
+# Non-secrets
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/FRONTEND_URL --type String --value "https://stock-market-seven-delta.app"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_MODEL --type String --value "gemini-3.1-flash-lite"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_RATE_LIMIT --type String --value "30"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_RATE_WINDOW_SECONDS --type String --value "60"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_COMPLETION_MAX_RETRIES --type String --value "4"
+aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_MODERATION --type String --value "0"
+```
+
+Rotate the current Finnhub and Gemini keys before storing them because they have existed in plaintext locally.
+
+Refresh `.env` on EC2 from SSM:
+
+```bash
+sudo systemctl restart stock-market-env
+sudo systemctl restart stock-market
+```
+
+The generated file is `/home/ec2-user/stock-market/backend/.env` with mode `600`.
 
 ## Sync repo configs to EC2
 
@@ -104,11 +139,14 @@ cd ~/stock-market
 git pull
 
 # nginx + systemd from repo
+chmod +x backend/deploy/fetch-env.sh
+sudo cp backend/deploy/stock-market-env.service /etc/systemd/system/stock-market-env.service
 sudo cp backend/deploy/nginx.conf /etc/nginx/conf.d/api.conf
 sudo cp backend/deploy/stock-market.service /etc/systemd/system/stock-market.service
 
 sudo systemctl daemon-reload
 sudo nginx -t && sudo systemctl reload nginx
+sudo systemctl restart stock-market-env
 sudo systemctl restart stock-market
 
 # SSL — (re)apply cert if nginx was overwritten; safe to re-run if cert already exists
@@ -162,6 +200,8 @@ NEXT_URL=https://stock-market-seven-delta.app
 ```
 
 ## EC2 environment variables (`backend/.env`)
+
+Do not edit this manually in production. It is generated from SSM by [`fetch-env.sh`](fetch-env.sh) via `stock-market-env.service`.
 
 ```env
 FINNHUB_API_KEY=...

@@ -9,12 +9,12 @@
 # Can also be pasted into EC2 "User data" at launch (runs as root; adjust HOME below).
 #
 # What it does:
-#   1. Installs Python 3.11, nginx, certbot, git
+#   1. Installs Python 3.11, nginx, certbot, git, AWS CLI
 #   2. Clones (or updates) the repo
 #   3. Creates a venv and installs requirements
-#   4. Installs the systemd service and nginx config from deploy/
-#   5. Starts services
-#   6. Prints next steps (.env + certbot)
+#   4. Installs SSM env fetcher, the app systemd service, and nginx config
+#   5. Starts services if SSM parameters/IAM are ready
+#   6. Prints next steps (SSM parameters + certbot)
 #
 # It is idempotent — safe to re-run.
 
@@ -31,7 +31,7 @@ VENV_DIR="${BACKEND_DIR}/venv"
 
 echo "==> Installing system packages"
 sudo dnf update -y
-sudo dnf install -y python3.11 nginx certbot python3-certbot-nginx git
+sudo dnf install -y python3.11 nginx certbot python3-certbot-nginx git awscli-2
 
 echo "==> Cloning / updating repo"
 if [ -d "${REPO_DIR}/.git" ]; then
@@ -48,8 +48,11 @@ fi
 "${VENV_DIR}/bin/pip" install -r "${BACKEND_DIR}/requirements.txt"
 
 echo "==> Installing systemd service"
+chmod +x "${BACKEND_DIR}/deploy/fetch-env.sh"
 sudo cp "${BACKEND_DIR}/deploy/stock-market.service" /etc/systemd/system/stock-market.service
+sudo cp "${BACKEND_DIR}/deploy/stock-market-env.service" /etc/systemd/system/stock-market-env.service
 sudo systemctl daemon-reload
+sudo systemctl enable stock-market-env
 sudo systemctl enable stock-market
 
 echo "==> Installing nginx config"
@@ -58,11 +61,12 @@ sudo nginx -t
 sudo systemctl enable nginx
 
 echo "==> Starting services"
-if [ -f "${BACKEND_DIR}/.env" ]; then
+if sudo systemctl start stock-market-env; then
   sudo systemctl restart stock-market
 else
-  echo "    !! ${BACKEND_DIR}/.env not found — backend will fail to start until it exists."
-  echo "       Create it (see below), then: sudo systemctl restart stock-market"
+  echo "    !! Could not fetch env from SSM Parameter Store."
+  echo "       Ensure the EC2 IAM role can read /stock-market/prod/* and parameters exist."
+  echo "       Then run: sudo systemctl restart stock-market"
 fi
 sudo systemctl restart nginx
 
@@ -73,16 +77,17 @@ Bootstrap complete.
 
 Remaining manual steps:
 
-1) Create the backend environment file (never commit this):
-   nano ${BACKEND_DIR}/.env
+1) Create production environment variables in SSM Parameter Store:
 
-   FINNHUB_API_KEY=...
-   GEMINI_API_KEY=...
-   FRONTEND_URL=https://stock-market-seven-delta.app
-   HOST=127.0.0.1
-   PORT=8000
+   /stock-market/prod/FINNHUB_API_KEY        SecureString
+   /stock-market/prod/GEMINI_API_KEY         SecureString
+   /stock-market/prod/FRONTEND_URL           String
+   /stock-market/prod/GEMINI_CHAT_MODEL      String
+   /stock-market/prod/GEMINI_CHAT_RATE_LIMIT String
 
-   Then: sudo systemctl restart stock-market
+   Then refresh the server env:
+   sudo systemctl restart stock-market-env
+   sudo systemctl restart stock-market
 
 2) Ensure DNS A record points to this instance's Elastic IP:
    ${DOMAIN} -> <Elastic IP>
