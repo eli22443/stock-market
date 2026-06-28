@@ -41,7 +41,6 @@ jobs:
 
               "sudo systemctl restart stock-market-env",
 
-              "sudo -u ec2-user /home/ec2-user/stock-market/backend/venv/bin/pip install --upgrade pip",
               "sudo -u ec2-user /home/ec2-user/stock-market/backend/venv/bin/pip install -r /home/ec2-user/stock-market/backend/requirements.txt",
 
               "sudo systemctl daemon-reload",
