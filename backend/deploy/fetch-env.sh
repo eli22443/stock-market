@@ -11,6 +11,7 @@
 
 set -euo pipefail
 
+
 AWS_REGION="${AWS_REGION:-eu-north-1}"
 SSM_PATH="${SSM_PATH:-/stock-market/prod/}"
 BACKEND_DIR="${BACKEND_DIR:-/home/ec2-user/stock-market/backend}"
