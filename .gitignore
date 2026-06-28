@@ -52,3 +52,4 @@ next-env.d.ts
 *.temp
 markdown/
 backend/test/
+BACKUP/
