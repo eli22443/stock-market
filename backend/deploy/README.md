@@ -87,6 +87,18 @@ sudo certbot --nginx -d api.stock-market-seven-delta.app
 
 ## Deploy updates
 
+### Primary — GitHub Actions (no SSH)
+
+Push to `master` with changes under `backend/**` triggers [`.github/workflows/deploy-backend.yml`](../../.github/workflows/deploy-backend.yml).
+
+Requires GitHub Actions variables: `AWS_DEPLOY_ROLE_ARN`, `AWS_REGION`, `EC2_INSTANCE_ID`. See [`iam/README.md`](iam/README.md).
+
+You can also run the workflow manually via **Actions → Deploy Backend → Run workflow**.
+
+The remote command: `git reset --hard origin/master`, refresh env from SSM, `pip install`, restart services, health check.
+
+### Manual — SSH fallback
+
 ```bash
 cd ~/stock-market
 git pull
@@ -101,20 +113,20 @@ sudo systemctl restart stock-market
 Production environment variables live in AWS SSM Parameter Store under `/stock-market/prod/`.
 The EC2 instance role must allow `ssm:GetParametersByPath` with decryption for that path.
 
-Create parameters in `eu-north-1`:
+Create parameters (replace `$AWS_REGION` with your region, e.g. `eu-north-1`):
 
 ```bash
 # Secrets
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/FINNHUB_API_KEY --type SecureString --value "REPLACE_ME"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_API_KEY --type SecureString --value "REPLACE_ME"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/FINNHUB_API_KEY --type SecureString --value "REPLACE_ME"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_API_KEY --type SecureString --value "REPLACE_ME"
 
 # Non-secrets
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/FRONTEND_URL --type String --value "https://stock-market-seven-delta.app"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_MODEL --type String --value "gemini-3.1-flash-lite"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_RATE_LIMIT --type String --value "30"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_RATE_WINDOW_SECONDS --type String --value "60"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_COMPLETION_MAX_RETRIES --type String --value "4"
-aws ssm put-parameter --region eu-north-1 --name /stock-market/prod/GEMINI_CHAT_MODERATION --type String --value "0"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/FRONTEND_URL --type String --value "https://stock-market-seven-delta.app"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_MODEL --type String --value "gemini-3.1-flash-lite"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_RATE_LIMIT --type String --value "30"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_RATE_WINDOW_SECONDS --type String --value "60"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_COMPLETION_MAX_RETRIES --type String --value "4"
+aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_MODERATION --type String --value "0"
 ```
 
 Rotate the current Finnhub and Gemini keys before storing them because they have existed in plaintext locally.
@@ -157,13 +169,14 @@ Deploy triggers:
 The remote deploy command runs:
 
 ```bash
-cd /home/ec2-user/stock-market
-git pull --ff-only origin master
-backend/venv/bin/pip install -r backend/requirements.txt
+cd /home/ec2-user/stock-market && git fetch origin && git reset --hard origin/master
 sudo systemctl restart stock-market-env
+pip install -r backend/requirements.txt
 sudo systemctl restart stock-market
-curl -fsS http://127.0.0.1:8000/health
+curl -fsS http://127.0.0.1:8000/health   # retried up to 15 times
 ```
+
+Optional: [`.github/workflows/test-oidc.yml`](../../.github/workflows/test-oidc.yml) verifies OIDC role assumption and EC2 describe access.
 
 See [`iam/README.md`](iam/README.md) for setup commands.
 

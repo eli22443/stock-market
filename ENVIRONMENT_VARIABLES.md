@@ -169,7 +169,34 @@ BACKEND_URL=https://api.stock-market-seven-delta.app
 NEXT_URL=https://stock-market-seven-delta.app
 ```
 
-**Backend (EC2 `backend/.env`):**
+**Backend (AWS SSM Parameter Store — path `/stock-market/prod/`):**
+
+Production secrets and config live in SSM, not in git. On EC2, [`backend/deploy/fetch-env.sh`](backend/deploy/fetch-env.sh) writes `backend/.env` at boot and on each deploy restart.
+
+| SSM parameter | Type | Notes |
+|---------------|------|-------|
+| `FINNHUB_API_KEY` | SecureString | Required |
+| `GEMINI_API_KEY` | SecureString | Required |
+| `FRONTEND_URL` | String | e.g. `https://stock-market-seven-delta.app` |
+| `GEMINI_CHAT_MODEL` | String | Optional tuning |
+| `GEMINI_CHAT_RATE_LIMIT` | String | Optional tuning |
+| `GEMINI_CHAT_RATE_WINDOW_SECONDS` | String | Optional tuning |
+| `GEMINI_CHAT_COMPLETION_MAX_RETRIES` | String | Optional tuning |
+| `GEMINI_CHAT_MODERATION` | String | Optional tuning |
+
+`HOST=127.0.0.1` and `PORT=8000` are appended by `fetch-env.sh` (not stored in SSM).
+
+**GitHub Actions (repository variables — for CI/CD deploy, not app secrets):**
+
+| Variable | Purpose |
+|----------|---------|
+| `AWS_DEPLOY_ROLE_ARN` | OIDC deploy role ARN |
+| `AWS_REGION` | Region for SSM commands |
+| `EC2_INSTANCE_ID` | Target EC2 instance |
+
+See [`backend/deploy/iam/README.md`](backend/deploy/iam/README.md) for setup.
+
+**Backend (EC2 `backend/.env` — generated, do not edit manually):**
 ```env
 FINNHUB_API_KEY=your_finnhub_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -215,5 +242,5 @@ Before deployment, verify:
 
 ---
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-06-28
 

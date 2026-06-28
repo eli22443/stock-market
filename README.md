@@ -121,15 +121,11 @@ stock-market/
 │
 ├── backend/               # Python FastAPI backend
 │   ├── main.py          # FastAPI application
-│   ├── deploy/          # EC2 nginx, systemd configs
+│   ├── deploy/          # EC2 nginx, systemd, bootstrap, IAM templates
 │   ├── websocket_manager.py    # Finnhub WebSocket handler
 │   ├── client_manager.py        # Client connection manager
 │   ├── subscription_manager.py  # Subscription logic
 │   └── requirements.txt         # Python dependencies
-│
-├── markdown/             # Documentation
-│   ├── DEPLOYMENT_PLAN.md
-│   └── deploy/          # Deployment documentation
 │
 └── README.md            # This file
 ```
@@ -214,6 +210,7 @@ The core feature of this application is comprehensive portfolio management:
 
 - ✅ **Frontend**: Deployed to Vercel → `https://stock-market-seven-delta.app`
 - ✅ **Backend**: Deployed to AWS EC2 (`eu-north-1`) → `https://api.stock-market-seven-delta.app`
+- ✅ **Backend CI/CD**: GitHub Actions → OIDC → SSM Run Command (push to `master` under `backend/**`)
 - ✅ **Database**: Supabase (Production)
 
 ### Production URLs
@@ -227,6 +224,7 @@ The core feature of this application is comprehensive portfolio management:
 
 - **[Frontend README](frontend/README.md)**: Frontend setup and documentation
 - **[Backend README](backend/README.md)**: Backend setup and documentation
+- **[Backend Deploy Guide](backend/deploy/README.md)**: EC2 provisioning, SSM secrets, CI/CD, logs
 - **[Environment Variables](ENVIRONMENT_VARIABLES.md)**: Environment variable documentation
 
 ## 🔧 Development

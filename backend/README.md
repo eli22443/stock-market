@@ -146,6 +146,7 @@ backend/
 ├── client_manager.py       # Next.js client connection manager
 ├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
+│   ├── bootstrap.sh         # One-time EC2 provisioning (packages, venv, systemd, nginx)
 │   ├── fetch-env.sh
 │   ├── iam/                 # GitHub OIDC + EC2 IAM policy templates
 │   ├── nginx.conf
@@ -224,7 +225,9 @@ Deployment configs live in [`deploy/`](deploy/):
 - [`deploy/stock-market-env.service`](deploy/stock-market-env.service) — systemd oneshot that writes `.env`
 - [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
 
-CI/CD is handled by [`.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml): GitHub Actions assumes an AWS role with OIDC, then deploys through SSM Run Command.
+CI/CD is handled by [`.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml): GitHub Actions assumes an AWS role via OIDC (`AWS_DEPLOY_ROLE_ARN`), then deploys through SSM Run Command to the instance (`EC2_INSTANCE_ID` in `AWS_REGION`). See [`deploy/iam/README.md`](deploy/iam/README.md) for one-time IAM setup.
+
+Manual deploy (SSH fallback): see [`deploy/README.md`](deploy/README.md).
 
 **SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
 
