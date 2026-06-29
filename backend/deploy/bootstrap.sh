@@ -9,12 +9,13 @@
 # Can also be pasted into EC2 "User data" at launch (runs as root; adjust HOME below).
 #
 # What it does:
-#   1. Installs Python 3.11, nginx, certbot, git, AWS CLI
-#   2. Clones (or updates) the repo
-#   3. Creates a venv and installs requirements
-#   4. Installs SSM env fetcher, the app systemd service, and nginx config
-#   5. Starts services if SSM parameters/IAM are ready
-#   6. Prints next steps (SSM parameters + certbot)
+#   1. Creates a 2 GB swap file (OOM safety net for t3.micro)
+#   2. Installs Python 3.11, nginx, certbot, git, AWS CLI
+#   3. Clones (or updates) the repo
+#   4. Creates a venv and installs requirements
+#   5. Installs SSM env fetcher, the app systemd service, and nginx config
+#   6. Starts services if SSM parameters/IAM are ready
+#   7. Prints next steps (SSM parameters + certbot)
 #
 # It is idempotent — safe to re-run.
 
@@ -28,6 +29,25 @@ APP_HOME="${APP_HOME:-/home/${APP_USER}}"
 REPO_DIR="${APP_HOME}/stock-market"
 BACKEND_DIR="${REPO_DIR}/backend"
 VENV_DIR="${BACKEND_DIR}/venv"
+SWAP_FILE="${SWAP_FILE:-/swapfile}"
+SWAP_SIZE="${SWAP_SIZE:-2G}"
+SWAPPINESS="${SWAPPINESS:-10}"
+
+echo "==> Configuring ${SWAP_SIZE} swap (OOM safety net for t3.micro)"
+if ! sudo swapon --show | grep -q "${SWAP_FILE}"; then
+  if [ ! -f "${SWAP_FILE}" ]; then
+    sudo fallocate -l "${SWAP_SIZE}" "${SWAP_FILE}" \
+      || sudo dd if=/dev/zero of="${SWAP_FILE}" bs=1M count=2048
+    sudo chmod 600 "${SWAP_FILE}"
+    sudo mkswap "${SWAP_FILE}"
+  fi
+  sudo swapon "${SWAP_FILE}"
+fi
+if ! grep -q "^${SWAP_FILE} " /etc/fstab; then
+  echo "${SWAP_FILE} none swap sw 0 0" | sudo tee -a /etc/fstab
+fi
+sudo sysctl -w "vm.swappiness=${SWAPPINESS}"
+echo "vm.swappiness=${SWAPPINESS}" | sudo tee /etc/sysctl.d/99-swappiness.conf
 
 echo "==> Installing system packages"
 sudo dnf update -y
