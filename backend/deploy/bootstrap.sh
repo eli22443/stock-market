@@ -14,8 +14,9 @@
 #   3. Clones (or updates) the repo
 #   4. Creates a venv and installs requirements
 #   5. Installs SSM env fetcher, the app systemd service, and nginx config
-#   6. Starts services if SSM parameters/IAM are ready
-#   7. Prints next steps (SSM parameters + certbot)
+#   6. Installs and starts the CloudWatch agent (metrics + nginx logs)
+#   7. Starts services if SSM parameters/IAM are ready
+#   8. Prints next steps (SSM parameters + certbot)
 #
 # It is idempotent — safe to re-run.
 
@@ -79,6 +80,19 @@ echo "==> Installing nginx config"
 sudo cp "${BACKEND_DIR}/deploy/nginx.conf" /etc/nginx/conf.d/api.conf
 sudo nginx -t
 sudo systemctl enable nginx
+
+echo "==> Installing CloudWatch agent"
+sudo dnf install -y amazon-cloudwatch-agent
+sudo cp "${BACKEND_DIR}/deploy/cloudwatch-agent.json" \
+  /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+if sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json; then
+  echo "    CloudWatch agent started."
+else
+  echo "    !! CloudWatch agent failed to start."
+  echo "       Ensure the EC2 IAM role has CloudWatchAgentServerPolicy, then re-run the fetch-config command."
+fi
 
 echo "==> Starting services"
 if sudo systemctl start stock-market-env; then

@@ -243,6 +243,46 @@ sudo journalctl -u stock-market --since "1 hour ago"
 
 Logs come from uvicorn stdout/stderr via systemd. Use this after deploys or when debugging WebSocket issues.
 
+## CloudWatch monitoring
+
+EC2 does not report memory by default, which is the metric that matters most on `t3.micro`. The CloudWatch agent ships memory, swap, disk, and CPU metrics plus nginx logs; alarms email you through SNS.
+
+### Agent (automated by `bootstrap.sh`)
+
+[`bootstrap.sh`](bootstrap.sh) installs `amazon-cloudwatch-agent` and loads [`cloudwatch-agent.json`](cloudwatch-agent.json):
+
+- Metrics namespace `StockMarket/Backend`: `mem_used_percent`, `swap_used_percent`, `disk_used_percent` (root), CPU — aggregated by `InstanceId`.
+- Logs: `/var/log/nginx/access.log` and `error.log` into log group `/stock-market/nginx` (14-day retention).
+- App logs stay in journald (`journalctl -u stock-market -f`).
+
+Apply or refresh on a running instance:
+
+```bash
+sudo dnf install -y amazon-cloudwatch-agent
+sudo cp ~/stock-market/backend/deploy/cloudwatch-agent.json \
+  /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+```
+
+The EC2 instance role must have `CloudWatchAgentServerPolicy` (see [`iam/README.md`](iam/README.md)).
+
+### Alarms + SNS (run from your workstation)
+
+[`cloudwatch-alarms.sh`](cloudwatch-alarms.sh) creates the SNS topic, email subscription, and alarms. Nothing is hardcoded — pass your values via env:
+
+```bash
+AWS_REGION=eu-north-1 \
+INSTANCE_ID=i-xxxxxxxxxxxxxxxxx \
+ALERT_EMAIL=you@example.com \
+./cloudwatch-alarms.sh
+```
+
+Then confirm the subscription from the email AWS sends, or notifications are silently dropped.
+
+Alarms created: memory > 85% (5 min), disk > 85%, CPU > 80% (10 min), low CPU credit balance, and EC2 status-check failed.
+
 ## Vercel environment variables
 
 ```env

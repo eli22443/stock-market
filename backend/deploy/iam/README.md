@@ -59,8 +59,8 @@ aws iam get-role \
 
 Attach these managed policies to the EC2 instance role:
 
-- `AmazonSSMManagedInstanceCore`
-- Later for CloudWatch: `CloudWatchAgentServerPolicy`
+- `AmazonSSMManagedInstanceCore` (SSM Run Command + agent)
+- `CloudWatchAgentServerPolicy` (lets the CloudWatch agent publish metrics + logs)
 
 Add the inline policy from `ec2-instance-permissions.json` to the EC2 instance role:
 
