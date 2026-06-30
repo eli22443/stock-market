@@ -18,7 +18,7 @@
 # Usage:
 #   AWS_REGION=eu-north-1 INSTANCE_ID=i-... ALERT_EMAIL=you@example.com ./cloudwatch-alarms.sh
 
-set -euo pipefail 
+set -euo pipefail
 
 : "${AWS_REGION:?Set AWS_REGION}"
 : "${INSTANCE_ID:?Set INSTANCE_ID}"
