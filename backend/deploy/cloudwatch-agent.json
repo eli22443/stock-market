@@ -1,52 +1,31 @@
 {
   "agent": {
     "metrics_collection_interval": 60,
-    "run_as_user": "cwagent"
+    "run_as_user": "root"
   },
   "metrics": {
     "namespace": "StockMarket/Backend",
     "append_dimensions": {
       "InstanceId": "${aws:InstanceId}"
     },
-    "aggregation_dimensions": [
-      [
-        "InstanceId"
-      ]
-    ],
+    "aggregation_dimensions": [["InstanceId"]],
     "metrics_collected": {
       "mem": {
-        "measurement": [
-          "mem_used_percent"
-        ],
+        "measurement": ["mem_used_percent"],
         "metrics_collection_interval": 60
       },
       "swap": {
-        "measurement": [
-          "swap_used_percent"
-        ],
+        "measurement": ["swap_used_percent"],
         "metrics_collection_interval": 60
       },
       "disk": {
-        "measurement": [
-          "disk_used_percent"
-        ],
-        "resources": [
-          "/"
-        ],
-        "ignore_file_system_types": [
-          "sysfs",
-          "tmpfs",
-          "devtmpfs",
-          "overlay"
-        ],
+        "measurement": ["disk_used_percent"],
+        "resources": ["/"],
+        "ignore_file_system_types": ["sysfs", "tmpfs", "devtmpfs", "overlay"],
         "metrics_collection_interval": 60
       },
       "cpu": {
-        "measurement": [
-          "cpu_usage_idle",
-          "cpu_usage_user",
-          "cpu_usage_system"
-        ],
+        "measurement": ["cpu_usage_idle", "cpu_usage_user", "cpu_usage_system"],
         "totalcpu": true,
         "metrics_collection_interval": 60
       }
