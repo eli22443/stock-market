@@ -190,7 +190,7 @@ The app is configured for Vercel deployment:
 
 **Status:** ✅ Deployed to Vercel → `https://stock-market-seven-delta.app`
 
-**Backend:** AWS EC2 → `https://api.stock-market-seven-delta.app` (deploys via GitHub Actions + SSM; see [`backend/deploy/README.md`](../backend/deploy/README.md))
+**Backend:** AWS EC2 (`t3.micro`) → `https://api.stock-market-seven-delta.app` (GitHub Actions + SSM deploy; CloudWatch monitoring — see [`backend/deploy/README.md`](../backend/deploy/README.md))
 
 Production WebSocket URL: `wss://api.stock-market-seven-delta.app/ws`
 

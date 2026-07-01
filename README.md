@@ -40,8 +40,9 @@ A full-stack real-time stock market tracking and portfolio management applicatio
 │     - Real-time WebSocket client                        │
 │                                                         │
 │  Backend (Python FastAPI)                               │
-│  └─ AWS EC2 (eu-north-1) + nginx + Let's Encrypt      │
+│  └─ AWS EC2 (eu-north-1, t3.micro) + nginx + Let's Encrypt
 │     - api.stock-market-seven-delta.app                  │
+│     - SSM secrets, GitHub OIDC deploy, CloudWatch       │
 │     - WebSocket server for real-time data               │
 │     - Finnhub WebSocket integration                     │
 │                                                         │
@@ -209,8 +210,9 @@ The core feature of this application is comprehensive portfolio management:
 **Status:** ✅ **DEPLOYED**
 
 - ✅ **Frontend**: Deployed to Vercel → `https://stock-market-seven-delta.app`
-- ✅ **Backend**: Deployed to AWS EC2 (`eu-north-1`) → `https://api.stock-market-seven-delta.app`
+- ✅ **Backend**: Deployed to AWS EC2 (`eu-north-1`, `t3.micro`) → `https://api.stock-market-seven-delta.app`
 - ✅ **Backend CI/CD**: GitHub Actions → OIDC → SSM Run Command (push to `master` under `backend/**`)
+- ✅ **Backend monitoring**: CloudWatch metrics (`StockMarket/Backend`), nginx logs, SNS alarms
 - ✅ **Database**: Supabase (Production)
 
 ### Production URLs

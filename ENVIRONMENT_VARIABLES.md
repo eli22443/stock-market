@@ -178,6 +178,8 @@ Production secrets and config live in SSM, not in git. On EC2, [`backend/deploy/
 | `FINNHUB_API_KEY` | SecureString | Required |
 | `GEMINI_API_KEY` | SecureString | Required |
 | `FRONTEND_URL` | String | e.g. `https://stock-market-seven-delta.app` |
+| `SUPABASE_URL` | SecureString | Optional (if backend uses Supabase server-side) |
+| `SUPABASE_KEY` | SecureString | Optional (service role or anon key for backend) |
 | `GEMINI_CHAT_MODEL` | String | Optional tuning |
 | `GEMINI_CHAT_RATE_LIMIT` | String | Optional tuning |
 | `GEMINI_CHAT_RATE_WINDOW_SECONDS` | String | Optional tuning |
@@ -215,10 +217,12 @@ FRONTEND_URL=https://stock-market-seven-delta.app
 ## Security Notes
 
 1. **Never commit `.env` files to Git** - They are already in `.gitignore`
-2. **Use different API keys for development and production**
-3. **`NEXT_PUBLIC_*` variables are exposed to the browser** - Don't put secrets in them
-4. **Service role keys have admin access** - Keep them secure and server-side only
-5. **Rotate API keys regularly** - Especially if exposed or compromised
+2. **Production secrets live in SSM Parameter Store** — not in GitHub Secrets or the repo
+3. **GitHub Actions uses OIDC + IAM roles** — no long-lived `AWS_ACCESS_KEY_ID` in CI
+4. **Use different API keys for development and production**
+5. **`NEXT_PUBLIC_*` variables are exposed to the browser** - Don't put secrets in them
+6. **Service role keys have admin access** - Keep them secure and server-side only
+7. **Rotate API keys regularly** - Especially if exposed or compromised
 
 ---
 
@@ -242,5 +246,5 @@ Before deployment, verify:
 
 ---
 
-**Last Updated:** 2026-06-28
+**Last Updated:** 2026-06-30
 

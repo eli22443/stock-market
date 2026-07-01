@@ -1,6 +1,21 @@
 # AWS EC2 Deployment (Production)
 
-Backend runs on **EC2** in `eu-north-1` behind **nginx** with **Let's Encrypt** TLS.
+Backend runs on **EC2** (`t3.micro`, `eu-north-1`) behind **nginx** with **Let's Encrypt** TLS. Full stack is live: SSM secrets, GitHub OIDC CI/CD, CloudWatch metrics/logs/alarms.
+
+## Current infrastructure (live)
+
+| Layer | Implementation |
+|-------|----------------|
+| Compute | EC2 Amazon Linux 2023, `t3.micro`, Elastic IP, 2 GB swap |
+| TLS / proxy | nginx :443, Certbot; uvicorn on `127.0.0.1:8000` only |
+| App service | `stock-market.service` — `python -u -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1`, `Restart=always` |
+| Secrets | SSM Parameter Store `/stock-market/prod/*` → `fetch-env.sh` → `backend/.env` (via `stock-market-env.service`) |
+| Deploy | GitHub Actions → OIDC → SSM Run Command (no SSH, no AWS keys in GitHub) |
+| IAM | EC2 role: `AmazonSSMManagedInstanceCore`, `CloudWatchAgentServerPolicy`, SSM read; GitHub role: OIDC trust on `master` |
+| Monitoring | CloudWatch agent → `StockMarket/Backend` metrics + `/stock-market/nginx` logs; SNS alarms (email confirmed) |
+| Security | SG 22/80/443 only; no secrets in git; least-privilege IAM |
+
+Deploy scripts in this directory: `bootstrap.sh`, `fetch-env.sh`, `cloudwatch-agent.json`, `cloudwatch-alarms.sh`. Shell scripts use **LF line endings** (`.gitattributes`: `*.sh text eol=lf`).
 
 ## Connect to EC2
 
@@ -30,7 +45,7 @@ Browser → wss://api.stock-market-seven-delta.app/ws → nginx :443 → uvicorn
 
 - Amazon Linux 2023
 - Python 3.11+
-- `t3.small` (or `t3.micro` for low traffic)
+- **`t3.micro`** (current production; 2 GB swap configured in `bootstrap.sh`)
 - Elastic IP attached
 - Security group: **22**, **80**, **443** only (do not expose port 8000)
 
@@ -111,7 +126,10 @@ sudo systemctl restart stock-market
 ## SSM Parameter Store environment
 
 Production environment variables live in AWS SSM Parameter Store under `/stock-market/prod/`.
+`fetch-env.sh` downloads all parameters recursively and writes `backend/.env` (mode `600`).
 The EC2 instance role must allow `ssm:GetParametersByPath` with decryption for that path.
+
+Examples (add others as needed — `SUPABASE_URL`, `SUPABASE_KEY`, etc.):
 
 Create parameters (replace `$AWS_REGION` with your region, e.g. `eu-north-1`):
 
@@ -119,6 +137,9 @@ Create parameters (replace `$AWS_REGION` with your region, e.g. `eu-north-1`):
 # Secrets
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/FINNHUB_API_KEY --type SecureString --value "REPLACE_ME"
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_API_KEY --type SecureString --value "REPLACE_ME"
+# Optional backend Supabase vars (if used server-side)
+# aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/SUPABASE_URL --type SecureString --value "REPLACE_ME"
+# aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/SUPABASE_KEY --type SecureString --value "REPLACE_ME"
 
 # Non-secrets
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/FRONTEND_URL --type String --value "https://stock-market-seven-delta.app"
@@ -243,22 +264,23 @@ sudo journalctl -u stock-market --since "1 hour ago"
 
 Logs come from uvicorn stdout/stderr via systemd. Use this after deploys or when debugging WebSocket issues.
 
-## CloudWatch monitoring
+## CloudWatch monitoring (live)
 
-EC2 does not report memory by default, which is the metric that matters most on `t3.micro`. The CloudWatch agent ships memory, swap, disk, and CPU metrics plus nginx logs; alarms email you through SNS.
+EC2 does not report memory by default — the CloudWatch agent fills that gap on `t3.micro`. Metrics, nginx logs, and SNS alarms are deployed and working.
 
-### Agent (automated by `bootstrap.sh`)
+### Agent
 
 [`bootstrap.sh`](bootstrap.sh) installs `amazon-cloudwatch-agent` and loads [`cloudwatch-agent.json`](cloudwatch-agent.json):
 
-- Metrics namespace `StockMarket/Backend`: `mem_used_percent`, `swap_used_percent`, `disk_used_percent` (root), CPU — aggregated by `InstanceId`.
-- Logs: `/var/log/nginx/access.log` and `error.log` into log group `/stock-market/nginx` (14-day retention).
-- App logs stay in journald (`journalctl -u stock-market -f`).
+- **Metrics** (namespace `StockMarket/Backend`, by `InstanceId`): `mem_used_percent`, `swap_used_percent`, `disk_used_percent`, CPU.
+- **Logs**: `/var/log/nginx/access.log` and `error.log` → `/stock-market/nginx` (14-day retention).
+- **App logs**: journald only (`journalctl -u stock-market -f`).
 
-Apply or refresh on a running instance:
+**Important:** the agent runs as **`root`** (`run_as_user` in the config). Amazon Linux protects nginx log files; running as `cwagent` caused `permission denied` on `/var/log/nginx/access.log`.
+
+Refresh agent config on a running instance:
 
 ```bash
-sudo dnf install -y amazon-cloudwatch-agent
 sudo cp ~/stock-market/backend/deploy/cloudwatch-agent.json \
   /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
@@ -266,11 +288,11 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 ```
 
-The EC2 instance role must have `CloudWatchAgentServerPolicy` (see [`iam/README.md`](iam/README.md)).
+EC2 instance role needs `CloudWatchAgentServerPolicy` ([`iam/README.md`](iam/README.md)).
 
-### Alarms + SNS (run from your workstation)
+### Alarms + SNS
 
-[`cloudwatch-alarms.sh`](cloudwatch-alarms.sh) creates the SNS topic, email subscription, and alarms. Nothing is hardcoded — pass your values via env:
+Created with [`cloudwatch-alarms.sh`](cloudwatch-alarms.sh) (run from your workstation):
 
 ```bash
 AWS_REGION=eu-north-1 \
@@ -279,9 +301,32 @@ ALERT_EMAIL=you@example.com \
 ./cloudwatch-alarms.sh
 ```
 
-Then confirm the subscription from the email AWS sends, or notifications are silently dropped.
+SNS topic `stock-market-alerts` — **confirm the subscription email** or alarms are silent.
 
-Alarms created: memory > 85% (5 min), disk > 85%, CPU > 80% (10 min), low CPU credit balance, and EC2 status-check failed.
+| Alarm | Trigger |
+|-------|---------|
+| `stock-market-mem-high` | Memory > 85% for 5 min |
+| `stock-market-disk-high` | Root disk > 85% |
+| `stock-market-cpu-high` | CPU > 80% for 10 min |
+| `stock-market-cpu-credits-low` | CPU credit balance < 20 |
+| `stock-market-status-check-failed` | EC2 status check failed |
+
+## Security summary
+
+- Backend bound to `127.0.0.1:8000`; public traffic only through nginx (HTTPS).
+- Secrets in SSM Parameter Store; none in GitHub.
+- IAM roles only — no `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` on EC2 or in GitHub.
+- GitHub OIDC with branch-scoped trust (`master`).
+- Deploy via SSM Run Command instead of SSH.
+
+## Next planned improvements
+
+- Ship FastAPI / systemd logs to CloudWatch (optional)
+- Automatic rollback if deploy health check fails
+- Staging environment
+- Dockerize backend; ECS/Fargate
+- Terraform / CloudFormation
+- Auto-resize Lambda on sustained memory pressure (see plan Part 5)
 
 ## Vercel environment variables
 

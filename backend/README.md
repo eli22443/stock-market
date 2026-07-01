@@ -146,7 +146,9 @@ backend/
 ├── client_manager.py       # Next.js client connection manager
 ├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
-│   ├── bootstrap.sh         # One-time EC2 provisioning (packages, venv, systemd, nginx)
+│   ├── bootstrap.sh         # One-time EC2 provisioning (swap, packages, agent, systemd, nginx)
+│   ├── cloudwatch-agent.json
+│   ├── cloudwatch-alarms.sh
 │   ├── fetch-env.sh
 │   ├── iam/                 # GitHub OIDC + EC2 IAM policy templates
 │   ├── nginx.conf
@@ -213,13 +215,15 @@ The `--reload` flag automatically restarts the server when you make code changes
 | Health    | `https://api.stock-market-seven-delta.app/health` |
 | Docs      | `https://api.stock-market-seven-delta.app/docs`   |
 
-**Stack:** EC2 (`t3.small`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL
+**Stack:** EC2 (`t3.micro`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL → CloudWatch (metrics + nginx logs + SNS alarms)
 
 Deployment configs live in [`deploy/`](deploy/):
 
-- [`deploy/README.md`](deploy/README.md) — SSH, setup, deploy, and logs
-- [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning script
+- [`deploy/README.md`](deploy/README.md) — production runbook (SSH, SSM, CI/CD, CloudWatch, security)
+- [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning (swap, packages, agent, systemd, nginx)
 - [`deploy/fetch-env.sh`](deploy/fetch-env.sh) — fetches production env from SSM Parameter Store
+- [`deploy/cloudwatch-agent.json`](deploy/cloudwatch-agent.json) — CloudWatch metrics + nginx log shipping
+- [`deploy/cloudwatch-alarms.sh`](deploy/cloudwatch-alarms.sh) — SNS topic + CloudWatch alarms
 - [`deploy/iam/`](deploy/iam/) — GitHub OIDC + SSM deployment IAM templates
 - [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
 - [`deploy/stock-market-env.service`](deploy/stock-market-env.service) — systemd oneshot that writes `.env`
