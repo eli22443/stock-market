@@ -141,7 +141,7 @@ async def root(request: Request):
                   const data = JSON.parse(event.data);
                   const targetCell = document.getElementById(`stock-${data.symbol}`);
                   if (targetCell && data?.type == 'price_update') {
-                      targetCell.innerText = `$${data.price}`;
+                      targetCell.innerText = `$${data.data.price}`;
                   }
               };
           </script>
