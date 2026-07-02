@@ -1,6 +1,6 @@
 """
 FastAPI WebSocket Server for Real-time Stock Data
-Connects to Finnhub WebSocket and broadcasts to Next.js clients
+Connects to Finnhub WebSocket and broadcasts to connected clients
 """
 
 import logging
@@ -97,7 +97,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS for Next.js frontend
+# Configure CORS for browser clients (allowed origin from FRONTEND_URL)
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
@@ -217,7 +217,7 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """
-    Main WebSocket endpoint for Next.js clients
+    Main WebSocket endpoint for connected clients
 
     Message format from client:
     {

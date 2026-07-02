@@ -37,8 +37,11 @@ Region: `eu-north-1` · User: `ec2-user` (Amazon Linux). Elastic IP is set in AW
 ## Architecture
 
 ```text
-Browser → Vercel (Next.js)
-Browser → wss://api.stock-market-seven-delta.app/ws → nginx :443 → uvicorn 127.0.0.1:8000 → Finnhub
+Browser / client apps
+      │
+HTTPS / WSS
+      │
+nginx → uvicorn 127.0.0.1:8000 → Finnhub
 ```
 
 ## Server requirements

@@ -1,6 +1,6 @@
 """
 Client Connection Manager
-Manages WebSocket connections from Next.js clients
+Manages WebSocket connections from clients
 """
 
 from fastapi import WebSocket
@@ -10,7 +10,7 @@ import uuid
 
 class ClientManager:
     """
-    Manages all connected Next.js clients
+    Manages all connected WebSocket clients
     """
 
     def __init__(self):

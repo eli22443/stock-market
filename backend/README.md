@@ -1,14 +1,14 @@
 # Stock Market WebSocket Backend
 
-Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real-time stock data to Next.js clients.
+Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real-time stock data to WebSocket clients.
 
 ## Features
 
 - ✅ Real-time stock price updates via Finnhub WebSocket
-- ✅ Multiple client support (one Finnhub connection, many Next.js clients)
+- ✅ Multiple client support (one Finnhub connection, many WebSocket clients)
 - ✅ Efficient subscription management (only subscribe once per symbol)
 - ✅ Automatic reconnection handling
-- ✅ CORS configured for Next.js frontend
+- ✅ CORS configured for allowed frontend origins (`FRONTEND_URL`)
 
 ## Setup Instructions
 
@@ -44,12 +44,7 @@ Edit `.env` and add your Finnhub API key:
 FINNHUB_API_KEY=your_actual_finnhub_api_key_here
 HOST=0.0.0.0
 PORT=8000
-FRONTEND_URL=http://localhost:3000
-```
-
-**Get your Finnhub API key:**
-
-1. Go to [https://finnhub.io/](https://finnhub.io/)
+FRONTEND_URL=http://local1. Go to [https://finnhub.io/](https://finnhub.io/)
 2. Sign up for a free account
 3. Get your API key from the dashboard
 
@@ -143,7 +138,7 @@ Open your browser and visit:
 backend/
 ├── main.py                 # FastAPI application entry point
 ├── websocket_manager.py    # Finnhub WebSocket connection handler
-├── client_manager.py       # Next.js client connection manager
+├── client_manager.py       # WebSocket client connection manager
 ├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
 │   ├── bootstrap.sh         # One-time EC2 provisioning (swap, packages, agent, systemd, nginx)
@@ -162,7 +157,7 @@ backend/
 ## How It Works
 
 1. **Server Startup**: Connects to Finnhub WebSocket on startup
-2. **Client Connection**: Next.js clients connect via WebSocket
+2. **Client Connection**: Clients connect via WebSocket
 3. **Subscription**: Clients send subscribe messages with symbols
 4. **Efficient Management**: Server only subscribes to Finnhub once per unique symbol
 5. **Broadcasting**: When Finnhub sends price updates, server broadcasts to all subscribed clients
@@ -174,7 +169,7 @@ backend/
 
 - **"FINNHUB_API_KEY not found"**: Make sure your `.env` file exists and contains `FINNHUB_API_KEY`
 - **"Failed to connect to Finnhub"**: Check your API key is valid and you have internet connection
-- **CORS errors**: Make sure `FRONTEND_URL` in `.env` matches your Next.js URL
+- **CORS errors**: Make sure `FRONTEND_URL` in `.env` matches your client's allowed origin
 
 ### WebSocket Issues
 
@@ -186,7 +181,7 @@ backend/
 
 After setting up the backend:
 
-1. Update your Next.js frontend to connect to this WebSocket server
+1. Connect a client application to this WebSocket server
 2. Create a React hook to manage WebSocket connections
 3. Update your components to use real-time data
 
@@ -300,3 +295,44 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ---
 
+plementing user filtering)
+- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+
+---
+
+## 🔗 Related Documentation
+
+- [Frontend README](../frontend/README.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+
+---
+L`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+
+---
+
+## 🔗 Related Documentation
+
+- [Frontend README](../frontend/README.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+
+---
+L`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+
+---
+
+## 🔗 Related Documentation
+
+- [Frontend README](../frontend/README.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+
+---
+_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+
+---
+
+## 🔗 Related Documentation
+
+- [Frontend README](../frontend/README.md)
+- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+
+---
