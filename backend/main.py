@@ -121,7 +121,10 @@ async def root(request: Request):
           <table border="1" cellpadding="10">
               <tr><th>Ticker</th><th>Live Price</th></tr>
               <tr><td>AAPL</td><td id="stock-AAPL">N/A</td></tr>
-              <tr><td>GOOG</td><td id="stock-GOOG">N/A</td></tr>
+              <tr><td>GOOGL</td><td id="stock-GOOGL">N/A</td></tr>
+              <tr><td>NVDA</td><td id="stock-NVDA">N/A</td></tr>
+              <tr><td>META</td><td id="stock-META">N/A</td></tr>
+              <tr><td>MSFT</td><td id="stock-MSFT">N/A</td></tr>
           </table>
 
           <script>
@@ -131,7 +134,7 @@ async def root(request: Request):
               socket.onopen = function(event) {
                   const subscriptionMessage = {
                       action: "subscribe",
-                      symbols: ["AAPL"]
+                      symbols: ["AAPL","GOOG","NVDA","META","MSFT"]
                   };
                   socket.send(JSON.stringify(subscriptionMessage));
               };
