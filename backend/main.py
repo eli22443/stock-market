@@ -120,18 +120,18 @@ async def root(request: Request):
       <body>
           <table border="1" cellpadding="10">
               <tr><th>Ticker</th><th>Live Price</th></tr>
-              <tr><td>AAPL</td><td id="stock-AAPL">Not Subscribed</td></tr>
-              <tr><td>GOOG</td><td id="stock-GOOG">Not Subscribed</td></tr>
+              <tr><td>AAPL</td><td id="stock-AAPL">N/A</td></tr>
+              <tr><td>GOOG</td><td id="stock-GOOG">N/A</td></tr>
           </table>
 
           <script>
-              const socket = new WebSocket("ws://localhost:8000/ws");
+              const socket = new WebSocket("wss://api.stock-market-seven-delta.app/ws");
 
               // 1. Wait for connection to open, then subscribe to AAPL
               socket.onopen = function(event) {
                   const subscriptionMessage = {
                       action: "subscribe",
-                      symbol: "AAPL"
+                      symbols: ["AAPL"]
                   };
                   socket.send(JSON.stringify(subscriptionMessage));
                   document.getElementById("stock-AAPL").innerText = "Subscribing...";
