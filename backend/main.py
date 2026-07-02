@@ -134,7 +134,7 @@ async def root(request: Request):
               socket.onopen = function(event) {
                   const subscriptionMessage = {
                       action: "subscribe",
-                      symbols: ["AAPL","GOOG","NVDA","META","MSFT"]
+                      symbols: ["AAPL","GOOGL","NVDA","META","MSFT"]
                   };
                   socket.send(JSON.stringify(subscriptionMessage));
               };
