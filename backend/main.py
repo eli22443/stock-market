@@ -135,8 +135,9 @@ async def root(request: Request):
                       targetCell.innerText = `$${data.price}`;
                   }
               };
-
-              ws.send({"action":"subscribe","symbols":["AAPL"]})
+              socket.onopen = function(event) {
+                ws.send({"action":"subscribe","symbols":["AAPL"]})
+              }
           </script>
       </body>
       </html>
