@@ -134,14 +134,13 @@ async def root(request: Request):
                       symbols: ["AAPL"]
                   };
                   socket.send(JSON.stringify(subscriptionMessage));
-                  document.getElementById("stock-AAPL").innerText = "Subscribing...";
               };
 
               // 2. Receive filtered updates
               socket.onmessage = function(event) {
                   const data = JSON.parse(event.data);
                   const targetCell = document.getElementById(`stock-${data.symbol}`);
-                  if (targetCell) {
+                  if (targetCell && data.?type == 'price_update') {
                       targetCell.innerText = `$${data.price}`;
                   }
               };
