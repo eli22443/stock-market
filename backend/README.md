@@ -49,7 +49,7 @@ FRONTEND_URL=http://localhost:3000
 
 **Get your Finnhub API key:**
 
-1. Go to https://finnhub.io/
+1. Go to [https://finnhub.io/](https://finnhub.io/)
 2. Sign up for a free account
 3. Get your API key from the dashboard
 
@@ -77,7 +77,7 @@ Open your browser and visit:
 
 ## API Endpoints
 
-### WebSocket Endpoint
+### WebSocketz Endpoint
 
 **URL:** `ws://localhost:8000/ws`
 
@@ -208,6 +208,7 @@ The `--reload` flag automatically restarts the server when you make code changes
 
 **Status:** ✅ **Deployed to AWS EC2** (`eu-north-1`)
 
+
 |           |                                                   |
 | --------- | ------------------------------------------------- |
 | API       | `https://api.stock-market-seven-delta.app`        |
@@ -215,29 +216,30 @@ The `--reload` flag automatically restarts the server when you make code changes
 | Health    | `https://api.stock-market-seven-delta.app/health` |
 | Docs      | `https://api.stock-market-seven-delta.app/docs`   |
 
+
 **Stack:** EC2 (`t3.micro`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL → CloudWatch (metrics + nginx logs + SNS alarms)
 
-Deployment configs live in [`deploy/`](deploy/):
+Deployment configs live in `[deploy/](deploy/)`:
 
-- [`deploy/README.md`](deploy/README.md) — production runbook (SSH, SSM, CI/CD, CloudWatch, security)
-- [`deploy/bootstrap.sh`](deploy/bootstrap.sh) — one-shot EC2 provisioning (swap, packages, agent, systemd, nginx)
-- [`deploy/fetch-env.sh`](deploy/fetch-env.sh) — fetches production env from SSM Parameter Store
-- [`deploy/cloudwatch-agent.json`](deploy/cloudwatch-agent.json) — CloudWatch metrics + nginx log shipping
-- [`deploy/cloudwatch-alarms.sh`](deploy/cloudwatch-alarms.sh) — SNS topic + CloudWatch alarms
-- [`deploy/iam/`](deploy/iam/) — GitHub OIDC + SSM deployment IAM templates
-- [`deploy/nginx.conf`](deploy/nginx.conf) — reverse proxy + WebSocket upgrade
-- [`deploy/stock-market-env.service`](deploy/stock-market-env.service) — systemd oneshot that writes `.env`
-- [`deploy/stock-market.service`](deploy/stock-market.service) — systemd unit
+- `[deploy/README.md](deploy/README.md)` — production runbook (SSH, SSM, CI/CD, CloudWatch, security)
+- `[deploy/bootstrap.sh](deploy/bootstrap.sh)` — one-shot EC2 provisioning (swap, packages, agent, systemd, nginx)
+- `[deploy/fetch-env.sh](deploy/fetch-env.sh)` — fetches production env from SSM Parameter Store
+- `[deploy/cloudwatch-agent.json](deploy/cloudwatch-agent.json)` — CloudWatch metrics + nginx log shipping
+- `[deploy/cloudwatch-alarms.sh](deploy/cloudwatch-alarms.sh)` — SNS topic + CloudWatch alarms
+- `[deploy/iam/](deploy/iam/)` — GitHub OIDC + SSM deployment IAM templates
+- `[deploy/nginx.conf](deploy/nginx.conf)` — reverse proxy + WebSocket upgrade
+- `[deploy/stock-market-env.service](deploy/stock-market-env.service)` — systemd oneshot that writes `.env`
+- `[deploy/stock-market.service](deploy/stock-market.service)` — systemd unit
 
-CI/CD is handled by [`.github/workflows/deploy-backend.yml`](../.github/workflows/deploy-backend.yml): GitHub Actions assumes an AWS role via OIDC (`AWS_DEPLOY_ROLE_ARN`), then deploys through SSM Run Command to the instance (`EC2_INSTANCE_ID` in `AWS_REGION`). See [`deploy/iam/README.md`](deploy/iam/README.md) for one-time IAM setup.
+CI/CD is handled by `[.github/workflows/deploy-backend.yml](../.github/workflows/deploy-backend.yml)`: GitHub Actions assumes an AWS role via OIDC (`AWS_DEPLOY_ROLE_ARN`), then deploys through SSM Run Command to the instance (`EC2_INSTANCE_ID` in `AWS_REGION`). See `[deploy/iam/README.md](deploy/iam/README.md)` for one-time IAM setup.
 
-Manual deploy (SSH fallback): see [`deploy/README.md`](deploy/README.md).
+Manual deploy (SSH fallback): see `[deploy/README.md](deploy/README.md)`.
 
 **SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
 
 ### Production environment (`backend/.env` on EC2)
 
-Production `.env` is generated from AWS SSM Parameter Store by [`deploy/fetch-env.sh`](deploy/fetch-env.sh). Do not edit it manually except for emergency rollback.
+Production `.env` is generated from AWS SSM Parameter Store by `[deploy/fetch-env.sh](deploy/fetch-env.sh)`. Do not edit it manually except for emergency rollback.
 
 ```env
 FINNHUB_API_KEY=your_finnhub_api_key_here
@@ -255,7 +257,7 @@ Use `127.0.0.1` in production — nginx is the only public entry point.
 sudo journalctl -u stock-market -f
 ```
 
-See [`deploy/README.md`](deploy/README.md) for SSH, **sync to EC2**, setup, and logs.
+See `[deploy/README.md](deploy/README.md)` for SSH, **sync to EC2**, setup, and logs.
 
 ### Local development
 
@@ -287,7 +289,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 - `SUPABASE_URL` - Supabase URL (if implementing user filtering)
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (if implementing user filtering)
-- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see `[ENVIRONMENT_VARIABLES.md](../ENVIRONMENT_VARIABLES.md)`
 
 ---
 
@@ -297,3 +299,4 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - [Environment Variables](../ENVIRONMENT_VARIABLES.md)
 
 ---
+
