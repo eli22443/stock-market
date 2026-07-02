@@ -12,6 +12,7 @@ import time
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import HTMLResponse
 
 # Load environment variables
 load_dotenv()
@@ -110,14 +111,37 @@ app.add_middleware(
 @app.get("/")
 async def root(request: Request):
     """Health check endpoint"""
-    return {
-        "status": "online",
-        "service": "Stock Market WebSocket Server",
-        "finnhub_connected": finnhub_manager.is_connected(),
-        "active_clients": client_manager.get_client_count(),
-        "active_subscriptions": subscription_manager.get_subscription_count(),
-        "ai_chat_enabled": getattr(request.app.state, "ai_chat_ready", False),
-    }
+    html_content = """
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Live Updates</title>
+      </head>
+      <body>
+          <table border="1" cellpadding="10">
+              <tr><th>Ticker</th><th>Live Price</th></tr>
+              <tr><td>AAPL</td><td id="stock-AAPL">$150.00</td></tr>
+          </table>
+
+          <script>
+              // 2. Connect to the FastAPI WebSocket server
+              const socket = new WebSocket("ws://api.stock-market-seven-delta.app/ws");
+
+              // 3. Update the specific cell when data arrives
+              socket.onmessage = function(event) {
+                  const data = JSON.parse(event.data);
+                  const targetCell = document.getElementById(`stock-${data.symbol}`);
+                  if (targetCell) {
+                      targetCell.innerText = `$${data.price}`;
+                  }
+              };
+
+              ws.send({"action":"subscribe","symbols":["AAPL"]})
+          </script>
+      </body>
+      </html>
+      """
+    return HTMLResponse(html_content)
 
 
 @app.get("/health")
@@ -163,9 +187,7 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
     provider = app.state.ai_chat_provider
     model = app.state.ai_chat_model
     try:
-        return await handle_chat_request(
-            body=body, provider=provider, chat_model=model
-        )
+        return await handle_chat_request(body=body, provider=provider, chat_model=model)
     except AIProviderRateLimitError:
         raise HTTPException(
             status_code=429,
