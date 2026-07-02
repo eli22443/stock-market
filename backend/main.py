@@ -115,19 +115,29 @@ async def root(request: Request):
       <!DOCTYPE html>
       <html>
       <head>
-          <title>Live Updates</title>
+          <title>WebSocket Subscriptions</title>
       </head>
       <body>
           <table border="1" cellpadding="10">
               <tr><th>Ticker</th><th>Live Price</th></tr>
-              <tr><td>AAPL</td><td id="stock-AAPL">$150.00</td></tr>
+              <tr><td>AAPL</td><td id="stock-AAPL">Not Subscribed</td></tr>
+              <tr><td>GOOG</td><td id="stock-GOOG">Not Subscribed</td></tr>
           </table>
 
           <script>
-              // 2. Connect to the FastAPI WebSocket server
-              const socket = new WebSocket("wss://api.stock-market-seven-delta.app/ws");
+              const socket = new WebSocket("ws://localhost:8000/ws");
 
-              // 3. Update the specific cell when data arrives
+              // 1. Wait for connection to open, then subscribe to AAPL
+              socket.onopen = function(event) {
+                  const subscriptionMessage = {
+                      action: "subscribe",
+                      symbol: "AAPL"
+                  };
+                  socket.send(JSON.stringify(subscriptionMessage));
+                  document.getElementById("stock-AAPL").innerText = "Subscribing...";
+              };
+
+              // 2. Receive filtered updates
               socket.onmessage = function(event) {
                   const data = JSON.parse(event.data);
                   const targetCell = document.getElementById(`stock-${data.symbol}`);
@@ -135,9 +145,6 @@ async def root(request: Request):
                       targetCell.innerText = `$${data.price}`;
                   }
               };
-              socket.onopen = function(event) {
-                ws.send({"action":"subscribe","symbols":["AAPL"]})
-              }
           </script>
       </body>
       </html>
