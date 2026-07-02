@@ -140,7 +140,7 @@ async def root(request: Request):
               socket.onmessage = function(event) {
                   const data = JSON.parse(event.data);
                   const targetCell = document.getElementById(`stock-${data.symbol}`);
-                  if (targetCell && data.?type == 'price_update') {
+                  if (targetCell && data?.type == 'price_update') {
                       targetCell.innerText = `$${data.price}`;
                   }
               };
