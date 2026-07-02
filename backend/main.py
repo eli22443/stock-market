@@ -125,7 +125,7 @@ async def root(request: Request):
 
           <script>
               // 2. Connect to the FastAPI WebSocket server
-              const socket = new WebSocket("ws://api.stock-market-seven-delta.app/ws");
+              const socket = new WebSocket("wss://api.stock-market-seven-delta.app/ws");
 
               // 3. Update the specific cell when data arrives
               socket.onmessage = function(event) {
