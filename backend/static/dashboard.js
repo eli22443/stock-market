@@ -125,9 +125,7 @@
     renderRow(symbol);
 
     if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(
-        JSON.stringify({ action: "subscribe", symbols: [symbol] })
-      );
+      socket.send(JSON.stringify({ action: "subscribe", symbols: [symbol] }));
     }
   }
 
@@ -141,9 +139,7 @@
     updateEmptyRow();
 
     if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(
-        JSON.stringify({ action: "unsubscribe", symbols: [symbol] })
-      );
+      socket.send(JSON.stringify({ action: "unsubscribe", symbols: [symbol] }));
     }
   }
 
@@ -169,7 +165,11 @@
   }
 
   function connectWebSocket() {
-    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+    if (
+      socket &&
+      (socket.readyState === WebSocket.OPEN ||
+        socket.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
@@ -212,7 +212,7 @@
     if (reconnectTimer) return;
     const delay = Math.min(
       WS_RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt),
-      WS_RECONNECT_MAX_MS
+      WS_RECONNECT_MAX_MS,
     );
     reconnectAttempt += 1;
     setWsStatus("reconnecting");
@@ -225,7 +225,11 @@
   function checkStale() {
     const now = Date.now();
     subscriptions.forEach(function (sub, symbol) {
-      if (sub.status === "live" && sub.lastUpdate && now - sub.lastUpdate.getTime() > STALE_MS) {
+      if (
+        sub.status === "live" &&
+        sub.lastUpdate &&
+        now - sub.lastUpdate.getTime() > STALE_MS
+      ) {
         sub.status = "stale";
         subscriptions.set(symbol, sub);
         renderRow(symbol);
@@ -285,9 +289,21 @@
         ["Server time", data.server_time || "—"],
         ["Uptime", formatUptime(data.uptime_seconds)],
         ["API", data.api || "—", statusBadge(data.api || "", ["ok"])],
-        ["WebSocket", data.websocket || "—", statusBadge(data.websocket || "", ["ok"])],
-        ["Finnhub", data.finnhub_connection || "—", statusBadge(data.finnhub_connection || "", ["connected"])],
-        ["AI chat", data.ai_chat_enabled ? "enabled" : "disabled", data.ai_chat_enabled ? "ok" : "warn"],
+        [
+          "WebSocket",
+          data.websocket || "—",
+          statusBadge(data.websocket || "", ["ok"]),
+        ],
+        [
+          "Finnhub",
+          data.finnhub_connection || "—",
+          statusBadge(data.finnhub_connection || "", ["connected"]),
+        ],
+        [
+          "AI chat",
+          data.ai_chat_enabled ? "enabled" : "disabled",
+          data.ai_chat_enabled ? "ok" : "warn",
+        ],
         ["Clients", data.clients ?? "—"],
         ["Subscriptions", data.subscriptions ?? "—"],
       ]);
@@ -310,7 +326,13 @@
         ["Finnhub messages", data.finnhub_messages_received ?? "—"],
         ["HTTP requests", data.http_requests_total ?? "—"],
         ["CPU", (data.cpu_percent ?? "—") + "%"],
-        ["Memory", (data.memory_percent ?? "—") + "% (" + (data.memory_used_mb ?? "—") + " MB)"],
+        [
+          "Memory",
+          (data.memory_percent ?? "—") +
+            "% (" +
+            (data.memory_used_mb ?? "—") +
+            " MB)",
+        ],
         ["Uptime", formatUptime(data.uptime_seconds)],
         ["Server time", data.server_time || "—"],
       ]);
@@ -405,7 +427,9 @@
           payload && (payload.detail || payload.error)
             ? payload.detail || payload.error
             : "Request failed (" + res.status + ")";
-        throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+        throw new Error(
+          typeof detail === "string" ? detail : JSON.stringify(detail),
+        );
       }
 
       const content =

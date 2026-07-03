@@ -360,9 +360,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 )
 
             else:
-                await ws_send(
-                    {"type": "error", "message": f"Unknown action: {action}"}
-                )
+                await ws_send({"type": "error", "message": f"Unknown action: {action}"})
 
     except WebSocketDisconnect:
         print(f"❌ Client disconnected: {client_id}")
