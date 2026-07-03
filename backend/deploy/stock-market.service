@@ -12,7 +12,7 @@ Wants=network-online.target
 User=ec2-user
 WorkingDirectory=/home/ec2-user/stock-market/backend
 EnvironmentFile=/home/ec2-user/stock-market/backend/.env
-ExecStart=/home/ec2-user/stock-market/backend/venv/bin/python -u -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1
+ExecStart=/home/ec2-user/stock-market/backend/venv/bin/python -u -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
 Restart=always
 RestartSec=5
 
