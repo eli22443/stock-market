@@ -4,86 +4,62 @@ Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real
 
 ## Features
 
-- ✅ Real-time stock price updates via Finnhub WebSocket
-- ✅ Multiple client support (one Finnhub connection, many WebSocket clients)
-- ✅ Efficient subscription management (only subscribe once per symbol)
-- ✅ Automatic reconnection handling
-- ✅ CORS configured for allowed frontend origins (`FRONTEND_URL`)
+- Real-time stock price updates via Finnhub WebSocket
+- Multiple client support (one Finnhub connection, many WebSocket clients)
+- Efficient subscription management (only subscribe once per symbol)
+- Automatic reconnection with exponential backoff
+- AI chat via Gemini (`POST /ai/chat`)
+- API platform dashboard at `/` (no frontend required)
+- Runtime metrics and health endpoints
 
-## Setup Instructions
+## Setup
 
-### 1. Install Python Dependencies
+### 1. Install dependencies
 
-Make sure you have Python 3.11+ installed, then:
+Requires Python 3.11+.
 
 ```bash
 cd backend
 python -m venv venv
 
-# On Windows:
+# Windows:
 venv\Scripts\activate
-
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment Variables
+### 2. Configure environment
 
 Create a `.env` file in the `backend` directory:
 
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your Finnhub API key:
-
 ```env
-FINNHUB_API_KEY=your_actual_finnhub_api_key_here
+FINNHUB_API_KEY=your_finnhub_api_key
+GEMINI_API_KEY=your_gemini_api_key
 HOST=0.0.0.0
 PORT=8000
-FRONTEND_URL=http://localhost:3000
 ```
 
-Get your Finnhub API key:
-1. Go to [https://finnhub.io/](https://finnhub.io/)
-2. Sign up for a free account
-3. Get your API key from the dashboard
+Get your Finnhub API key at [finnhub.io](https://finnhub.io/) (free tier available).
 
-### 3. Run the Server
-
-```bash
-python main.py
-```
-
-Or using uvicorn directly:
+### 3. Run the server
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The server will start on `http://localhost:8000`
+Open `http://localhost:8000/` to access the dashboard.
 
-### 4. Test the Server
+## Dashboard
 
-Open your browser and visit:
+The root URL (`/`) serves a standalone HTML dashboard with:
 
-- `http://localhost:8000/` - **API platform dashboard** (WebSocket streaming, AI chat, health, metrics)
-- `http://localhost:8000/health` - Health check JSON
-- `http://localhost:8000/metrics` - Runtime metrics JSON
-- `http://localhost:8000/docs` - OpenAPI / Swagger documentation
-
-## API Platform Dashboard
-
-The root URL (`/`) serves a standalone HTML dashboard — no Next.js frontend required. It includes:
-
-- **Live Stock Streaming** — subscribe form, subscribed-stocks table with per-row remove, auto-reconnect WebSocket
+- **Live Stock Streaming** — subscribe form, live price table with per-row remove, auto-reconnect WebSocket
 - **AI Assistant** — chat UI wired to `POST /ai/chat`
 - **Health Status** — polls `GET /health`
 - **Backend Monitoring** — polls `GET /metrics` (CPU, memory, message counters)
-- **API Documentation** — link to `/docs`
+- **API Documentation** — link to Swagger at `/docs`
 
 Static assets live in [`static/`](static/).
 
@@ -91,72 +67,54 @@ Static assets live in [`static/`](static/).
 
 ### HTTP
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/` | Dashboard UI |
-| `GET` | `/health` | Health and dependency status |
-| `GET` | `/metrics` | Runtime counters and system stats |
-| `POST` | `/ai/chat` | Gemini chat completion |
-| `GET` | `/docs` | Swagger UI |
+| Method | Path       | Description                      |
+|--------|------------|----------------------------------|
+| `GET`  | `/`        | Dashboard UI                     |
+| `GET`  | `/health`  | Health and dependency status     |
+| `GET`  | `/metrics` | Runtime counters and system stats|
+| `POST` | `/ai/chat` | Gemini chat completion           |
+| `GET`  | `/docs`    | Swagger UI (OpenAPI)             |
 
-### WebSocket Endpoint
+### WebSocket
 
 **URL:** `ws://localhost:8000/ws`
 
-#### Client → Server Messages
+#### Client → Server
 
-**Subscribe to symbols:**
-
-```json
-{
-  "action": "subscribe",
-  "symbols": ["AAPL", "NVDA", "MSFT"]
-}
-```
-
-**Unsubscribe from symbols:**
+Subscribe:
 
 ```json
-{
-  "action": "unsubscribe",
-  "symbols": ["AAPL"]
-}
+{ "action": "subscribe", "symbols": ["AAPL", "NVDA", "MSFT"] }
 ```
 
-#### Server → Client Messages
-
-**Connection confirmation:**
+Unsubscribe:
 
 ```json
-{
-  "type": "connection",
-  "status": "connected",
-  "client_id": "uuid-here"
-}
+{ "action": "unsubscribe", "symbols": ["AAPL"] }
 ```
 
-**Price update:**
+#### Server → Client
+
+Connection confirmation:
+
+```json
+{ "type": "connection", "status": "connected", "client_id": "uuid-here" }
+```
+
+Price update:
 
 ```json
 {
   "type": "price_update",
   "symbol": "AAPL",
-  "data": {
-    "price": 150.25,
-    "volume": 1234567,
-    "timestamp": 1234567890
-  }
+  "data": { "price": 150.25, "volume": 1234567, "timestamp": 1234567890 }
 }
 ```
 
-**Subscription confirmation:**
+Subscription confirmation:
 
 ```json
-{
-  "type": "subscription",
-  "status": "subscribed",
-  "symbols": ["AAPL", "NVDA"]
-}
+{ "type": "subscription", "status": "subscribed", "symbols": ["AAPL", "NVDA"] }
 ```
 
 ## Project Structure
@@ -165,206 +123,86 @@ Static assets live in [`static/`](static/).
 backend/
 ├── main.py                 # FastAPI application entry point
 ├── metrics.py              # Runtime counters and system stats
+├── ai_provider.py          # Gemini API provider
+├── chat_service.py         # Chat orchestration and moderation
+├── websocket_manager.py    # Finnhub WebSocket connection handler
+├── client_manager.py       # WebSocket client connection manager
+├── subscription_manager.py # Subscription logic and routing
 ├── static/                 # Dashboard HTML/CSS/JS
 │   ├── index.html
 │   ├── dashboard.css
 │   └── dashboard.js
-├── websocket_manager.py    # Finnhub WebSocket connection handler
-├── client_manager.py       # WebSocket client connection manager
-├── subscription_manager.py # Subscription logic and routing
 ├── deploy/                 # AWS EC2 production configs
-│   ├── bootstrap.sh         # One-time EC2 provisioning (swap, packages, agent, systemd, nginx)
+│   ├── README.md            # Production runbook
+│   ├── bootstrap.sh         # One-time EC2 provisioning
+│   ├── fetch-env.sh         # Fetches env from SSM Parameter Store
+│   ├── nginx.conf           # Reverse proxy + WebSocket upgrade
+│   ├── stock-market.service # systemd unit
+│   ├── stock-market-env.service
 │   ├── cloudwatch-agent.json
 │   ├── cloudwatch-alarms.sh
-│   ├── fetch-env.sh
-│   ├── iam/                 # GitHub OIDC + EC2 IAM policy templates
-│   ├── nginx.conf
-│   ├── stock-market-env.service
-│   ├── stock-market.service
-│   └── README.md
-├── requirements.txt        # Python dependencies
-└── README.md               # This file
+│   └── iam/                 # GitHub OIDC + EC2 IAM templates
+├── requirements.txt
+└── README.md
 ```
 
 ## How It Works
 
-1. **Server Startup**: Connects to Finnhub WebSocket on startup
-2. **Client Connection**: Clients connect via WebSocket
-3. **Subscription**: Clients send subscribe messages with symbols
-4. **Efficient Management**: Server only subscribes to Finnhub once per unique symbol
-5. **Broadcasting**: When Finnhub sends price updates, server broadcasts to all subscribed clients
-6. **Cleanup**: When clients disconnect, server unsubscribes if no other clients need those symbols
+1. **Startup** — connects to Finnhub WebSocket
+2. **Client connects** — browser or app opens `ws://host/ws`
+3. **Subscribe** — client sends symbol list; server subscribes to Finnhub once per unique symbol
+4. **Broadcast** — Finnhub price updates are forwarded to all subscribed clients
+5. **Cleanup** — on disconnect, server unsubscribes symbols no other client needs
 
-## Troubleshooting
-
-### Connection Issues
-
-- **"FINNHUB_API_KEY not found"**: Make sure your `.env` file exists and contains `FINNHUB_API_KEY`
-- **"Failed to connect to Finnhub"**: Check your API key is valid and you have internet connection
-- **CORS errors**: Make sure `FRONTEND_URL` in `.env` matches your client's allowed origin
-
-### WebSocket Issues
-
-- **Connection drops**: Server automatically attempts to reconnect with exponential backoff
-- **No updates received**: Check that you've subscribed to symbols and Finnhub is sending data
-- **Multiple subscriptions**: Server handles this efficiently - only one Finnhub subscription per symbol
-
-## Next Steps
-
-After setting up the backend:
-
-1. Connect a client application to this WebSocket server
-2. Create a React hook to manage WebSocket connections
-3. Update your components to use real-time data
-
-## Development
-
-To run in development mode with auto-reload:
-
-```bash
-uvicorn main:app --reload
-```
-
-The `--reload` flag automatically restarts the server when you make code changes.
-
----
-
-## 🚀 Deployment
-
-### Production Deployment
-
-**Status:** ✅ **Deployed to AWS EC2** (`eu-north-1`)
-
-
-|           |                                                   |
-| --------- | ------------------------------------------------- |
-| API       | `https://api.stock-market-seven-delta.app`        |
-| WebSocket | `wss://api.stock-market-seven-delta.app/ws`       |
-| Health    | `https://api.stock-market-seven-delta.app/health` |
-| Docs      | `https://api.stock-market-seven-delta.app/docs`   |
-
-
-**Stack:** EC2 (`t3.micro`) → nginx → uvicorn (`127.0.0.1:8000`) → Let's Encrypt SSL → CloudWatch (metrics + nginx logs + SNS alarms)
-
-Deployment configs live in `[deploy/](deploy/)`:
-
-- `[deploy/README.md](deploy/README.md)` — production runbook (SSH, SSM, CI/CD, CloudWatch, security)
-- `[deploy/bootstrap.sh](deploy/bootstrap.sh)` — one-shot EC2 provisioning (swap, packages, agent, systemd, nginx)
-- `[deploy/fetch-env.sh](deploy/fetch-env.sh)` — fetches production env from SSM Parameter Store
-- `[deploy/cloudwatch-agent.json](deploy/cloudwatch-agent.json)` — CloudWatch metrics + nginx log shipping
-- `[deploy/cloudwatch-alarms.sh](deploy/cloudwatch-alarms.sh)` — SNS topic + CloudWatch alarms
-- `[deploy/iam/](deploy/iam/)` — GitHub OIDC + SSM deployment IAM templates
-- `[deploy/nginx.conf](deploy/nginx.conf)` — reverse proxy + WebSocket upgrade
-- `[deploy/stock-market-env.service](deploy/stock-market-env.service)` — systemd oneshot that writes `.env`
-- `[deploy/stock-market.service](deploy/stock-market.service)` — systemd unit
-
-CI/CD is handled by `[.github/workflows/deploy-backend.yml](../.github/workflows/deploy-backend.yml)`: GitHub Actions assumes an AWS role via OIDC (`AWS_DEPLOY_ROLE_ARN`), then deploys through SSM Run Command to the instance (`EC2_INSTANCE_ID` in `AWS_REGION`). See `[deploy/iam/README.md](deploy/iam/README.md)` for one-time IAM setup.
-
-Manual deploy (SSH fallback): see `[deploy/README.md](deploy/README.md)`.
-
-**SSH:** `ssh -i ~/.ssh/stock-market-key.pem ec2-user@api.stock-market-seven-delta.app`
-
-### Production environment (`backend/.env` on EC2)
-
-Production `.env` is generated from AWS SSM Parameter Store by `[deploy/fetch-env.sh](deploy/fetch-env.sh)`. Do not edit it manually except for emergency rollback.
-
-```env
-FINNHUB_API_KEY=your_finnhub_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-FRONTEND_URL=https://stock-market-seven-delta.app
-HOST=127.0.0.1
-PORT=8000
-```
-
-Use `127.0.0.1` in production — nginx is the only public entry point.
-
-### Live logs (EC2)
-
-```bash
-sudo journalctl -u stock-market -f
-```
-
-See `[deploy/README.md](deploy/README.md)` for SSH, **sync to EC2**, setup, and logs.
-
-### Local development
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
----
-
-## 📝 Environment Variables
+## Environment Variables
 
 ### Required
 
-- `FINNHUB_API_KEY` - Finnhub API key for WebSocket connection
-- `FRONTEND_URL` - Frontend URL for CORS (production: `https://stock-market-seven-delta.app`)
-- `GEMINI_API_KEY` - Enables `POST /ai/chat`
+| Variable | Description |
+|----------|-------------|
+| `FINNHUB_API_KEY` | Finnhub API key for WebSocket data |
+| `GEMINI_API_KEY` | Gemini API key for `POST /ai/chat` |
 
-### Production (EC2)
+### Server
 
-- `HOST` - `127.0.0.1` (behind nginx)
-- `PORT` - `8000`
-
-### Development
-
-- `HOST` - `0.0.0.0`
-- `PORT` - `8000`
+| Variable | Dev | Production (EC2) |
+|----------|-----|------------------|
+| `HOST` | `0.0.0.0` | `127.0.0.1` (behind nginx) |
+| `PORT` | `8000` | `8000` |
 
 ### Optional
 
-- `SUPABASE_URL` - Supabase URL (if implementing user filtering)
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (if implementing user filtering)
-- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see `[ENVIRONMENT_VARIABLES.md](../ENVIRONMENT_VARIABLES.md)`
+| Variable | Description |
+|----------|-------------|
+| `GEMINI_CHAT_MODEL` | Model name (default: `gemini-3.1-flash-lite`) |
+| `GEMINI_CHAT_RATE_LIMIT` | Max requests per window (default: `30`) |
+| `GEMINI_CHAT_RATE_WINDOW_SECONDS` | Rate limit window (default: `60`) |
+| `GEMINI_CHAT_COMPLETION_MAX_RETRIES` | Retry count on transient errors (default: `4`) |
+| `GEMINI_CHAT_MODERATION` | Enable input/output moderation (default: `1`) |
 
----
+See [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md) for the full list including frontend variables.
 
-## 🔗 Related Documentation
+## Troubleshooting
 
-- [Frontend README](../frontend/README.md)
-- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+- **"FINNHUB_API_KEY not found"** — `.env` is missing or doesn't contain `FINNHUB_API_KEY`
+- **"Failed to connect to Finnhub"** — check API key validity and internet connection
+- **Connection drops** — server reconnects automatically with exponential backoff
+- **No price updates** — verify you've subscribed to symbols and the market is open
+- **AI chat returns 503** — `GEMINI_API_KEY` is not set
 
----
+## Deployment
 
-plementing user filtering)
-- `GEMINI_CHAT_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
+Deployed to **AWS EC2** (`t3.micro`, `eu-north-1`).
 
----
+| Service   | URL                                              |
+|-----------|--------------------------------------------------|
+| Dashboard | `https://api.stock-market-seven-delta.app`       |
+| WebSocket | `wss://api.stock-market-seven-delta.app/ws`      |
+| Health    | `https://api.stock-market-seven-delta.app/health` |
+| Docs      | `https://api.stock-market-seven-delta.app/docs`  |
 
-## 🔗 Related Documentation
+**Stack:** EC2 → nginx (TLS via Let's Encrypt) → uvicorn (`127.0.0.1:8000`) → CloudWatch (metrics + logs + SNS alarms)
 
-- [Frontend README](../frontend/README.md)
-- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
+Production `.env` is generated from SSM Parameter Store by [`deploy/fetch-env.sh`](deploy/fetch-env.sh). CI/CD runs via GitHub Actions + OIDC + SSM Run Command (no SSH keys in GitHub).
 
----
-L`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
-
----
-
-## 🔗 Related Documentation
-
-- [Frontend README](../frontend/README.md)
-- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
-
----
-L`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
-
----
-
-## 🔗 Related Documentation
-
-- [Frontend README](../frontend/README.md)
-- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
-
----
-_MODEL`, `GEMINI_CHAT_RATE_LIMIT`, etc. — see [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md)
-
----
-
-## 🔗 Related Documentation
-
-- [Frontend README](../frontend/README.md)
-- [Environment Variables](../ENVIRONMENT_VARIABLES.md)
-
----
+See [`deploy/README.md`](deploy/README.md) for the full production runbook: SSH access, setup, CI/CD, CloudWatch, and security.

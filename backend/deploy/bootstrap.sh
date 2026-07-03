@@ -115,7 +115,6 @@ Remaining manual steps:
 
    /stock-market/prod/FINNHUB_API_KEY        SecureString
    /stock-market/prod/GEMINI_API_KEY         SecureString
-   /stock-market/prod/FRONTEND_URL           String
    /stock-market/prod/GEMINI_CHAT_MODEL      String
    /stock-market/prod/GEMINI_CHAT_RATE_LIMIT String
 

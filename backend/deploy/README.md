@@ -8,7 +8,7 @@ Backend runs on **EC2** (`t3.micro`, `eu-north-1`) behind **nginx** with **Let's
 |-------|----------------|
 | Compute | EC2 Amazon Linux 2023, `t3.micro`, Elastic IP, 2 GB swap |
 | TLS / proxy | nginx :443, Certbot; uvicorn on `127.0.0.1:8000` only |
-| App service | `stock-market.service` — `python -u -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1`, `Restart=always` |
+| App service | `stock-market.service` — `python -u -m uvicorn main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log`, `Restart=always` |
 | Secrets | SSM Parameter Store `/stock-market/prod/*` → `fetch-env.sh` → `backend/.env` (via `stock-market-env.service`) |
 | Deploy | GitHub Actions → OIDC → SSM Run Command (no SSH, no AWS keys in GitHub) |
 | IAM | EC2 role: `AmazonSSMManagedInstanceCore`, `CloudWatchAgentServerPolicy`, SSM read; GitHub role: OIDC trust on `master` |
@@ -145,7 +145,6 @@ aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_AP
 # aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/SUPABASE_KEY --type SecureString --value "REPLACE_ME"
 
 # Non-secrets
-aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/FRONTEND_URL --type String --value "https://stock-market-seven-delta.app"
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_MODEL --type String --value "gemini-3.1-flash-lite"
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_RATE_LIMIT --type String --value "30"
 aws ssm put-parameter --region "$AWS_REGION" --name /stock-market/prod/GEMINI_CHAT_RATE_WINDOW_SECONDS --type String --value "60"
@@ -346,7 +345,6 @@ Do not edit this manually in production. It is generated from SSM by [`fetch-env
 ```env
 FINNHUB_API_KEY=...
 GEMINI_API_KEY=...
-FRONTEND_URL=https://stock-market-seven-delta.app
 HOST=127.0.0.1
 PORT=8000
 ```

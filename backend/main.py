@@ -13,7 +13,6 @@ from typing import Callable
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
@@ -150,16 +149,6 @@ app = FastAPI(
     version=APP_VERSION,
     lifespan=lifespan,
 )
-
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[frontend_url],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 # Custom access logger replaces uvicorn's built-in access log (disabled via
 # access_log=False) so that requests show the real client IP instead of
