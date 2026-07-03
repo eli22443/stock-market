@@ -173,10 +173,13 @@ _QUIET_PREFIXES = ("/static",)
 
 def _real_ip(request: Request) -> str:
     """Extract the original client IP from X-Forwarded-For (set by nginx), or
-    fall back to the direct socket address for local dev."""
+    fall back to X-Real-IP, then the direct socket address for local dev."""
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         return forwarded.split(",")[0].strip()
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
     return request.client.host if request.client else "unknown"
 
 
