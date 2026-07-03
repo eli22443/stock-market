@@ -4,6 +4,8 @@ Manages symbol subscriptions and routes updates to clients
 """
 
 from typing import Dict, Set, List
+
+import metrics
 from websocket_manager import FinnhubWebSocketManager
 from client_manager import ClientManager
 
@@ -143,7 +145,7 @@ class SubscriptionManager:
             message: Message dictionary from Finnhub
         """
         if message.get("type") == "trade" and "data" in message:
-            # Process trade data
+            metrics.finnhub_messages_received += 1
             trades = message["data"]
 
             for trade in trades:

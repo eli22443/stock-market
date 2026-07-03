@@ -7,30 +7,68 @@ import logging
 import os
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
+from pathlib import Path
 import time
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 
-# Load environment variables
-load_dotenv()
-
-# Import managers (we'll create these next)
+import metrics
 from websocket_manager import FinnhubWebSocketManager
 from client_manager import ClientManager
 from subscription_manager import SubscriptionManager
 from ai_provider import AIProviderError, AIProviderRateLimitError, GeminiChatProvider
 from chat_service import ChatRequestIn, ChatResponseBody, handle_chat_request
 
+load_dotenv()
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Initialize managers
+APP_VERSION = "1.0.0"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+
 finnhub_manager = FinnhubWebSocketManager()
 client_manager = ClientManager()
 subscription_manager = SubscriptionManager(finnhub_manager, client_manager)
+
+API_DESCRIPTION = """
+Real-Time Market Data API — WebSocket streaming, AI chat, health, and metrics.
+
+## WebSocket `/ws`
+
+**Client → server (subscribe):**
+```json
+{"action": "subscribe", "symbols": ["AAPL", "NVDA"]}
+```
+
+**Client → server (unsubscribe):**
+```json
+{"action": "unsubscribe", "symbols": ["AAPL"]}
+```
+
+**Server → client (connection):**
+```json
+{"type": "connection", "status": "connected", "client_id": "uuid"}
+```
+
+**Server → client (price update):**
+```json
+{
+  "type": "price_update",
+  "symbol": "AAPL",
+  "data": {"price": 150.25, "volume": 1234567, "timestamp": 1234567890}
+}
+```
+
+**Server → client (subscription ack):**
+```json
+{"type": "subscription", "status": "subscribed", "symbols": ["AAPL"]}
+```
+"""
 
 
 class SlidingWindowRateLimiter:
@@ -58,10 +96,27 @@ _chat_window = float(os.getenv("GEMINI_CHAT_RATE_WINDOW_SECONDS", "60"))
 chat_rate_limiter = SlidingWindowRateLimiter(_chat_limit, _chat_window)
 
 
+def _health_payload(request: Request) -> dict:
+    finnhub_ok = finnhub_manager.is_connected()
+    return {
+        "status": "healthy" if finnhub_ok else "degraded",
+        "version": APP_VERSION,
+        "server_time": metrics.server_time_iso(),
+        "uptime_seconds": round(metrics.uptime_seconds(), 1),
+        "api": "ok",
+        "websocket": "ok" if finnhub_ok else "degraded",
+        "finnhub_connection": "connected" if finnhub_ok else "disconnected",
+        "ai_chat_enabled": getattr(request.app.state, "ai_chat_ready", False),
+        "clients": client_manager.get_client_count(),
+        "subscriptions": subscription_manager.get_subscription_count(),
+        "subscribed_symbols": subscription_manager.get_subscribed_symbols(),
+    }
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    # Startup: Connect to Finnhub WebSocket
+    metrics.mark_started()
     print("🚀 Starting server...")
     await finnhub_manager.connect()
     print("✅ Connected to Finnhub WebSocket")
@@ -83,21 +138,18 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown: Disconnect from Finnhub
     print("🛑 Shutting down server...")
     await finnhub_manager.disconnect()
     print("✅ Disconnected from Finnhub WebSocket")
 
 
-# Create FastAPI app
 app = FastAPI(
-    title="Stock Market WebSocket Server",
-    description="Real-time stock data via Finnhub WebSocket",
-    version="1.0.0",
+    title="Real-Time Market Data API",
+    description=API_DESCRIPTION,
+    version=APP_VERSION,
     lifespan=lifespan,
 )
 
-# Configure CORS for browser clients (allowed origin from FRONTEND_URL)
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
@@ -108,73 +160,123 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-async def root(request: Request):
-    """Health check endpoint"""
-    html_content = """
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <title>WebSocket Subscriptions</title>
-      </head>
-      <body>
-          <table border="1" cellpadding="10">
-              <tr><th>Ticker</th><th>Live Price</th></tr>
-              <tr><td>AAPL</td><td id="stock-AAPL">N/A</td></tr>
-              <tr><td>GOOGL</td><td id="stock-GOOGL">N/A</td></tr>
-              <tr><td>NVDA</td><td id="stock-NVDA">N/A</td></tr>
-              <tr><td>META</td><td id="stock-META">N/A</td></tr>
-              <tr><td>MSFT</td><td id="stock-MSFT">N/A</td></tr>
-          </table>
-
-          <script>
-              const socket = new WebSocket("wss://api.stock-market-seven-delta.app/ws");
-
-              // 1. Wait for connection to open, then subscribe to AAPL
-              socket.onopen = function(event) {
-                  const subscriptionMessage = {
-                      action: "subscribe",
-                      symbols: ["AAPL","GOOGL","NVDA","META","MSFT"]
-                  };
-                  socket.send(JSON.stringify(subscriptionMessage));
-              };
-
-              // 2. Receive filtered updates
-              socket.onmessage = function(event) {
-                  const data = JSON.parse(event.data);
-                  const targetCell = document.getElementById(`stock-${data.symbol}`);
-                  if (targetCell && data?.type == 'price_update') {
-                      targetCell.innerText = `$${data.data.price}`;
-                  }
-              };
-          </script>
-      </body>
-      </html>
-      """
-    return HTMLResponse(html_content)
+@app.middleware("http")
+async def count_http_requests(request: Request, call_next):
+    if not request.url.path.startswith("/static"):
+        metrics.http_requests_total += 1
+    return await call_next(request)
 
 
-@app.get("/health")
+if STATIC_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def dashboard():
+    """Serve the API platform dashboard."""
+    index = STATIC_DIR / "index.html"
+    if not index.is_file():
+        raise HTTPException(status_code=500, detail="Dashboard not found")
+    return FileResponse(index)
+
+
+@app.get(
+    "/health",
+    summary="Health check",
+    description=(
+        "Operational health for load balancers and the dashboard. "
+        "Returns service status, Finnhub connectivity, and subscription snapshot."
+    ),
+    responses={
+        200: {
+            "description": "Health snapshot",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "healthy",
+                        "version": "1.0.0",
+                        "server_time": "2026-07-03T11:00:00Z",
+                        "uptime_seconds": 3600.5,
+                        "api": "ok",
+                        "websocket": "ok",
+                        "finnhub_connection": "connected",
+                        "ai_chat_enabled": True,
+                        "clients": 2,
+                        "subscriptions": 3,
+                        "subscribed_symbols": ["AAPL", "NVDA"],
+                    }
+                }
+            },
+        }
+    },
+)
 async def health(request: Request):
-    """Detailed health check"""
+    return _health_payload(request)
+
+
+@app.get(
+    "/metrics",
+    summary="Runtime metrics",
+    description=(
+        "Operational monitoring: message counters, HTTP traffic, CPU/memory, "
+        "and subscription counts for the dashboard."
+    ),
+    responses={
+        200: {
+            "description": "Runtime metrics",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "connected_clients": 2,
+                        "active_subscriptions": 3,
+                        "subscribed_symbols": ["AAPL", "NVDA"],
+                        "ws_messages_sent": 1240,
+                        "ws_messages_received": 87,
+                        "finnhub_messages_received": 980,
+                        "http_requests_total": 412,
+                        "uptime_seconds": 3600.5,
+                        "cpu_percent": 12.4,
+                        "memory_percent": 45.2,
+                        "memory_used_mb": 128.0,
+                        "server_time": "2026-07-03T11:00:00Z",
+                    }
+                }
+            },
+        }
+    },
+)
+async def get_metrics():
+    stats = metrics.system_stats()
     return {
-        "status": "healthy",
-        "finnhub_connection": (
-            "connected" if finnhub_manager.is_connected() else "disconnected"
-        ),
-        "clients": client_manager.get_client_count(),
-        "subscriptions": subscription_manager.get_subscription_count(),
+        "connected_clients": client_manager.get_client_count(),
+        "active_subscriptions": subscription_manager.get_subscription_count(),
         "subscribed_symbols": subscription_manager.get_subscribed_symbols(),
-        "ai_chat_enabled": getattr(request.app.state, "ai_chat_ready", False),
+        "ws_messages_sent": metrics.ws_messages_sent,
+        "ws_messages_received": metrics.ws_messages_received,
+        "finnhub_messages_received": metrics.finnhub_messages_received,
+        "http_requests_total": metrics.http_requests_total,
+        "uptime_seconds": round(metrics.uptime_seconds(), 1),
+        "server_time": metrics.server_time_iso(),
+        **stats,
     }
 
 
-@app.post("/ai/chat", response_model=ChatResponseBody)
+@app.post(
+    "/ai/chat",
+    response_model=ChatResponseBody,
+    summary="AI chat completion",
+    description=(
+        "Send a conversation to Gemini with moderation and per-IP rate limiting. "
+        "Requires `GEMINI_API_KEY` on the server."
+    ),
+    responses={
+        200: {"description": "Assistant reply with token usage"},
+        429: {"description": "Rate limit exceeded (client or provider)"},
+        502: {"description": "Upstream AI provider error"},
+        503: {"description": "AI chat not configured"},
+    },
+)
 async def ai_chat(http_request: Request, body: ChatRequestIn):
-    """
-    Forward chat to Gemini with moderation, retries (in provider),
-    usage logging, and per-IP rate limiting.
-    """
     if not getattr(app.state, "ai_chat_ready", False):
         raise HTTPException(
             status_code=503,
@@ -219,60 +321,37 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """
-    Main WebSocket endpoint for connected clients
-
-    Message format from client:
-    {
-        "action": "subscribe" | "unsubscribe",
-        "symbols": ["AAPL", "NVDA", ...]
-    }
-
-    Message format to client:
-    {
-        "type": "price_update",
-        "symbol": "AAPL",
-        "data": {
-            "price": 150.25,
-            "change": 0.50,
-            "changePercent": 0.33,
-            "volume": 1234567,
-            "timestamp": 1234567890
-        }
-    }
-    """
-    # Accept the WebSocket connection
+    """WebSocket endpoint for real-time stock subscriptions and price updates."""
     await websocket.accept()
     print(f"✅ New client connected: {websocket.client}")
 
-    # Register client
     client_id = client_manager.add_client(websocket)
 
+    async def ws_send(payload: dict) -> None:
+        await websocket.send_json(payload)
+        metrics.ws_messages_sent += 1
+
     try:
-        # Send welcome message
-        await websocket.send_json(
+        await ws_send(
             {"type": "connection", "status": "connected", "client_id": client_id}
         )
 
-        # Listen for messages from client
         while True:
-            # Receive message from client
             data = await websocket.receive_json()
+            metrics.ws_messages_received += 1
 
             action = data.get("action")
             symbols = data.get("symbols", [])
 
             if action == "subscribe":
-                # Subscribe to symbols
                 await subscription_manager.subscribe(client_id, symbols)
-                await websocket.send_json(
+                await ws_send(
                     {"type": "subscription", "status": "subscribed", "symbols": symbols}
                 )
 
             elif action == "unsubscribe":
-                # Unsubscribe from symbols
                 await subscription_manager.unsubscribe(client_id, symbols)
-                await websocket.send_json(
+                await ws_send(
                     {
                         "type": "subscription",
                         "status": "unsubscribed",
@@ -281,14 +360,12 @@ async def websocket_endpoint(websocket: WebSocket):
                 )
 
             else:
-                # Unknown action
-                await websocket.send_json(
+                await ws_send(
                     {"type": "error", "message": f"Unknown action: {action}"}
                 )
 
     except WebSocketDisconnect:
         print(f"❌ Client disconnected: {client_id}")
-        # Clean up: unsubscribe and remove client
         await subscription_manager.unsubscribe_all(client_id)
         client_manager.remove_client(client_id)
     except Exception as e:
@@ -306,6 +383,6 @@ if __name__ == "__main__":
         "main:app",
         host=host,
         port=port,
-        reload=True,  # Auto-reload on code changes (development)
+        reload=True,
         log_level="info",
     )

@@ -44,7 +44,11 @@ Edit `.env` and add your Finnhub API key:
 FINNHUB_API_KEY=your_actual_finnhub_api_key_here
 HOST=0.0.0.0
 PORT=8000
-FRONTEND_URL=http://local1. Go to [https://finnhub.io/](https://finnhub.io/)
+FRONTEND_URL=http://localhost:3000
+```
+
+Get your Finnhub API key:
+1. Go to [https://finnhub.io/](https://finnhub.io/)
 2. Sign up for a free account
 3. Get your API key from the dashboard
 
@@ -66,13 +70,36 @@ The server will start on `http://localhost:8000`
 
 Open your browser and visit:
 
-- `http://localhost:8000/` - Health check
-- `http://localhost:8000/health` - Detailed health status
-- `http://localhost:8000/docs` - FastAPI automatic API documentation
+- `http://localhost:8000/` - **API platform dashboard** (WebSocket streaming, AI chat, health, metrics)
+- `http://localhost:8000/health` - Health check JSON
+- `http://localhost:8000/metrics` - Runtime metrics JSON
+- `http://localhost:8000/docs` - OpenAPI / Swagger documentation
+
+## API Platform Dashboard
+
+The root URL (`/`) serves a standalone HTML dashboard — no Next.js frontend required. It includes:
+
+- **Live Stock Streaming** — subscribe form, subscribed-stocks table with per-row remove, auto-reconnect WebSocket
+- **AI Assistant** — chat UI wired to `POST /ai/chat`
+- **Health Status** — polls `GET /health`
+- **Backend Monitoring** — polls `GET /metrics` (CPU, memory, message counters)
+- **API Documentation** — link to `/docs`
+
+Static assets live in [`static/`](static/).
 
 ## API Endpoints
 
-### WebSocketz Endpoint
+### HTTP
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Dashboard UI |
+| `GET` | `/health` | Health and dependency status |
+| `GET` | `/metrics` | Runtime counters and system stats |
+| `POST` | `/ai/chat` | Gemini chat completion |
+| `GET` | `/docs` | Swagger UI |
+
+### WebSocket Endpoint
 
 **URL:** `ws://localhost:8000/ws`
 
@@ -137,6 +164,11 @@ Open your browser and visit:
 ```
 backend/
 ├── main.py                 # FastAPI application entry point
+├── metrics.py              # Runtime counters and system stats
+├── static/                 # Dashboard HTML/CSS/JS
+│   ├── index.html
+│   ├── dashboard.css
+│   └── dashboard.js
 ├── websocket_manager.py    # Finnhub WebSocket connection handler
 ├── client_manager.py       # WebSocket client connection manager
 ├── subscription_manager.py # Subscription logic and routing

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Market API Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+  <header class="page-header">
+    <h1>Real-Time Market API Dashboard</h1>
+    <p class="subtitle">Backend control panel — WebSocket streaming, AI chat, health &amp; metrics</p>
+  </header>
+
+  <main class="dashboard">
+  <section class="grid-top">
+    <article class="card" id="health-card">
+      <h2>Health Status</h2>
+      <p class="card-meta">Refreshed: <span id="health-refreshed">—</span></p>
+      <dl class="kv-list" id="health-list"></dl>
+    </article>
+
+    <article class="card" id="metrics-card">
+      <h2>Backend Monitoring</h2>
+      <p class="card-meta">Refreshed: <span id="metrics-refreshed">—</span></p>
+      <dl class="kv-list" id="metrics-list"></dl>
+    </article>
+  </section>
+
+  <section class="card" id="streaming-card">
+    <div class="card-header-row">
+      <h2>Live Stock Streaming</h2>
+      <div class="status-row">
+        <span class="status-label">Connection:</span>
+        <span id="ws-status" class="badge badge-disconnected">disconnected</span>
+        <span class="status-label">Last update:</span>
+        <span id="global-last-update" class="mono">—</span>
+      </div>
+    </div>
+
+    <form id="subscribe-form" class="subscribe-form" autocomplete="off">
+      <label for="ticker-input">Ticker</label>
+      <input
+        type="text"
+        id="ticker-input"
+        name="ticker"
+        placeholder="AAPL"
+        maxlength="5"
+        spellcheck="false"
+      />
+      <button type="submit" id="subscribe-btn">Subscribe</button>
+    </form>
+    <p id="subscribe-error" class="form-error" hidden></p>
+
+    <h3 class="subsection-title">Subscribed stocks</h3>
+    <div class="table-wrap">
+      <table id="stocks-table">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Price</th>
+            <th>Last Update</th>
+            <th>Status</th>
+            <th>Remove</th>
+          </tr>
+        </thead>
+        <tbody id="stocks-tbody">
+          <tr id="empty-row">
+            <td colspan="5" class="empty-cell">No subscriptions yet — add a ticker above</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="chat-card">
+    <h2>AI Assistant</h2>
+    <div id="chat-history" class="chat-history" aria-live="polite"></div>
+    <p id="chat-error" class="form-error" hidden></p>
+    <form id="chat-form" class="chat-form">
+      <textarea
+        id="chat-input"
+        rows="2"
+        placeholder="Ask about markets, finance concepts, or how to use the API…"
+      ></textarea>
+      <button type="submit" id="chat-send" disabled>Send</button>
+    </form>
+    <p id="chat-loading" class="chat-loading" hidden>Thinking…</p>
+  </section>
+
+  <section class="card" id="docs-card">
+    <h2>API Documentation</h2>
+    <p>Interactive OpenAPI docs for all HTTP endpoints. WebSocket protocol is described in the API overview.</p>
+    <a class="btn btn-primary" href="/docs" target="_blank" rel="noopener noreferrer">Open Swagger</a>
+  </section>
+  </main>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

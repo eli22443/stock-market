@@ -7,6 +7,8 @@ from fastapi import WebSocket
 from typing import Dict
 import uuid
 
+import metrics
+
 
 class ClientManager:
     """
@@ -85,6 +87,7 @@ class ClientManager:
         if client:
             try:
                 await client.send_json(message)
+                metrics.ws_messages_sent += 1
             except Exception as e:
                 print(f"❌ Failed to send message to client {client_id}: {e}")
                 # Remove client if connection is broken
@@ -106,6 +109,7 @@ class ClientManager:
 
             try:
                 await client.send_json(message)
+                metrics.ws_messages_sent += 1
             except Exception as e:
                 print(f"❌ Failed to broadcast to client {client_id}: {e}")
                 disconnected_clients.append(client_id)

@@ -38,10 +38,28 @@ class ChatMessageIn(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str = Field(..., min_length=1, max_length=16_384)
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{"role": "user", "content": "What is a P/E ratio?"}]
+        }
+    }
+
 
 class ChatRequestIn(BaseModel):
     messages: list[ChatMessageIn] = Field(..., min_length=1, max_length=48)
     context: str | None = Field(None, max_length=8_192)
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "messages": [
+                        {"role": "user", "content": "What is a P/E ratio?"}
+                    ]
+                }
+            ]
+        }
+    }
 
 
 class TokenUsage(BaseModel):
@@ -60,6 +78,26 @@ class ChatResponseBody(BaseModel):
     message: ChatAssistantMessage
     usage: TokenUsage
     estimated_cost_usd: float
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": "550e8400-e29b-41d4-a716-446655440000",
+                    "message": {
+                        "role": "assistant",
+                        "content": "The price-to-earnings (P/E) ratio compares a company's share price to its earnings per share.",
+                    },
+                    "usage": {
+                        "prompt_tokens": 42,
+                        "completion_tokens": 28,
+                        "total_tokens": 70,
+                    },
+                    "estimated_cost_usd": 0.000044,
+                }
+            ]
+        }
+    }
 
 
 _ROLE_OPENING = re.compile(
