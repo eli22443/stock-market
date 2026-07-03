@@ -9,6 +9,7 @@ from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
 import time
+from typing import Callable
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -160,11 +161,46 @@ app.add_middleware(
 )
 
 
+# Custom access logger replaces uvicorn's built-in access log (disabled via
+# access_log=False) so that requests show the real client IP instead of
+# 127.0.0.1 when running behind nginx.  Reads X-Forwarded-For set by nginx;
+# falls back to the socket peer for local development without a reverse proxy.
+# Static asset requests are excluded to reduce log noise.
+access_logger = logging.getLogger("access")
+
+_QUIET_PREFIXES = ("/static",)
+
+
+def _real_ip(request: Request) -> str:
+    """Extract the original client IP from X-Forwarded-For (set by nginx), or
+    fall back to the direct socket address for local dev."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 @app.middleware("http")
-async def count_http_requests(request: Request, call_next):
-    if not request.url.path.startswith("/static"):
+async def access_log_middleware(request: Request, call_next):
+    path = request.url.path
+    if not path.startswith(_QUIET_PREFIXES):
         metrics.http_requests_total += 1
-    return await call_next(request)
+
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - start) * 1000
+
+    if not path.startswith(_QUIET_PREFIXES):
+        access_logger.info(
+            '%s - "%s %s" %s %.0fms',
+            _real_ip(request),
+            request.method,
+            path,
+            response.status_code,
+            elapsed_ms,
+        )
+
+    return response
 
 
 if STATIC_DIR.is_dir():
@@ -283,11 +319,7 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
             detail="AI chat is not configured. Set GEMINI_API_KEY on the server.",
         )
 
-    forwarded = http_request.headers.get("x-forwarded-for")
-    if forwarded:
-        client_ip = forwarded.split(",")[0].strip()
-    else:
-        client_ip = http_request.client.host if http_request.client else "unknown"
+    client_ip = _real_ip(http_request)
 
     if not chat_rate_limiter.allow(client_ip):
         logger.warning("chat rate limit exceeded ip=%s", client_ip)
@@ -383,4 +415,5 @@ if __name__ == "__main__":
         port=port,
         reload=True,
         log_level="info",
+        access_log=False,
     )
