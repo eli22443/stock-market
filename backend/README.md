@@ -58,7 +58,10 @@ The root URL (`/`) serves a standalone HTML dashboard with:
 - **Live Stock Streaming** — subscribe form, live price table with per-row remove, auto-reconnect WebSocket
 - **AI Assistant** — chat UI wired to `POST /ai/chat`
 - **Health Status** — polls `GET /health`
-- **Backend Monitoring** — polls `GET /metrics` (CPU, memory, message counters)
+- **Backend Monitoring** — polls `GET /metrics` (CPU, memory, message counters, latency)
+- **Recent Activity** — polls `GET /activity` (HTTP, WebSocket, AI events)
+- **Deployment** — runtime environment info in health panel
+- **Architecture** — static system diagram
 - **API Documentation** — link to Swagger at `/docs`
 
 Static assets live in [`static/`](static/).
@@ -71,7 +74,8 @@ Static assets live in [`static/`](static/).
 |--------|------------|----------------------------------|
 | `GET`  | `/`        | Dashboard UI                     |
 | `GET`  | `/health`  | Health and dependency status     |
-| `GET`  | `/metrics` | Runtime counters and system stats|
+| `GET`  | `/metrics` | Runtime counters, latency, and system stats |
+| `GET`  | `/activity` | Recent backend events (activity log) |
 | `POST` | `/ai/chat` | Gemini chat completion           |
 | `GET`  | `/docs`    | Swagger UI (OpenAPI)             |
 
@@ -122,7 +126,8 @@ Subscription confirmation:
 ```
 backend/
 ├── main.py                 # FastAPI application entry point
-├── metrics.py              # Runtime counters and system stats
+├── metrics.py              # Runtime counters, latency, and system stats
+├── activity_log.py         # In-memory recent activity ring buffer
 ├── ai_provider.py          # Gemini API provider
 ├── chat_service.py         # Chat orchestration and moderation
 ├── websocket_manager.py    # Finnhub WebSocket connection handler

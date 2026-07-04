@@ -18,13 +18,25 @@
       <h2>Health Status</h2>
       <p class="card-meta">Refreshed: <span id="health-refreshed">—</span></p>
       <dl class="kv-list" id="health-list"></dl>
+      <h3 class="subsection-title">Deployment</h3>
+      <dl class="kv-list" id="deployment-list"></dl>
     </article>
 
     <article class="card" id="metrics-card">
       <h2>Backend Monitoring</h2>
       <p class="card-meta">Refreshed: <span id="metrics-refreshed">—</span></p>
       <dl class="kv-list" id="metrics-list"></dl>
+      <h3 class="subsection-title">Latency</h3>
+      <dl class="kv-list" id="latency-list"></dl>
     </article>
+  </section>
+
+  <section class="card" id="activity-card">
+    <h2>Recent Activity</h2>
+    <p class="card-meta">Refreshed: <span id="activity-refreshed">—</span></p>
+    <div id="activity-log" class="activity-log">
+      <p class="empty-cell">No activity yet.</p>
+    </div>
   </section>
 
   <section class="card" id="streaming-card">
@@ -86,6 +98,26 @@
       <button type="submit" id="chat-send" disabled>Send</button>
     </form>
     <p id="chat-loading" class="chat-loading" hidden>Thinking…</p>
+  </section>
+
+  <section class="card" id="architecture-card">
+    <h2>Architecture</h2>
+    <div class="arch-diagram" aria-label="System architecture diagram">
+      <div class="arch-node arch-node-top">Browser Dashboard</div>
+      <div class="arch-connector"></div>
+      <div class="arch-node arch-node-main">FastAPI</div>
+      <div class="arch-row">
+        <div class="arch-node arch-node-sub">REST API</div>
+        <div class="arch-node arch-node-sub">WebSocket</div>
+        <div class="arch-node arch-node-sub">AI Service</div>
+        <div class="arch-node arch-node-sub">Monitoring</div>
+      </div>
+      <div class="arch-connector arch-connector-split"></div>
+      <div class="arch-row">
+        <div class="arch-node arch-node-ext">Finnhub API</div>
+        <div class="arch-node arch-node-ext">Gemini API</div>
+      </div>
+    </div>
   </section>
 
   <section class="card" id="docs-card">

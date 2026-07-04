@@ -23,9 +23,13 @@
   const stocksTbody = document.getElementById("stocks-tbody");
   const emptyRow = document.getElementById("empty-row");
   const healthList = document.getElementById("health-list");
+  const deploymentList = document.getElementById("deployment-list");
   const metricsList = document.getElementById("metrics-list");
+  const latencyList = document.getElementById("latency-list");
   const healthRefreshed = document.getElementById("health-refreshed");
   const metricsRefreshed = document.getElementById("metrics-refreshed");
+  const activityLog = document.getElementById("activity-log");
+  const activityRefreshed = document.getElementById("activity-refreshed");
   const chatHistory = document.getElementById("chat-history");
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
@@ -307,6 +311,16 @@
         ["Clients", data.clients ?? "—"],
         ["Subscriptions", data.subscriptions ?? "—"],
       ]);
+      if (data.deployment) {
+        const d = data.deployment;
+        renderKvList(deploymentList, [
+          ["Environment", d.environment || "—"],
+          ["AWS Region", d.aws_region || "—"],
+          ["Python", d.python_version || "—"],
+          ["FastAPI", d.fastapi_version || "—"],
+          ["Uvicorn", d.uvicorn_version || "—"],
+        ]);
+      }
       healthRefreshed.textContent = formatTime(new Date());
       chatSend.disabled = chatLoading;
     } catch {
@@ -336,6 +350,7 @@
         ["Uptime", formatUptime(data.uptime_seconds)],
         ["Server time", data.server_time || "—"],
       ]);
+      renderLatencyList(data.latency);
       metricsRefreshed.textContent = formatTime(new Date());
     } catch {
       metricsRefreshed.textContent = "error";
@@ -351,6 +366,76 @@
     if (h > 0) return h + "h " + m + "m " + r + "s";
     if (m > 0) return m + "m " + r + "s";
     return r + "s";
+  }
+
+  function formatActivityTs(iso) {
+    if (!iso) return "—";
+    try {
+      return formatTime(new Date(iso));
+    } catch {
+      return iso;
+    }
+  }
+
+  function formatLatency(val, emptyHint) {
+    if (val == null || val.avg_ms == null) {
+      return emptyHint ? "— (" + emptyHint + ")" : "—";
+    }
+    return "avg " + val.avg_ms + "ms, last " + (val.last_ms ?? "—") + "ms";
+  }
+
+  function renderLatencyList(latency) {
+    if (!latency) {
+      latencyList.innerHTML = "";
+      return;
+    }
+    renderKvList(latencyList, [
+      ["REST API", formatLatency(latency.rest_api)],
+      ["AI Chat", formatLatency(latency.ai_chat)],
+      ["WS command handling", formatLatency(latency.ws_message)],
+      ["Finnhub fan-out", formatLatency(latency.finnhub, "no samples")],
+    ]);
+  }
+
+  function renderActivity(events) {
+    activityLog.innerHTML = "";
+    if (!events || events.length === 0) {
+      const p = document.createElement("p");
+      p.className = "empty-cell";
+      p.style.margin = "0";
+      p.style.padding = "0.5rem";
+      p.textContent = "No activity yet.";
+      activityLog.appendChild(p);
+      return;
+    }
+    events.forEach(function (ev) {
+      const row = document.createElement("div");
+      row.className = "activity-entry activity-" + (ev.level || "info");
+      const ts = document.createElement("span");
+      ts.className = "activity-ts";
+      ts.textContent = formatActivityTs(ev.ts);
+      const type = document.createElement("span");
+      type.className = "activity-type";
+      type.textContent = ev.type || "event";
+      const summary = document.createElement("span");
+      summary.className = "activity-summary";
+      summary.textContent = ev.summary || "";
+      row.appendChild(ts);
+      row.appendChild(type);
+      row.appendChild(summary);
+      activityLog.appendChild(row);
+    });
+  }
+
+  async function refreshActivity() {
+    try {
+      const res = await fetch("/activity");
+      const data = await res.json();
+      renderActivity(data);
+      activityRefreshed.textContent = formatTime(new Date());
+    } catch {
+      activityRefreshed.textContent = "error";
+    }
   }
 
   function renderChat() {
@@ -448,7 +533,9 @@
   connectWebSocket();
   refreshHealth();
   refreshMetrics();
+  refreshActivity();
   setInterval(refreshHealth, POLL_MS);
   setInterval(refreshMetrics, POLL_MS);
+  setInterval(refreshActivity, POLL_MS);
   setInterval(checkStale, 5_000);
 })();

@@ -4,6 +4,7 @@ Manages symbol subscriptions and routes updates to clients
 """
 
 from typing import Dict, Set, List
+import time
 
 import metrics
 from websocket_manager import FinnhubWebSocketManager
@@ -145,6 +146,7 @@ class SubscriptionManager:
             message: Message dictionary from Finnhub
         """
         if message.get("type") == "trade" and "data" in message:
+            started = time.perf_counter()
             metrics.finnhub_messages_received += 1
             trades = message["data"]
 
@@ -170,3 +172,5 @@ class SubscriptionManager:
                 # Broadcast to all subscribed clients
                 for client_id in clients_to_notify:
                     await self.client_manager.send_to_client(client_id, update_message)
+
+            metrics.finnhub_latency.record((time.perf_counter() - started) * 1000)

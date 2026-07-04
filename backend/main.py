@@ -5,17 +5,20 @@ Connects to Finnhub WebSocket and broadcasts to connected clients
 
 import logging
 import os
+import platform
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
 import time
-from typing import Callable
 
+import fastapi
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
+import activity_log
 import metrics
 from websocket_manager import FinnhubWebSocketManager
 from client_manager import ClientManager
@@ -96,6 +99,20 @@ _chat_window = float(os.getenv("GEMINI_CHAT_RATE_WINDOW_SECONDS", "60"))
 chat_rate_limiter = SlidingWindowRateLimiter(_chat_limit, _chat_window)
 
 
+def _short_id(client_id: str) -> str:
+    return client_id.split("-")[0]
+
+
+def _deployment_info() -> dict:
+    return {
+        "environment": os.getenv("DEPLOYMENT_ENV", "development"),
+        "aws_region": os.getenv("AWS_REGION", "local"),
+        "python_version": platform.python_version(),
+        "fastapi_version": fastapi.__version__,
+        "uvicorn_version": uvicorn.__version__,
+    }
+
+
 def _health_payload(request: Request) -> dict:
     finnhub_ok = finnhub_manager.is_connected()
     return {
@@ -110,6 +127,7 @@ def _health_payload(request: Request) -> dict:
         "clients": client_manager.get_client_count(),
         "subscriptions": subscription_manager.get_subscription_count(),
         "subscribed_symbols": subscription_manager.get_subscribed_symbols(),
+        "deployment": _deployment_info(),
     }
 
 
@@ -118,8 +136,10 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     metrics.mark_started()
     print("🚀 Starting server...")
+    activity_log.record_event("info", "Server starting")
     await finnhub_manager.connect()
     print("✅ Connected to Finnhub WebSocket")
+    activity_log.record_event("info", "Connected to Finnhub WebSocket")
 
     api_key = (os.getenv("GEMINI_API_KEY") or "").strip()
     chat_model = os.getenv("GEMINI_CHAT_MODEL", "gemini-3.1-flash-lite")
@@ -158,6 +178,7 @@ app = FastAPI(
 access_logger = logging.getLogger("access")
 
 _QUIET_PREFIXES = ("/static",)
+_ACTIVITY_SKIP_PATHS = {"/health", "/metrics", "/activity", "/favicon.ico"}
 
 
 def _real_ip(request: Request) -> str:
@@ -183,6 +204,7 @@ async def access_log_middleware(request: Request, call_next):
     elapsed_ms = (time.perf_counter() - start) * 1000
 
     if not path.startswith(_QUIET_PREFIXES):
+        metrics.rest_api_latency.record(elapsed_ms)
         access_logger.info(
             '%s - "%s %s" %s %.0fms',
             _real_ip(request),
@@ -191,6 +213,12 @@ async def access_log_middleware(request: Request, call_next):
             response.status_code,
             elapsed_ms,
         )
+        if path not in _ACTIVITY_SKIP_PATHS:
+            activity_log.record_event(
+                "http",
+                f'{request.method} {path} {response.status_code} {elapsed_ms:.0f}ms',
+                level="warn" if response.status_code >= 400 else "info",
+            )
 
     return response
 
@@ -267,6 +295,28 @@ async def health(request: Request):
                         "memory_percent": 45.2,
                         "memory_used_mb": 128.0,
                         "server_time": "2026-07-03T11:00:00Z",
+                        "latency": {
+                            "rest_api": {
+                                "avg_ms": 1.2,
+                                "last_ms": 0.8,
+                                "samples": 100,
+                            },
+                            "ai_chat": {
+                                "avg_ms": 1240.0,
+                                "last_ms": 1100.0,
+                                "samples": 5,
+                            },
+                            "ws_message": {
+                                "avg_ms": 0.3,
+                                "last_ms": 0.2,
+                                "samples": 100,
+                            },
+                            "finnhub": {
+                                "avg_ms": 0.5,
+                                "last_ms": 0.4,
+                                "samples": 100,
+                            },
+                        },
                     }
                 }
             },
@@ -286,7 +336,17 @@ async def get_metrics():
         "uptime_seconds": round(metrics.uptime_seconds(), 1),
         "server_time": metrics.server_time_iso(),
         **stats,
+        "latency": metrics.latency_snapshot(),
     }
+
+
+@app.get(
+    "/activity",
+    summary="Recent activity log",
+    description="Recent backend events for the dashboard activity panel.",
+)
+async def get_activity(limit: int = 50):
+    return activity_log.get_events(limit)
 
 
 @app.post(
@@ -315,6 +375,9 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
 
     if not chat_rate_limiter.allow(client_ip):
         logger.warning("chat rate limit exceeded ip=%s", client_ip)
+        activity_log.record_event(
+            "ai_error", "AI chat 429: rate limited", level="warn"
+        )
         raise HTTPException(
             status_code=429,
             detail="Too many requests. Please wait a moment and try again.",
@@ -322,21 +385,38 @@ async def ai_chat(http_request: Request, body: ChatRequestIn):
 
     provider = app.state.ai_chat_provider
     model = app.state.ai_chat_model
+    started = time.perf_counter()
     try:
-        return await handle_chat_request(body=body, provider=provider, chat_model=model)
+        result = await handle_chat_request(
+            body=body, provider=provider, chat_model=model
+        )
+        elapsed_ms = (time.perf_counter() - started) * 1000
+        metrics.ai_chat_latency.record(elapsed_ms)
+        activity_log.record_event(
+            "ai_request",
+            f"AI chat 200 {elapsed_ms:.0f}ms ({result.usage.total_tokens} tokens)",
+        )
+        return result
     except AIProviderRateLimitError:
+        activity_log.record_event(
+            "ai_error", "AI chat 429: provider busy", level="warn"
+        )
         raise HTTPException(
             status_code=429,
             detail="The AI service is busy. Please try again shortly.",
         ) from None
     except AIProviderError as e:
         logger.warning("AI provider error: %s", e)
+        activity_log.record_event(
+            "ai_error", f"AI chat 502: {e}", level="error"
+        )
         raise HTTPException(
             status_code=502,
             detail="The AI service returned an error. Please try again.",
         ) from None
     except Exception:
         logger.exception("ai_chat failed")
+        activity_log.record_event("ai_error", "AI chat 502: internal error", level="error")
         raise HTTPException(
             status_code=502,
             detail="Could not complete the request. Please try again.",
@@ -350,6 +430,9 @@ async def websocket_endpoint(websocket: WebSocket):
     print(f"✅ New client connected: {websocket.client}")
 
     client_id = client_manager.add_client(websocket)
+    activity_log.record_event(
+        "ws_connect", f"Client {_short_id(client_id)} connected"
+    )
 
     async def ws_send(payload: dict) -> None:
         await websocket.send_json(payload)
@@ -362,6 +445,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         while True:
             data = await websocket.receive_json()
+            ws_start = time.perf_counter()
             metrics.ws_messages_received += 1
 
             action = data.get("action")
@@ -371,6 +455,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 await subscription_manager.subscribe(client_id, symbols)
                 await ws_send(
                     {"type": "subscription", "status": "subscribed", "symbols": symbols}
+                )
+                sym_list = ", ".join(s.upper() for s in symbols)
+                activity_log.record_event(
+                    "subscribe",
+                    f"Client {_short_id(client_id)} subscribed {sym_list}",
                 )
 
             elif action == "unsubscribe":
@@ -382,16 +471,36 @@ async def websocket_endpoint(websocket: WebSocket):
                         "symbols": symbols,
                     }
                 )
+                sym_list = ", ".join(s.upper() for s in symbols)
+                activity_log.record_event(
+                    "unsubscribe",
+                    f"Client {_short_id(client_id)} unsubscribed {sym_list}",
+                )
 
             else:
                 await ws_send({"type": "error", "message": f"Unknown action: {action}"})
+                activity_log.record_event(
+                    "error",
+                    f"Unknown WS action from {_short_id(client_id)}: {action}",
+                    level="warn",
+                )
+
+            metrics.ws_message_latency.record((time.perf_counter() - ws_start) * 1000)
 
     except WebSocketDisconnect:
         print(f"❌ Client disconnected: {client_id}")
+        activity_log.record_event(
+            "ws_disconnect", f"Client {_short_id(client_id)} disconnected"
+        )
         await subscription_manager.unsubscribe_all(client_id)
         client_manager.remove_client(client_id)
     except Exception as e:
         print(f"❌ Error with client {client_id}: {e}")
+        activity_log.record_event(
+            "error",
+            f"WebSocket error ({_short_id(client_id)}): {e}",
+            level="error",
+        )
         client_manager.remove_client(client_id)
 
 
