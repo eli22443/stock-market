@@ -45,11 +45,41 @@ Get your Finnhub API key at [finnhub.io](https://finnhub.io/) (free tier availab
 
 ### 3. Run the server
 
+**Development** (auto-reload, all interfaces):
+
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+Or:
+
+```bash
+python main.py
+```
+
 Open `http://localhost:8000/` to access the dashboard.
+
+## Running in production
+
+The backend is a standard **ASGI** app — deploy with **uvicorn** (or any ASGI server) on any host: VPS, Docker, Railway, Render, Fly.io, etc.
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1 --no-access-log
+```
+
+| Pattern | `HOST` | Notes |
+|---------|--------|-------|
+| Direct exposure (PaaS, Docker) | `0.0.0.0` | Platform handles TLS |
+| Behind reverse proxy (nginx, Caddy, Traefik) | `127.0.0.1` | Proxy terminates TLS and forwards to uvicorn |
+
+Optional env vars for the dashboard **Deployment** panel:
+
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `DEPLOYMENT_ENV` | `production` | Shown in health/deployment info |
+| `REGION` | `eu-north-1` | Optional label (any cloud or datacenter) |
+
+Health check: `GET /health` · Metrics: `GET /metrics`
 
 ## Dashboard
 
@@ -137,8 +167,8 @@ backend/
 │   ├── index.html
 │   ├── dashboard.css
 │   └── dashboard.js
-├── deploy/                 # AWS EC2 production configs
-│   ├── README.md            # Production runbook
+├── deploy/                 # Optional: AWS EC2 production configs (see deploy/README.md)
+│   ├── README.md            # AWS production runbook
 │   ├── bootstrap.sh         # One-time EC2 provisioning
 │   ├── fetch-env.sh         # Fetches env from SSM Parameter Store
 │   ├── nginx.conf           # Reverse proxy + WebSocket upgrade
@@ -170,12 +200,14 @@ backend/
 
 ### Server
 
-| Variable | Dev | Production (EC2) |
-|----------|-----|------------------|
-| `HOST` | `0.0.0.0` | `127.0.0.1` (behind nginx) |
-| `PORT` | `8000` | `8000` |
+| Variable | Typical local | Typical production |
+|----------|---------------|-------------------|
+| `HOST` | `0.0.0.0` | `0.0.0.0` (direct) or `127.0.0.1` (behind reverse proxy) |
+| `PORT` | `8000` | `8000` (or platform-assigned) |
+| `DEPLOYMENT_ENV` | `development` | `production` |
+| `REGION` | — | Optional region label for dashboard (any provider) |
 
-### Optional
+### Optional (AI tuning)
 
 | Variable | Description |
 |----------|-------------|
@@ -195,19 +227,15 @@ See [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md) for the full list 
 - **No price updates** — verify you've subscribed to symbols and the market is open
 - **AI chat returns 503** — `GEMINI_API_KEY` is not set
 
-## Deployment
+## AWS deployment (optional)
 
-Deployed to **AWS EC2** (`t3.micro`, `eu-north-1`).
+This repo includes an **AWS EC2** production setup under [`deploy/`](deploy/). That is one way to run uvicorn in production — not required for local or other hosts.
 
-| Service   | URL                                              |
+| Service   | URL (this project's live instance)              |
 |-----------|--------------------------------------------------|
 | Dashboard | `https://api.stock-market-seven-delta.app`       |
 | WebSocket | `wss://api.stock-market-seven-delta.app/ws`      |
 | Health    | `https://api.stock-market-seven-delta.app/health` |
 | Docs      | `https://api.stock-market-seven-delta.app/docs`  |
 
-**Stack:** EC2 → nginx (TLS via Let's Encrypt) → uvicorn (`127.0.0.1:8000`) → CloudWatch (metrics + logs + SNS alarms)
-
-Production `.env` is generated from SSM Parameter Store by [`deploy/fetch-env.sh`](deploy/fetch-env.sh). CI/CD runs via GitHub Actions + OIDC + SSM Run Command (no SSH keys in GitHub).
-
-See [`deploy/README.md`](deploy/README.md) for the full production runbook: SSH access, setup, CI/CD, CloudWatch, and security.
+See [`deploy/README.md`](deploy/README.md) for EC2 provisioning, nginx, SSM secrets, CI/CD, and CloudWatch.

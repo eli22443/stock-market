@@ -106,7 +106,9 @@ def _short_id(client_id: str) -> str:
 def _deployment_info() -> dict:
     return {
         "environment": os.getenv("DEPLOYMENT_ENV", "development"),
-        "aws_region": os.getenv("AWS_REGION", "local"),
+        "region": os.getenv("REGION") or os.getenv("AWS_REGION") or "local",
+        "host": os.getenv("HOST", "0.0.0.0"),
+        "port": os.getenv("PORT", "8000"),
         "python_version": platform.python_version(),
         "fastapi_version": fastapi.__version__,
         "uvicorn_version": uvicorn.__version__,
@@ -171,9 +173,9 @@ app = FastAPI(
 )
 
 # Custom access logger replaces uvicorn's built-in access log (disabled via
-# access_log=False) so that requests show the real client IP instead of
-# 127.0.0.1 when running behind nginx.  Reads X-Forwarded-For set by nginx;
-# falls back to the socket peer for local development without a reverse proxy.
+# access_log=False) so that requests show the real client IP instead of the
+# proxy peer when running behind a reverse proxy. Reads X-Forwarded-For when
+# present; falls back to X-Real-IP, then the direct socket address for local dev.
 # Static asset requests are excluded to reduce log noise.
 access_logger = logging.getLogger("access")
 
@@ -182,7 +184,7 @@ _ACTIVITY_SKIP_PATHS = {"/health", "/metrics", "/activity", "/favicon.ico"}
 
 
 def _real_ip(request: Request) -> str:
-    """Extract the original client IP from X-Forwarded-For (set by nginx), or
+    """Extract the original client IP from X-Forwarded-For (reverse proxy), or
     fall back to X-Real-IP, then the direct socket address for local dev."""
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:

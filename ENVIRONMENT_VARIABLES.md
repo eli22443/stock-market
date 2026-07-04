@@ -75,13 +75,14 @@ This document lists all environment variables used in the Stock Market applicati
 - **`HOST`**
   - Description: Server host address
   - Development: `0.0.0.0`
-  - Production (EC2 behind nginx): `127.0.0.1`
+  - Production (direct): `0.0.0.0` (PaaS, Docker, etc.)
+  - Production (behind reverse proxy): `127.0.0.1`
   - Public: No
 
 - **`PORT`**
   - Description: Server port number
   - Development: `8000`
-  - Production (EC2): `8000` (nginx proxies 443 → localhost:8000)
+  - Production: `8000` (or platform-assigned)
   - Public: No
 
 - **`GEMINI_API_KEY`**
@@ -169,9 +170,22 @@ BACKEND_URL=https://api.stock-market-seven-delta.app
 NEXT_URL=https://stock-market-seven-delta.app
 ```
 
-**Backend (AWS SSM Parameter Store — path `/stock-market/prod/`):**
+**Backend (any host — `.env` or platform env):**
 
-Production secrets and config live in SSM, not in git. On EC2, [`backend/deploy/fetch-env.sh`](backend/deploy/fetch-env.sh) writes `backend/.env` at boot and on each deploy restart.
+```env
+FINNHUB_API_KEY=your_finnhub_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+HOST=0.0.0.0
+PORT=8000
+DEPLOYMENT_ENV=production
+REGION=eu-north-1
+```
+
+Run with: `uvicorn main:app --host 0.0.0.0 --port 8000 --no-access-log`
+
+**Backend (AWS EC2 — optional; see [`backend/deploy/README.md`](backend/deploy/README.md)):**
+
+Production secrets on EC2 live in **AWS SSM Parameter Store** under `/stock-market/prod/`. On EC2, [`backend/deploy/fetch-env.sh`](backend/deploy/fetch-env.sh) writes `backend/.env` at boot and on each deploy restart.
 
 | SSM parameter | Type | Notes |
 |---------------|------|-------|

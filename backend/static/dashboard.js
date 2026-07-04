@@ -315,7 +315,9 @@
         const d = data.deployment;
         renderKvList(deploymentList, [
           ["Environment", d.environment || "—"],
-          ["AWS Region", d.aws_region || "—"],
+          ["Region", d.region || "—"],
+          ["Host", d.host || "—"],
+          ["Port", d.port || "—"],
           ["Python", d.python_version || "—"],
           ["FastAPI", d.fastapi_version || "—"],
           ["Uvicorn", d.uvicorn_version || "—"],
