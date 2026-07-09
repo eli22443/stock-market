@@ -1,352 +1,101 @@
-# Stock Market App - Portfolio Manager
+# Stock Market — Portfolio Manager & Real-Time Market API
 
-A full-stack real-time stock market tracking and portfolio management application with user authentication, watchlists, investment portfolios, and price alerts.
+Production full-stack app for portfolio tracking, watchlists, live market data, and an AI assistant.
 
-## 🌟 Features
+**[Live App](https://stock-market-seven-delta.app)** ·
+**[API Dashboard](https://api.stock-market-seven-delta.app)** ·
+**[OpenAPI Docs](https://api.stock-market-seven-delta.app/docs)**
 
-### Portfolio Management
+![Deploy Backend](https://github.com/eli22443/stock-market/actions/workflows/deploy-backend.yml/badge.svg)
 
-- **Investment Portfolios**: Create and manage multiple investment portfolios
-- **Holdings Tracking**: Track individual stock holdings with purchase price, quantity, and dates
-- **Performance Analytics**: View portfolio performance, gains/losses, and percentage changes
-- **Portfolio Valuation**: Real-time portfolio value calculations
+Deployed on **Vercel** (frontend) + **AWS EC2** (backend) + **Supabase** (PostgreSQL + RLS).
 
-### Stock Tracking
+## Demo
 
-- **Real-time Stock Data**: Live price updates via WebSocket
-- **Watchlists**: Create and manage custom stock watchlists
-- **Price Alerts**: Set up alerts for price movements and volume spikes
-- **Interactive Charts**: Stock price and volume charts using Chart.js
-- **World Indices**: Track major global stock indices (S&P 500, NASDAQ, etc.)
+![App demo](docs/images/demo.gif)
 
-### User Features
+## Screenshots
 
-- **User Authentication**: Secure auth with Supabase (Email/Password & Google OAuth)
-- **Market News**: Latest market and company news
-- **AI Chat Assistant**: Protected Gemini-powered assistant for market/app Q&A
-- **Responsive Design**: Mobile-friendly UI with Tailwind CSS
+| App dashboard | Portfolio manager |
+|---------------|-------------------|
+| ![Live stock dashboard](docs/images/app-dashboard.png) | ![Portfolio manager](docs/images/portfolio.png) |
 
-## 🏗️ Architecture
+| API metrics | OpenAPI / Swagger |
+|-------------|-------------------|
+| ![API metrics dashboard](docs/images/api-metrics.png) | ![Swagger docs](docs/images/swagger.png) |
+
+## Highlights
+
+- **Real-time backend** — FastAPI WebSocket fan-out from Finnhub; `/health`, `/metrics`, `/activity` endpoints
+- **Performance** — ~20 ms REST avg under normal load; k6-tested at 100 VUs (~263 req/s, p95 ~85 ms, 100% success) — [details](docs/PERFORMANCE.md)
+- **Cloud deploy** — AWS EC2 + Nginx + HTTPS; GitHub Actions OIDC + SSM Parameter Store; CloudWatch alarms
+- **Full-stack app** — Next.js 16 on Vercel; 19 API routes; Supabase Auth (OAuth + JWT) + 7 RLS-protected tables
+- **AI** — Gemini assistant with moderation, rate limiting, and input validation
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Application Stack                    │
 ├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Frontend (Next.js 16)                                  │
-│  └─ Vercel → stock-market-seven-delta.app               │
-│     - TypeScript, React 19                              │
-│     - Tailwind CSS, Shadcn UI                           │
-│     - Real-time WebSocket client                        │
-│                                                         │
-│  Backend (Python FastAPI)                               │
-│  └─ AWS EC2 (eu-north-1, t3.micro) + nginx + Let's Encrypt
-│     - api.stock-market-seven-delta.app                  │
-│     - SSM secrets, GitHub OIDC deploy, CloudWatch       │
-│     - WebSocket server for real-time data               │
-│     - Finnhub WebSocket integration                     │
-│                                                         │
-│  Database (Supabase)                                    │
-│  └─ PostgreSQL                                          │
-│     - User authentication                               │
-│     - Watchlists, Portfolios, Alerts                    │
-│     - Row Level Security (RLS)                          │
-│                                                         │
-│  External APIs                                          │
-│  ├─ Yahoo Finance API (stock data)                      │
-│  └─ Finnhub API (real-time WebSocket)                   │
-│                                                         │
+│  Frontend (Next.js 16)  →  Vercel                       │
+│  Backend (FastAPI)      →  AWS EC2 + Nginx + TLS        │
+│  Database               →  Supabase PostgreSQL + RLS    │
+│  Real-time data         →  Finnhub WebSocket            │
+│  Market data            →  Yahoo Finance API              │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for auth flows, trust boundaries, and deployment topology.
 
-### Prerequisites
+## Tech stack
 
-- **Node.js** 18+ (for frontend)
-- **Python** 3.11+ (for backend)
-- **Supabase Account** (for database and auth)
-- **Finnhub API Key** (for real-time stock data)
-- **Yahoo Finance API** (free, no key required)
+| Layer | Technologies |
+|-------|----------------|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS, Shadcn UI, Chart.js |
+| Backend | FastAPI, Uvicorn, WebSockets, Finnhub, Gemini, OpenAPI/Swagger |
+| Data | Supabase, PostgreSQL, RLS, OAuth, JWT |
+| Cloud | AWS EC2, Nginx, SSM, CloudWatch, GitHub Actions (OIDC) |
+| Hosting | Vercel (frontend) |
 
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-
-# Create .env.local with your Supabase credentials
-cp .env.example .env.local
-# Edit .env.local with your values
-
-npm run dev
-```
-
-Frontend will run on [http://localhost:3000](http://localhost:3000)
-
-### Backend Setup
+## Quick start
 
 ```bash
-cd backend
-python -m venv venv
+# Backend
+cd backend && pip install -r requirements.txt && python main.py
 
-# Windows
-venv\Scripts\activate
-
-# macOS/Linux
-source venv/bin/activate
-
-pip install -r requirements.txt
-
-# Create .env file
-cp .env.example .env
-# Edit .env with your Finnhub API key
-
-python main.py
+# Frontend (separate terminal)
+cd frontend && npm install && npm run dev
 ```
 
-Backend will run on [http://localhost:8000](http://localhost:8000)
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
+- API docs: http://localhost:8000/docs
 
-## 📁 Project Structure
+Full setup (env vars, production URLs, API reference): **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**
 
-```
-stock-market/
-├── frontend/              # Next.js frontend application
-│   ├── app/              # Next.js App Router pages
-│   ├── components/       # React components
-│   ├── context/          # React contexts
-│   ├── hooks/            # Custom hooks
-│   ├── lib/              # Utilities and Supabase clients
-│   ├── services/         # API service functions
-│   └── types/            # TypeScript types
-│
-├── backend/               # Python FastAPI backend
-│   ├── main.py          # FastAPI application
-│   ├── deploy/          # EC2 nginx, systemd, bootstrap, IAM templates
-│   ├── websocket_manager.py    # Finnhub WebSocket handler
-│   ├── client_manager.py        # Client connection manager
-│   ├── subscription_manager.py  # Subscription logic
-│   └── requirements.txt         # Python dependencies
-│
-└── README.md            # This file
-```
+## Documentation
 
-## 🎯 Key Features
+- [Getting Started](docs/GETTING_STARTED.md) — local setup and API reference
+- [Architecture](docs/ARCHITECTURE.md) — system design, auth, and deployment
+- [Performance & Load Testing](docs/PERFORMANCE.md) — metrics and k6 benchmarks
+- [Environment Variables](ENVIRONMENT_VARIABLES.md)
+- [Backend Deploy (AWS)](backend/deploy/README.md)
+- [Frontend](frontend/README.md) · [Backend](backend/README.md)
 
-### Portfolio Manager
+## Production URLs
 
-The core feature of this application is comprehensive portfolio management:
+| Service | URL |
+|---------|-----|
+| Frontend | https://stock-market-seven-delta.app |
+| Backend API | https://api.stock-market-seven-delta.app |
+| API docs | https://api.stock-market-seven-delta.app/docs |
+| WebSocket | wss://api.stock-market-seven-delta.app/ws |
 
-- Create multiple investment portfolios
-- Add holdings with purchase details (price, quantity, date)
-- Track portfolio performance in real-time
-- View gains/losses and percentage changes
-- Monitor portfolio value with live stock prices
-- Analyze individual holding performance
+## Author
 
-### Public Pages
+**Elias Abeba** — [LinkedIn](https://www.linkedin.com/in/elias-abeba) · [GitHub](https://github.com/eli22443)
 
-- **Home**: Market overview with trending stocks
-- **Stocks**: Browse stocks by category (gainers, losers, most-active, trending)
-- **Quote**: Detailed stock information with charts and news
-- **News**: Market news feed
-- **World Indices**: Global stock indices
+Student portfolio project · Ben-Gurion University of the Negev
 
-### Protected Pages (Requires Login)
-
-- **Dashboard**: User dashboard with portfolio overview
-- **Portfolios**: **Portfolio Manager** - Create, manage, and track investment portfolios with holdings, performance metrics, and real-time valuations
-- **Watchlists**: Create and manage stock watchlists
-- **Alerts**: Set up price alerts for stocks
-- **Assistant**: Gemini chat assistant for market and product-help questions
-
-## 🔐 Authentication
-
-- **Email/Password**: Traditional signup and login
-- **Google OAuth**: Social authentication
-- **Session Management**: Automatic session refresh
-- **Protected Routes**: Middleware-based route protection
-
-## 📡 Real-time Features
-
-- **WebSocket Connection**: Real-time stock price updates
-- **Automatic Subscriptions**: Subscribe to stocks automatically
-- **Live Price Updates**: Prices update in real-time on cards and charts
-- **Reconnection**: Automatic reconnection on disconnect
-
-## 🛠️ Tech Stack
-
-### Frontend
-
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **UI**: React 19
-- **Styling**: Tailwind CSS 4
-- **Components**: Shadcn UI (Radix UI)
-- **Charts**: Chart.js
-- **Database Client**: Supabase JS
-
-### Backend
-
-- **Framework**: FastAPI
-- **Language**: Python 3.11+
-- **WebSocket**: websockets library
-- **Server**: Uvicorn
-
-### Database & Auth
-
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Real-time**: Supabase Realtime (for future features)
-
-### External APIs
-
-- **Yahoo Finance**: Stock data, news, quotes
-- **Finnhub**: Real-time WebSocket stock prices
-- **Google Gemini**: AI chat completion
-
-## 🚀 Deployment Status
-
-**Status:** ✅ **DEPLOYED**
-
-- ✅ **Frontend**: Deployed to Vercel → `https://stock-market-seven-delta.app`
-- ✅ **Backend**: Deployed to AWS EC2 (`eu-north-1`, `t3.micro`) → `https://api.stock-market-seven-delta.app`
-- ✅ **Backend CI/CD**: GitHub Actions → OIDC → SSM Run Command (push to `master` under `backend/**`)
-- ✅ **Backend monitoring**: CloudWatch metrics (`StockMarket/Backend`), nginx logs, SNS alarms
-- ✅ **Database**: Supabase (Production)
-
-### Production URLs
-
-- **Frontend**: `https://stock-market-seven-delta.app`
-- **Backend**: `https://api.stock-market-seven-delta.app`
-- **API Docs**: `https://api.stock-market-seven-delta.app/docs`
-- **WebSocket**: `wss://api.stock-market-seven-delta.app/ws`
-
-## 📚 Documentation
-
-- **[Frontend README](frontend/README.md)**: Frontend setup and documentation
-- **[Backend README](backend/README.md)**: Backend setup and documentation
-- **[Backend Deploy Guide](backend/deploy/README.md)**: EC2 provisioning, SSM secrets, CI/CD, logs
-- **[Environment Variables](ENVIRONMENT_VARIABLES.md)**: Environment variable documentation
-
-## 🔧 Development
-
-### Running Locally
-
-1. **Start Backend:**
-
-   ```bash
-   cd backend
-   python main.py
-   ```
-
-2. **Start Frontend:**
-
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-3. **Access Application:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-
-### Environment Variables
-
-See [Environment Variables Documentation](ENVIRONMENT_VARIABLES.md) for complete setup.
-
-**Quick Setup:**
-
-**Frontend (`.env.local`):**
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
-```
-
-**Backend (`.env`):**
-
-```env
-FINNHUB_API_KEY=your_finnhub_key
-HOST=0.0.0.0
-PORT=8000
-FRONTEND_URL=http://localhost:3000
-```
-
-## 📝 API Endpoints
-
-### Frontend API Routes (Next.js)
-
-- `GET /api` - Get all stocks
-- `GET /api/stocks?category=...` - Get stocks by category
-- `GET /api/quote?symbol=...` - Get stock quote
-- `GET /api/news` - Get market news
-- `GET /api/world-indices` - Get world indices
-- `GET /api/candles?symbol=...` - Get price history
-- `GET/POST /api/watchlists` - Watchlist operations
-- `GET/POST /api/portfolios` - Portfolio operations
-- `GET/POST /api/alerts` - Alert operations
-- `POST /api/ai/chat` - Protected proxy route for assistant chat
-
-### Backend API Routes (FastAPI)
-
-- `GET /` - Health check
-- `GET /health` - Detailed health status
-- `POST /ai/chat` - Gemini chat endpoint (protected via frontend middleware)
-- `WS /ws` - WebSocket endpoint for real-time updates
-
-## 🧪 Testing
-
-### Frontend
-
-```bash
-cd frontend
-npm run build  # Test production build
-npm start      # Test production server
-```
-
-### Backend
-
-```bash
-cd backend
-python main.py  # Test server startup
-# Visit http://localhost:8000/health
-```
-
-## 🔒 Security
-
-- ✅ Row Level Security (RLS) enabled on all database tables
-- ✅ Environment variables for all secrets
-- ✅ CORS configured for production
-- ✅ Protected API routes with authentication
-- ✅ Secure WebSocket connections (WSS in production)
-
-## 📈 Future Enhancements
-
-### Portfolio Management
-
-- [ ] Portfolio performance history and analytics
-- [ ] Dividend tracking
-- [ ] Tax reporting and capital gains calculations
-- [ ] Portfolio rebalancing suggestions
-- [ ] Export portfolio data (CSV, PDF)
-
-### Additional Features
-
-- [ ] AI-powered stock predictions
-- [ ] Advanced charting features
-- [ ] Mobile app (React Native)
-- [ ] Email notifications for alerts
-- [ ] Social features (share portfolios)
-- [ ] Historical data analysis
-- [ ] Options trading data
-
-## 📄 License
-
-Private project
-
-**Version:** 0.0.1  
-**Status:** ✅ Production Ready
+**Status:** Production deployed · **Version:** 0.0.1

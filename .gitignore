@@ -54,5 +54,5 @@ markdown/
 backend/test/
 BACKUP/
 pics/
-tests/
+*.mp4
 *.pdf
