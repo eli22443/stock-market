@@ -1,6 +1,16 @@
 # Stock Market WebSocket Backend
 
-Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real-time stock data to WebSocket clients.
+Python FastAPI server that connects to Finnhub WebSocket API and broadcasts real-time stock data to WebSocket clients. Powers the [full-stack portfolio app](../README.md) (Next.js on Vercel) with live prices, ops dashboard, and Gemini AI chat.
+
+**Live:** https://api.stock-market-seven-delta.app · **Docs:** https://api.stock-market-seven-delta.app/docs
+
+## Related docs
+
+- [Project overview](../README.md)
+- [Architecture](../docs/ARCHITECTURE.md)
+- [Performance & load testing](../docs/PERFORMANCE.md)
+- [Getting started](../docs/GETTING_STARTED.md)
+- [AWS deploy runbook](deploy/README.md)
 
 ## Features
 
@@ -61,7 +71,9 @@ Open `http://localhost:8000/` to access the dashboard.
 
 ## Running in production
 
-The backend is a standard **ASGI** app — deploy with **uvicorn** (or any ASGI server) on any host: VPS, Docker, Railway, Render, Fly.io, etc.
+**This project** runs on **AWS EC2** (`t3.micro`, `eu-north-1`) behind Nginx with TLS, GitHub Actions OIDC deploy, SSM secrets, and CloudWatch — see [deploy/README.md](deploy/README.md).
+
+The backend is a standard **ASGI** app; you can also run uvicorn on other hosts (VPS, Docker, PaaS):
 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1 --no-access-log
@@ -79,7 +91,9 @@ Optional env vars for the dashboard **Deployment** panel:
 | `DEPLOYMENT_ENV` | `production` | Shown in health/deployment info |
 | `REGION` | `eu-north-1` | Optional label (any cloud or datacenter) |
 
-Health check: `GET /health` · Metrics: `GET /metrics`
+Health check: `GET /health` · Metrics: `GET /metrics` · Activity: `GET /activity`
+
+**Performance (production):** ~20 ms REST avg under light load; k6 load test at 100 VUs (~263 req/s, p95 ~85 ms) — [details](../docs/PERFORMANCE.md). Reproduce: `k6 run docs/load-tests/health-test.js` from repo root.
 
 ## Dashboard
 
@@ -111,7 +125,8 @@ Static assets live in [`static/`](static/).
 
 ### WebSocket
 
-**URL:** `ws://localhost:8000/ws`
+**Local:** `ws://localhost:8000/ws`  
+**Production:** `wss://api.stock-market-seven-delta.app/ws`
 
 #### Client → Server
 
@@ -167,7 +182,7 @@ backend/
 │   ├── index.html
 │   ├── dashboard.css
 │   └── dashboard.js
-├── deploy/                 # Optional: AWS EC2 production configs (see deploy/README.md)
+├── deploy/                 # AWS EC2 production configs (see deploy/README.md)
 │   ├── README.md            # AWS production runbook
 │   ├── bootstrap.sh         # One-time EC2 provisioning
 │   ├── fetch-env.sh         # Fetches env from SSM Parameter Store
@@ -227,9 +242,9 @@ See [`ENVIRONMENT_VARIABLES.md`](../ENVIRONMENT_VARIABLES.md) for the full list 
 - **No price updates** — verify you've subscribed to symbols and the market is open
 - **AI chat returns 503** — `GEMINI_API_KEY` is not set
 
-## AWS deployment (optional)
+## AWS deployment
 
-This repo includes an **AWS EC2** production setup under [`deploy/`](deploy/). That is one way to run uvicorn in production — not required for local or other hosts.
+Production setup under [`deploy/`](deploy/): EC2 provisioning, Nginx, SSM Parameter Store, GitHub Actions OIDC CI/CD, CloudWatch alarms.
 
 | Service   | URL (this project's live instance)              |
 |-----------|--------------------------------------------------|
