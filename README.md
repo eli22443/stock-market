@@ -16,12 +16,12 @@ Deployed on **Vercel** (frontend) + **AWS EC2** (backend) + **Supabase** (Postgr
 
 ## Screenshots
 
-| App dashboard | Portfolio manager |
-|---------------|-------------------|
+| App dashboard                                          | Portfolio manager                               |
+| ------------------------------------------------------ | ----------------------------------------------- |
 | ![Live stock dashboard](docs/images/app-dashboard.png) | ![Portfolio manager](docs/images/portfolio.png) |
 
-| API metrics | OpenAPI / Swagger |
-|-------------|-------------------|
+| API metrics                                           | OpenAPI / Swagger                        |
+| ----------------------------------------------------- | ---------------------------------------- |
 | ![API metrics dashboard](docs/images/api-metrics.png) | ![Swagger docs](docs/images/swagger.png) |
 
 ## Highlights
@@ -42,7 +42,7 @@ Deployed on **Vercel** (frontend) + **AWS EC2** (backend) + **Supabase** (Postgr
 │  Backend (FastAPI)      →  AWS EC2 + Nginx + TLS        │
 │  Database               →  Supabase PostgreSQL + RLS    │
 │  Real-time data         →  Finnhub WebSocket            │
-│  Market data            →  Yahoo Finance API              │
+│  Market data            →  Yahoo Finance API            │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -50,13 +50,13 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for auth flows, trust boundarie
 
 ## Tech stack
 
-| Layer | Technologies |
-|-------|----------------|
+| Layer    | Technologies                                                        |
+| -------- | ------------------------------------------------------------------- |
 | Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS, Shadcn UI, Chart.js |
-| Backend | FastAPI, Uvicorn, WebSockets, Finnhub, Gemini, OpenAPI/Swagger |
-| Data | Supabase, PostgreSQL, RLS, OAuth, JWT |
-| Cloud | AWS EC2, Nginx, SSM, CloudWatch, GitHub Actions (OIDC) |
-| Hosting | Vercel (frontend) |
+| Backend  | FastAPI, Uvicorn, WebSockets, Finnhub, Gemini, OpenAPI/Swagger      |
+| Data     | Supabase, PostgreSQL, RLS, OAuth, JWT                               |
+| Cloud    | AWS EC2, Nginx, SSM, CloudWatch, GitHub Actions (OIDC)              |
+| Hosting  | Vercel (frontend)                                                   |
 
 ## Quick start
 
@@ -85,12 +85,12 @@ Full setup (env vars, production URLs, API reference): **[docs/GETTING_STARTED.m
 
 ## Production URLs
 
-| Service | URL |
-|---------|-----|
-| Frontend | https://stock-market-seven-delta.app |
-| Backend API | https://api.stock-market-seven-delta.app |
-| API docs | https://api.stock-market-seven-delta.app/docs |
-| WebSocket | wss://api.stock-market-seven-delta.app/ws |
+| Service     | URL                                           |
+| ----------- | --------------------------------------------- |
+| Frontend    | https://stock-market-seven-delta.app          |
+| Backend API | https://api.stock-market-seven-delta.app      |
+| API docs    | https://api.stock-market-seven-delta.app/docs |
+| WebSocket   | wss://api.stock-market-seven-delta.app/ws     |
 
 ## Author
 
