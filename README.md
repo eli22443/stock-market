@@ -16,9 +16,9 @@ Deployed on **Vercel** (frontend) + **AWS EC2** (backend) + **Supabase** (Postgr
 
 ## Screenshots
 
-| App dashboard                                          | Portfolio manager                               |
-| ------------------------------------------------------ | ----------------------------------------------- |
-| ![Live stock dashboard](docs/images/app-dashboard.png) | ![Portfolio manager](docs/images/portfolio.png) |
+| Stock chart | Portfolio manager |
+|-------------|-------------------|
+| ![NVDA stock chart](docs/images/app-dashboard.png) | ![Portfolio list with performance](docs/images/portfolio.png) |
 
 | API metrics                                           | OpenAPI / Swagger                        |
 | ----------------------------------------------------- | ---------------------------------------- |
